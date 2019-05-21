@@ -1,0 +1,71 @@
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:focusableInTouchMode="true"
+    android:focusable="true">
+
+</LinearLayout>
+
+<!--<?xml version="1.0" encoding="utf-8"?>-->
+<!--<layout xmlns:android="http://schemas.android.com/apk/res/android"-->
+    <!--xmlns:app="http://schemas.android.com/apk/res-auto">-->
+
+    <!--&lt;!&ndash;<data>&ndash;&gt;-->
+        <!--&lt;!&ndash;<variable&ndash;&gt;-->
+            <!--&lt;!&ndash;name="loginViewModel"&ndash;&gt;-->
+            <!--&lt;!&ndash;type="com.example.wonderfulchat.viewmodel.LoginViewModel"/>&ndash;&gt;-->
+    <!--&lt;!&ndash;</data>&ndash;&gt;-->
+
+    <!--&lt;!&ndash;<LinearLayout&ndash;&gt;-->
+        <!--&lt;!&ndash;android:layout_width="match_parent"&ndash;&gt;-->
+        <!--&lt;!&ndash;android:layout_height="match_parent"&ndash;&gt;-->
+        <!--&lt;!&ndash;android:orientation="vertical">&ndash;&gt;-->
+
+        <!--&lt;!&ndash;<android.support.v4.view.ViewPager&ndash;&gt;-->
+            <!--&lt;!&ndash;android:id="@+id/view_pager"&ndash;&gt;-->
+            <!--&lt;!&ndash;android:layout_width="match_parent"&ndash;&gt;-->
+            <!--&lt;!&ndash;android:layout_height="0dp"&ndash;&gt;-->
+            <!--&lt;!&ndash;android:layout_weight="1"/>&ndash;&gt;-->
+
+        <!--&lt;!&ndash;<com.example.wonderfulchat.customview.TabGroupView&ndash;&gt;-->
+            <!--&lt;!&ndash;android:id="@+id/tab_group_view"&ndash;&gt;-->
+            <!--&lt;!&ndash;android:layout_width="match_parent"&ndash;&gt;-->
+            <!--&lt;!&ndash;android:layout_height="55dp">&ndash;&gt;-->
+
+            <!--&lt;!&ndash;<com.example.wonderfulchat.customview.TabView&ndash;&gt;-->
+                <!--&lt;!&ndash;android:layout_width="0dp"&ndash;&gt;-->
+                <!--&lt;!&ndash;android:layout_height="match_parent"&ndash;&gt;-->
+                <!--&lt;!&ndash;android:layout_weight="1"&ndash;&gt;-->
+                <!--&lt;!&ndash;android:gravity="center_horizontal"&ndash;&gt;-->
+                <!--&lt;!&ndash;app:bottomTitle ="消息"&ndash;&gt;-->
+                <!--&lt;!&ndash;app:topTitle ="消息"&ndash;&gt;-->
+                <!--&lt;!&ndash;app:bottomDrawable="@mipmap/ic_file_music"&ndash;&gt;-->
+                <!--&lt;!&ndash;app:topDrawable="@mipmap/ic_file_txt"/>&ndash;&gt;-->
+
+            <!--&lt;!&ndash;<com.example.wonderfulchat.customview.TabView&ndash;&gt;-->
+                <!--&lt;!&ndash;android:layout_width="0dp"&ndash;&gt;-->
+                <!--&lt;!&ndash;android:layout_height="match_parent"&ndash;&gt;-->
+                <!--&lt;!&ndash;android:layout_weight="1"&ndash;&gt;-->
+                <!--&lt;!&ndash;android:gravity="center_horizontal"&ndash;&gt;-->
+                <!--&lt;!&ndash;app:bottomTitle ="幸运物语"&ndash;&gt;-->
+                <!--&lt;!&ndash;app:topTitle ="幸运物语"&ndash;&gt;-->
+                <!--&lt;!&ndash;app:bottomDrawable="@mipmap/ic_file_music"&ndash;&gt;-->
+                <!--&lt;!&ndash;app:topDrawable="@mipmap/ic_file_txt"/>&ndash;&gt;-->
+
+            <!--&lt;!&ndash;<com.example.wonderfulchat.customview.TabView&ndash;&gt;-->
+                <!--&lt;!&ndash;android:layout_width="0dp"&ndash;&gt;-->
+                <!--&lt;!&ndash;android:layout_height="match_parent"&ndash;&gt;-->
+                <!--&lt;!&ndash;android:layout_weight="1"&ndash;&gt;-->
+                <!--&lt;!&ndash;android:gravity="center_horizontal"&ndash;&gt;-->
+                <!--&lt;!&ndash;app:bottomTitle ="好友列表"&ndash;&gt;-->
+                <!--&lt;!&ndash;app:topTitle ="好友列表"&ndash;&gt;-->
+                <!--&lt;!&ndash;app:bottomDrawable="@mipmap/ic_file_music"&ndash;&gt;-->
+                <!--&lt;!&ndash;app:topDrawable="@mipmap/ic_file_txt"/>&ndash;&gt;-->
+
+        <!--&lt;!&ndash;</com.example.wonderfulchat.customview.TabGroupView>&ndash;&gt;-->
+
+    <!--&lt;!&ndash;</LinearLayout>&ndash;&gt;-->
+
+<!--</layout>-->

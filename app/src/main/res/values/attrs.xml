@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <declare-styleable name="wonderfulChatTabStyle">
+        <attr name="bottomTitleSize" format="dimension"/>
+        <attr name="bottomTitleColor" format="color"/>
+        <attr name="bottomTitle" format="string"/>
+
+        <attr name="topTitleSize" format="dimension"/>
+        <attr name="topTitleColor" format="color"/>
+        <attr name="topTitle" format="string"/>
+
+        <attr name="bottomDrawable" format="reference"/>
+        <attr name="topDrawable" format="reference"/>
+
+        <attr name="isChecked" format="boolean"/>
+    </declare-styleable>
+
+    <declare-styleable name="wonderfulChatEditStyle">
+        <attr name="rightClear" format="boolean"/>
+        <attr name="drawableLeftWith" format="dimension"/>
+        <attr name="drawableLeftHeight" format="dimension"/>
+        <attr name="drawableRightWith" format="dimension"/>
+        <attr name="drawableRightHeight" format="dimension"/>
+    </declare-styleable>
+
+</resources>

@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+
+    <data>
+        <variable
+            name="wonderful"
+            type="com.example.wonderfulchat.viewmodel.WonderfulChatViewModel" />
+    </data>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="vertical">
+
+        <android.support.v4.view.ViewPager
+            android:id="@+id/view_pager"
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_weight="1"/>
+
+        <com.example.wonderfulchat.customview.TabGroupView
+            android:id="@+id/tab_group_view"
+            android:layout_width="match_parent"
+            android:layout_height="55dp"
+            android:background="@color/colorAccent">
+
+            <com.example.wonderfulchat.customview.TabView
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:layout_weight="1"
+                app:bottomTitle ="消息"
+                app:topTitle ="消息"
+                app:bottomDrawable="@mipmap/ic_file_music"
+                app:topDrawable="@mipmap/ic_file_txt"/>
+
+            <com.example.wonderfulchat.customview.TabView
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:layout_weight="1"
+                app:bottomTitle ="幸运转盘"
+                app:topTitle ="幸运转盘"
+                app:bottomDrawable="@mipmap/ic_file_music"
+                app:topDrawable="@mipmap/ic_file_txt"/>
+
+            <com.example.wonderfulchat.customview.TabView
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:layout_weight="1"
+                app:bottomTitle ="好友列表"
+                app:topTitle ="好友列表"
+                app:bottomDrawable="@mipmap/ic_file_music"
+                app:topDrawable="@mipmap/ic_file_txt"/>
+
+        </com.example.wonderfulchat.customview.TabGroupView>
+
+    </LinearLayout>
+
+</layout>

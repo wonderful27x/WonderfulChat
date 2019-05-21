@@ -1,0 +1,77 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <data>
+        <variable
+            name="wonderfulViewModel"
+            type="com.example.wonderfulchat.viewmodel.MessageViewModel" />
+    </data>
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="70dp"
+        android:padding="10dp"
+        android:gravity="center_vertical">
+
+        <de.hdodenhof.circleimageview.CircleImageView
+            android:id="@+id/head_image"
+            android:layout_width="50dp"
+            android:layout_height="match_parent"
+            android:layout_marginRight="10dp"
+            android:src="@mipmap/default_head_image"/>
+
+        <LinearLayout
+            android:id="@+id/top_layout"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_toRightOf="@id/head_image"
+            android:gravity="center_vertical">
+
+            <TextView
+                android:id="@+id/userName"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="昵称"/>
+
+            <TextView
+                android:id="@+id/last_time"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:gravity="right"
+                android:text="时间"/>
+
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_toRightOf="@id/head_image"
+            android:layout_alignParentBottom="true"
+            android:gravity="center_vertical">
+
+            <TextView
+                android:id="@+id/message"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:singleLine="true"
+                android:ellipsize="end"
+                android:text="消息"/>
+
+            <TextView
+                android:id="@+id/message_num"
+                android:layout_width="15dp"
+                android:layout_height="15dp"
+                android:background="@drawable/ovl_solid_red"
+                android:gravity="center"
+                android:textColor="@color/white"
+                android:textSize="8sp"
+                android:text="9"/>
+
+        </LinearLayout>
+
+    </RelativeLayout>
+
+</layout>

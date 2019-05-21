@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+    <group android:checkableBehavior="single">
+
+        <item
+            android:id="@+id/menu_switchAccount"
+            android:icon="@mipmap/switch_account"
+            android:title="切换账号"/>
+        <item
+            android:id="@+id/menu_register"
+            android:icon="@mipmap/register"
+            android:title="注册"/>
+        <item
+            android:id="@+id/menu_upload"
+            android:icon="@mipmap/upload"
+            android:title="上传文件"/>
+        <item
+            android:id="@+id/menu_file_manager"
+            android:icon="@mipmap/file_manager"
+            android:title="上传管理"/>
+        <item
+            android:id="@+id/menu_change_password"
+            android:icon="@mipmap/change_pass"
+            android:title="修改密码"/>
+        <item
+            android:id="@+id/menu_logout"
+            android:icon="@mipmap/logout"
+            android:title="退出登录"/>
+        <item
+            android:id="@+id/menu_backup"
+            android:icon="@mipmap/back"
+            android:title="返回"/>
+        <item
+            android:id="@+id/menu_about_software"
+            android:icon="@mipmap/about"
+            android:title="关于软件"/>
+
+    </group>
+
+</menu>
