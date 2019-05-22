@@ -2,6 +2,7 @@ package com.example.wonderfulchat.view;
 
 import android.databinding.DataBindingUtil;
 import android.os.Bundle;
+import android.view.Window;
 import android.widget.FrameLayout;
 import com.example.wonderfulchat.R;
 import com.example.wonderfulchat.databinding.ActivitySplashBinding;
@@ -12,6 +13,7 @@ public class SplashActivity extends BaseActivity<SplashViewModel> {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        supportRequestWindowFeature(Window.FEATURE_NO_TITLE);
         ActivitySplashBinding splashBinding = DataBindingUtil.setContentView(this, R.layout.activity_splash);
         splashBinding.setSplash(getViewModel());
         FrameLayout frameLayout = splashBinding.splashFrameLayout;

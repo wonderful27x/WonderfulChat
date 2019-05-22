@@ -7,7 +7,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import com.example.wonderfulchat.R;
-import com.example.wonderfulchat.adapter.RecyclerViewAdapter;
+import com.example.wonderfulchat.adapter.MessageListAdapter;
 import com.example.wonderfulchat.databinding.MessageFragmentLayoutBinding;
 import com.example.wonderfulchat.model.MessageModel;
 import com.example.wonderfulchat.viewmodel.MessageViewModel;
@@ -32,7 +32,7 @@ public class MessageFragment extends BaseFragment<MessageViewModel> {
             message.setMessage("经费世界公司哦手机覅韩国就送大奖哦挤公交感觉颇为烦恼");
             messages.add(message);
         }
-        RecyclerViewAdapter adapter = new RecyclerViewAdapter(binding.getWonderfulViewModel(),messages);
+        MessageListAdapter adapter = new MessageListAdapter(binding.getWonderfulViewModel(),messages);
         LinearLayoutManager layoutManager = new LinearLayoutManager(getActivity());
         binding.recyclerView.setLayoutManager(layoutManager);
         binding.recyclerView.setAdapter(adapter);

@@ -16,12 +16,21 @@
             android:id="@+id/head"
             layout="@layout/common_head_layout"/>
 
+        <android.support.v4.widget.SwipeRefreshLayout
+            android:id="@+id/refresh_layout"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="10dp">
+
         <ExpandableListView
             android:id="@+id/friend_list"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:divider="@null"
-            android:layoutDirection="rtl" />
+            android:layoutDirection="rtl"
+            android:paddingLeft="5dp"/>
+
+        </android.support.v4.widget.SwipeRefreshLayout>
 
     </LinearLayout>
 

@@ -4,6 +4,8 @@ import android.databinding.DataBindingUtil;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v4.view.ViewPager;
+import android.view.Window;
+
 import com.example.wonderfulchat.R;
 import com.example.wonderfulchat.adapter.ViewPagerAdapter;
 import com.example.wonderfulchat.customview.TabGroupView;
@@ -17,6 +19,7 @@ public class WonderfulChatActivity extends BaseActivity <WonderfulChatViewModel>
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        supportRequestWindowFeature(Window.FEATURE_NO_TITLE);
         ActivityWonderfulChatBinding chatBinding = DataBindingUtil.setContentView(this,R.layout.activity_wonderful_chat);
         chatBinding.setWonderfulViewModel(getViewModel());
         init(chatBinding);
@@ -33,6 +36,7 @@ public class WonderfulChatActivity extends BaseActivity <WonderfulChatViewModel>
         fragments.add(new FriendListFragment());
 
         ViewPagerAdapter adapter = new ViewPagerAdapter(getSupportFragmentManager(),fragments);
+        viewPager.setOffscreenPageLimit(0);
         viewPager.setAdapter(adapter);
         tabGroupView.initChildren();
 

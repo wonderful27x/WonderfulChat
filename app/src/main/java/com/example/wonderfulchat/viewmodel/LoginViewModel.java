@@ -15,6 +15,7 @@ import com.example.wonderfulchat.utils.HttpUtil;
 import com.example.wonderfulchat.utils.LogUtil;
 import com.example.wonderfulchat.utils.MemoryUtil;
 import com.example.wonderfulchat.utils.ToastUtil;
+import com.example.wonderfulchat.view.ChattingActivity;
 import com.example.wonderfulchat.view.MainActivity;
 import com.example.wonderfulchat.view.WonderfulChatActivity;
 import java.io.UnsupportedEncodingException;
@@ -46,7 +47,7 @@ public class LoginViewModel extends BaseViewModel<Activity> {
                     public void run() {
                         if(response.equals("登录成功")){
                             accountPassSave(isChecked.get());
-                            Intent intent = new Intent(getView(), WonderfulChatActivity.class);
+                            Intent intent = new Intent(getView(), ChattingActivity.class);
                             getView().startActivity(intent);
                             ToastUtil.showToast("Welcome");
                             //getView().finish();

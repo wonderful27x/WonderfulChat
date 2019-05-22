@@ -12,12 +12,12 @@ import com.example.wonderfulchat.model.MessageModel;
 import com.example.wonderfulchat.viewmodel.MessageViewModel;
 import java.util.List;
 
-public class RecyclerViewAdapter extends RecyclerView.Adapter<RecyclerViewAdapter.ViewHolder>{
+public class MessageListAdapter extends RecyclerView.Adapter<MessageListAdapter.ViewHolder>{
 
     private List<MessageModel> message;
     private MessageViewModel messageViewModel;
 
-    public RecyclerViewAdapter(MessageViewModel messageViewModel,List<MessageModel> message){
+    public MessageListAdapter(MessageViewModel messageViewModel, List<MessageModel> message){
         this.message = message;
         this.messageViewModel = messageViewModel;
     }

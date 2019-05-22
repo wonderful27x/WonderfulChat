@@ -16,7 +16,7 @@ public class SplashViewModel extends BaseViewModel <Activity> {
 
     public void animation(FrameLayout frameLayout){
         AlphaAnimation alphaAnimation = new AlphaAnimation(0,1);
-        alphaAnimation.setDuration(5000);
+        alphaAnimation.setDuration(2000);
         alphaAnimation.setFillAfter(true);
         frameLayout.setAnimation(alphaAnimation);
         alphaAnimation.setAnimationListener(new Animation.AnimationListener() {

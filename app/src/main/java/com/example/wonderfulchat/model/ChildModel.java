@@ -1,7 +1,6 @@
 package com.example.wonderfulchat.model;
 
 import android.graphics.Bitmap;
-import android.graphics.drawable.Drawable;
 
 public class ChildModel {
 
