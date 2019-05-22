@@ -1,2 +1,2 @@
 # WonderfulChat
-a simple chat app for IM
+a simple chat app for IM usring MVVM
