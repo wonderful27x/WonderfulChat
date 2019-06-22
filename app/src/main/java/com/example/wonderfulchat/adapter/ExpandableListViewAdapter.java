@@ -5,13 +5,13 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseExpandableListAdapter;
-
+import com.bumptech.glide.Glide;
 import com.example.wonderfulchat.R;
 import com.example.wonderfulchat.databinding.ChildLayoutBinding;
 import com.example.wonderfulchat.databinding.GroupLayoutBinding;
 import com.example.wonderfulchat.model.GroupModel;
+import com.example.wonderfulchat.model.UserModel;
 import com.example.wonderfulchat.viewmodel.FriendListViewModel;
-
 import java.util.List;
 
 public class ExpandableListViewAdapter extends BaseExpandableListAdapter {
@@ -87,9 +87,10 @@ public class ExpandableListViewAdapter extends BaseExpandableListAdapter {
             childLayoutBinding = DataBindingUtil.getBinding(view);
         }
 
-        childLayoutBinding.headImage.setImageBitmap(groupModels.get(i).getChildModels().get(i1).getBitmap());
-        childLayoutBinding.friendName.setText(groupModels.get(i).getChildModels().get(i1).getTitle());
-        childLayoutBinding.myWord.setText(groupModels.get(i).getChildModels().get(i1).getContent());
+        UserModel userModel = groupModels.get(i).getChildModels().get(i1);
+        Glide.with(viewModel.getView()).load(userModel.getImageUrl()).into(childLayoutBinding.headImage);
+        childLayoutBinding.friendName.setText(userModel.getRemark() + "～" + userModel.getNickname());
+        childLayoutBinding.myWord.setText(userModel.getLifeMotto());
 
         return view;
     }

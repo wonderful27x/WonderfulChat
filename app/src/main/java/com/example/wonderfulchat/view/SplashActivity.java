@@ -16,8 +16,8 @@ public class SplashActivity extends BaseActivity<SplashViewModel> {
         supportRequestWindowFeature(Window.FEATURE_NO_TITLE);
         ActivitySplashBinding splashBinding = DataBindingUtil.setContentView(this, R.layout.activity_splash);
         splashBinding.setSplash(getViewModel());
-        FrameLayout frameLayout = splashBinding.splashFrameLayout;
-        viewModel.animation(frameLayout);
+        getViewModel().setDataBinding(splashBinding);
+        getViewModel().animation();
     }
 
     @Override

@@ -9,21 +9,26 @@ import android.widget.CompoundButton;
 import android.widget.ImageView;
 import com.example.wonderfulchat.R;
 import com.example.wonderfulchat.customview.DefuEditText;
+import com.example.wonderfulchat.databinding.ActivityLoginBinding;
 import com.example.wonderfulchat.interfaces.HttpCallbackListener;
+import com.example.wonderfulchat.model.HttpUserModel;
 import com.example.wonderfulchat.model.InternetAddress;
+import com.example.wonderfulchat.model.UserModel;
+import com.example.wonderfulchat.utils.FileUtil;
 import com.example.wonderfulchat.utils.HttpUtil;
 import com.example.wonderfulchat.utils.LogUtil;
 import com.example.wonderfulchat.utils.MemoryUtil;
 import com.example.wonderfulchat.utils.ToastUtil;
-import com.example.wonderfulchat.view.ChattingActivity;
-import com.example.wonderfulchat.view.MainActivity;
 import com.example.wonderfulchat.view.WonderfulChatActivity;
+import com.google.gson.Gson;
+
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
 
 public class LoginViewModel extends BaseViewModel<Activity> {
 
     private static final String TAG = "LoginViewModel";
+    private ActivityLoginBinding loginBinding;
 
     private ObservableField<Boolean> isChecked = new ObservableField<>(false);
     private ObservableField<String> account = new ObservableField<>();
@@ -47,10 +52,11 @@ public class LoginViewModel extends BaseViewModel<Activity> {
                     public void run() {
                         if(response.equals("登录成功")){
                             accountPassSave(isChecked.get());
-                            Intent intent = new Intent(getView(), ChattingActivity.class);
+                            Intent intent = new Intent(getView(), WonderfulChatActivity.class);
                             getView().startActivity(intent);
                             ToastUtil.showToast("Welcome");
                             //getView().finish();
+                            getUserMessage();
                         }else {
                             ToastUtil.showToast("账号或密码错误");
                         }
@@ -73,6 +79,29 @@ public class LoginViewModel extends BaseViewModel<Activity> {
         LogUtil.d(TAG, "account: "+account+" "+"password: "+password);
     }
 
+    private void getUserMessage(){
+        String httpUserModelString = FileUtil.getJson(getView(), "HttpUserModel");
+        Gson gson = new Gson();
+        HttpUserModel httpUserModel = gson.fromJson(httpUserModelString, HttpUserModel.class);
+        UserModel userModel = httpUserModel.getContent().get(0);
+        String userModelString = gson.toJson(userModel);
+        MemoryUtil.sharedPreferencesSaveString("UserModel",userModelString);
+    }
+
+    //    private void getUserMessage(){
+//        String userModel = FileUtil.getJson(getView(), "HttpUserModel");
+//        Gson gson = new Gson();
+//        HttpUserModel httpUserModel = gson.fromJson(userModel, HttpUserModel.class);
+//        MessageEvent event = new MessageEvent();
+//        event.setUserModel(httpUserModel.getContent().get(0));
+//
+//        EventBus.getDefault().post(event);
+//    }
+
+    public void register(View view){
+        LogUtil.d(TAG,"register");
+    }
+
     public void checkBoxCheckedChanged(CompoundButton compoundButton, boolean isChecked){
         this.isChecked.set(isChecked);
         LogUtil.d(TAG, "isChecked:"+isChecked);
@@ -89,21 +118,28 @@ public class LoginViewModel extends BaseViewModel<Activity> {
         }
     }
 
-    public void editTextInit(DefuEditText accountEdit, DefuEditText passwordEdit){
-        accountEdit.setDefuTextWatcher(new DefuEditText.DefuTextWatcher() {
+    public void init(){
+        loginBinding.account.setDefuTextWatcher(new DefuEditText.DefuTextWatcher() {
             @Override
             public void onTextChanged(String text) {
                 account.set(text);
                 LogUtil.d(TAG,"account change!");
             }
         });
-        passwordEdit.setDefuTextWatcher(new DefuEditText.DefuTextWatcher() {
+        loginBinding.password.setDefuTextWatcher(new DefuEditText.DefuTextWatcher() {
             @Override
             public void onTextChanged(String text) {
                 password.set(text);
                 LogUtil.d(TAG,"password change!");
             }
         });
+
+        String account = MemoryUtil.sharedPreferencesGetString("account");
+        String password = MemoryUtil.sharedPreferencesGetString("password");
+        boolean isChecked = MemoryUtil.sharedPreferencesGetBoolean("checkBox");
+        setAccount(account);
+        setPassword(password);
+        setIschecked(isChecked);
     }
 
     public ObservableField<Integer> getShowHide() {
@@ -155,5 +191,21 @@ public class LoginViewModel extends BaseViewModel<Activity> {
         MemoryUtil.sharedPreferencesSaveString("account",accountSave);
         MemoryUtil.sharedPreferencesSaveString("password",passwordSave);
         MemoryUtil.sharedPreferencesSaveBoolean("checkBox",isChecked);
+    }
+
+    public ActivityLoginBinding getLoginBinding() {
+        return loginBinding;
+    }
+
+    public void setLoginBinding(ActivityLoginBinding loginBinding) {
+        this.loginBinding = loginBinding;
+    }
+
+    @Override
+    public void deTachView() {
+        super.deTachView();
+        if (loginBinding != null){
+            loginBinding = null;
+        }
     }
 }

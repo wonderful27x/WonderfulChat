@@ -1,13 +1,12 @@
 package com.example.wonderfulchat.view;
-
-import android.app.Activity;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import com.example.wonderfulchat.viewmodel.BaseViewModel;
 
-public abstract class BaseActivity <T extends BaseViewModel<Activity>>extends AppCompatActivity {
+public abstract class BaseActivity <T extends BaseViewModel<? super AppCompatActivity>>extends AppCompatActivity {
 
     protected T viewModel;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);

@@ -20,12 +20,57 @@
             android:layout_height="70dp"
             android:src="@mipmap/default_head_image"/>
 
-        <TextView
-            android:id="@+id/userName"
-            android:layout_width="wrap_content"
+        <RelativeLayout
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_margin="20dp"
-            android:text="你的名字"/>
+            android:layout_margin="10dp">
+
+            <TextView
+                android:id="@+id/user_name"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_centerInParent="true"
+                android:text="你的名字"/>
+
+            <com.example.wonderfulchat.customview.DefuEditText
+                android:id="@+id/user_name_edit"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_centerInParent="true"
+                android:background="@null"
+                android:drawableLeft="@mipmap/write_gray"
+                android:drawableRight="@mipmap/check_ok"
+                android:drawablePadding="5dp"
+                android:textSize="16sp"
+                android:visibility="gone"/>
+
+        </RelativeLayout>
+
+        <RelativeLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+
+            <TextView
+                android:id="@+id/life_motto"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_centerInParent="true"
+                android:text="为国家繁荣富强而努力奋斗"/>
+
+            <com.example.wonderfulchat.customview.DefuEditText
+                android:id="@+id/life_motto_edit"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_centerInParent="true"
+                android:background="@null"
+                android:drawableLeft="@mipmap/write_gray"
+                android:drawableRight="@mipmap/check_ok"
+                android:drawablePadding="5dp"
+                android:singleLine="true"
+                android:textSize="16sp"
+                android:visibility="gone"/>
+
+        </RelativeLayout>
 
     </LinearLayout>
 

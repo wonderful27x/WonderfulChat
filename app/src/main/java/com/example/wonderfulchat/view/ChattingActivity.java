@@ -1,18 +1,24 @@
 package com.example.wonderfulchat.view;
 
+import android.content.Intent;
 import android.databinding.DataBindingUtil;
 import android.os.Bundle;
-import android.support.v7.widget.LinearLayoutManager;
+import android.view.View;
 import android.view.Window;
+import android.widget.ImageView;
+import android.widget.TextView;
 import com.example.wonderfulchat.R;
-import com.example.wonderfulchat.adapter.ChattingListAdapter;
 import com.example.wonderfulchat.databinding.ActivityChattingBinding;
 import com.example.wonderfulchat.model.MessageModel;
 import com.example.wonderfulchat.viewmodel.ChattingViewModel;
-import java.util.ArrayList;
+
 import java.util.List;
 
 public class ChattingActivity extends BaseActivity<ChattingViewModel> {
+
+    private ImageView leftImage;
+    private ImageView rightImage;
+    private TextView midText;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -20,26 +26,33 @@ public class ChattingActivity extends BaseActivity<ChattingViewModel> {
         supportRequestWindowFeature(Window.FEATURE_NO_TITLE);
         ActivityChattingBinding binding = DataBindingUtil.setContentView(this, R.layout.activity_chatting);
         binding.setWonderfulViewModel(getViewModel());
-        init(binding);
+        getViewModel().setBinding(binding);
+
+        Intent intent = getIntent();
+        String friend = intent.getStringExtra("friendName");
+        List<MessageModel> messageModel = (List<MessageModel>) intent.getSerializableExtra("message");
+
+        getViewModel().initView(messageModel);
+
+        initData(binding,friend);
     }
 
-    private void init(ActivityChattingBinding binding){
-        List<MessageModel> messageModels = new ArrayList<>();
-        for (int i=0; i<20; i++){
-            MessageModel messageModel= new MessageModel();
-            messageModel.setMessage("接哦结果就哦我");
-            if (i%3 == 0){
-                messageModel.setType(MessageModel.TYPE_RECEIVE);
-            }else {
-                messageModel.setType(MessageModel.TYPE_SEND);
-            }
-            messageModels.add(messageModel);
-        }
+    private void initData(ActivityChattingBinding binding,String friend){
 
-        ChattingListAdapter adapter = new ChattingListAdapter(messageModels,binding.getWonderfulViewModel());
-        LinearLayoutManager manager = new LinearLayoutManager(this);
-        binding.recyclerView.setLayoutManager(manager);
-        binding.recyclerView.setAdapter(adapter);
+        midText = binding.head.findViewById(R.id.mid_text);
+        leftImage = binding.head.findViewById(R.id.left_image);
+        rightImage = binding.head.findViewById(R.id.right_image);
+
+        midText.setText(friend);
+        leftImage.setImageResource(R.mipmap.com_back_blue);
+        rightImage.setVisibility(View.GONE);
+
+        leftImage.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                finish();
+            }
+        });
     }
 
     @Override

@@ -12,7 +12,7 @@ import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 import com.example.wonderfulchat.R;
-import com.example.wonderfulchat.utils.UnitChange;
+import com.example.wonderfulchat.utils.UnitChangeUtil;
 
 public class TabView extends RelativeLayout {
 
@@ -77,11 +77,11 @@ public class TabView extends RelativeLayout {
 
         isChecked = typedArray.getBoolean(R.styleable.wonderfulChatTabStyle_isChecked,false);
 
-        bottomTitleSize = (int) typedArray.getDimension(R.styleable.wonderfulChatTabStyle_bottomTitleSize, UnitChange.sp2px(5));
+        bottomTitleSize = (int) typedArray.getDimension(R.styleable.wonderfulChatTabStyle_bottomTitleSize, UnitChangeUtil.sp2px(5));
         bottomTitleColor = typedArray.getColor(R.styleable.wonderfulChatTabStyle_bottomTitleColor,Color.GRAY);
         bottomTitle = typedArray.getString(R.styleable.wonderfulChatTabStyle_bottomTitle);
 
-        topTitleSize = (int) typedArray.getDimension(R.styleable.wonderfulChatTabStyle_topTitleSize, UnitChange.sp2px(5));
+        topTitleSize = (int) typedArray.getDimension(R.styleable.wonderfulChatTabStyle_topTitleSize, UnitChangeUtil.sp2px(5));
         topTitleColor = typedArray.getColor(R.styleable.wonderfulChatTabStyle_topTitleColor,Color.BLACK);
         topTitle = typedArray.getString(R.styleable.wonderfulChatTabStyle_topTitle);
 

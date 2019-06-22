@@ -2,7 +2,7 @@ package com.example.wonderfulchat.utils;
 
 import com.example.wonderfulchat.view.MyApplication;
 
-public class UnitChange {
+public class UnitChangeUtil {
 
     public static int dp2px(float dx){
         float density = MyApplication.getContext().getResources().getDisplayMetrics().density;

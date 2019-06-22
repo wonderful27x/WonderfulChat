@@ -8,7 +8,7 @@ public class GroupModel {
     private String title;
     private int number;
     private String content;
-    private List<ChildModel> childModels = new ArrayList<>();
+    private List<UserModel> childModels = new ArrayList<>();
 
     public String getTitle() {
         return title;
@@ -34,11 +34,11 @@ public class GroupModel {
         this.content = content;
     }
 
-    public List<ChildModel> getChildModels() {
+    public List<UserModel> getChildModels() {
         return childModels;
     }
 
-    public void setChildModels(List<ChildModel> childModels) {
+    public void setChildModels(List<UserModel> childModels) {
         this.childModels = childModels;
     }
 }

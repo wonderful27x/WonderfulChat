@@ -17,15 +17,9 @@ public class LoginActivity extends BaseActivity<LoginViewModel> {
         supportRequestWindowFeature(Window.FEATURE_NO_TITLE);
         ActivityLoginBinding loginBinding = DataBindingUtil.setContentView(this,R.layout.activity_login);
         loginBinding.setLoginViewModel(getViewModel());
-        getViewModel().editTextInit(loginBinding.account,loginBinding.password);
+        getViewModel().setLoginBinding(loginBinding);
 
-        String account = MemoryUtil.sharedPreferencesGetString("account");
-        String password = MemoryUtil.sharedPreferencesGetString("password");
-        boolean isChecked = MemoryUtil.sharedPreferencesGetBoolean("checkBox");
-        getViewModel().setAccount(account);
-        getViewModel().setPassword(password);
-        getViewModel().setIschecked(isChecked);
-
+        getViewModel().init();
     }
 
     @Override

@@ -1,72 +1,338 @@
 package com.example.wonderfulchat.view;
 
+import android.Manifest;
+import android.app.AlertDialog;
+import android.content.DialogInterface;
+import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.databinding.DataBindingUtil;
+import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
-import android.support.v4.app.Fragment;
-import android.support.v4.view.ViewPager;
+import android.provider.MediaStore;
+import android.support.annotation.NonNull;
+import android.support.design.widget.NavigationView;
+import android.support.v4.app.ActivityCompat;
+import android.support.v4.content.ContextCompat;
+import android.support.v4.content.FileProvider;
+import android.util.Log;
+import android.view.MenuItem;
+import android.view.View;
 import android.view.Window;
-
+import android.widget.ImageView;
+import android.widget.TextView;
+import com.bumptech.glide.Glide;
 import com.example.wonderfulchat.R;
-import com.example.wonderfulchat.adapter.ViewPagerAdapter;
-import com.example.wonderfulchat.customview.TabGroupView;
+import com.example.wonderfulchat.customview.CustomDialog;
+import com.example.wonderfulchat.customview.DefuEditText;
 import com.example.wonderfulchat.databinding.ActivityWonderfulChatBinding;
+import com.example.wonderfulchat.model.HttpUserModel;
+import com.example.wonderfulchat.model.MessageEvent;
+import com.example.wonderfulchat.model.UserModel;
+import com.example.wonderfulchat.utils.KeyboardUtil;
+import com.example.wonderfulchat.utils.LogUtil;
+import com.example.wonderfulchat.utils.MemoryUtil;
+import com.example.wonderfulchat.utils.ToastUtil;
 import com.example.wonderfulchat.viewmodel.WonderfulChatViewModel;
+import com.google.gson.Gson;
+import org.greenrobot.eventbus.EventBus;
+import org.greenrobot.eventbus.Subscribe;
+import org.greenrobot.eventbus.ThreadMode;
+import java.io.File;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
-public class WonderfulChatActivity extends BaseActivity <WonderfulChatViewModel> {
+public class WonderfulChatActivity extends BaseActivity <WonderfulChatViewModel> implements NavigationView.OnNavigationItemSelectedListener,View.OnClickListener{
+
+    private static final String TAG = "WonderfulChatActivity";
+    private ActivityWonderfulChatBinding chatBinding;
+    private ImageView headImage;
+    private TextView userName;
+    private TextView lifeMotto;
+    private DefuEditText userNameEdit;
+    private DefuEditText lifeMottoEdit;
+    private Uri imageUri;
+    private String takePhotoPath;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         supportRequestWindowFeature(Window.FEATURE_NO_TITLE);
-        ActivityWonderfulChatBinding chatBinding = DataBindingUtil.setContentView(this,R.layout.activity_wonderful_chat);
+        chatBinding = DataBindingUtil.setContentView(this,R.layout.activity_wonderful_chat);
         chatBinding.setWonderfulViewModel(getViewModel());
-        init(chatBinding);
+        getViewModel().setChatBinding(chatBinding);
+
+//        EventBus.getDefault().register(this);
+        initLeftDrawer(chatBinding);
+        getViewModel().initView();
+
     }
 
-    private void init(ActivityWonderfulChatBinding chatBinding){
-        final ViewPager viewPager = chatBinding.wonderfulChat.viewPager;
-        final TabGroupView tabGroupView = chatBinding.wonderfulChat.tabGroupView;
 
-        List<Fragment> fragments = new ArrayList<>();
-        for (int i=0;i<2; i++){
-            fragments.add(new MessageFragment());
-        }
-        fragments.add(new FriendListFragment());
+    private void initLeftDrawer(ActivityWonderfulChatBinding chatBinding){
 
-        ViewPagerAdapter adapter = new ViewPagerAdapter(getSupportFragmentManager(),fragments);
-        viewPager.setOffscreenPageLimit(0);
-        viewPager.setAdapter(adapter);
-        tabGroupView.initChildren();
+        getViewModel().firstStatement();
 
-        viewPager.addOnPageChangeListener(new ViewPager.OnPageChangeListener() {
+        View view = chatBinding.wonderfulMenu.getHeaderView(0);
+        headImage = view.findViewById(R.id.head_image);
+        userName = view.findViewById(R.id.user_name);
+        lifeMotto = view.findViewById(R.id.life_motto);
+        userNameEdit = view.findViewById(R.id.user_name_edit);
+        lifeMottoEdit = view.findViewById(R.id.life_motto_edit);
+
+        chatBinding.wonderfulMenu.setNavigationItemSelectedListener(this);
+        headImage.setOnClickListener(this);
+        userName.setOnClickListener(this);
+        lifeMotto.setOnClickListener(this);
+
+        userNameEdit.setIconClickListener(new DefuEditText.IconClickListener() {
             @Override
-            public void onPageScrolled(int i, float v, int i1) {
-                tabGroupView.alphaChange(i,v);
+            public void IconLeftOnClick() {
+
             }
 
             @Override
-            public void onPageSelected(int i) {
-
-            }
-
-            @Override
-            public void onPageScrollStateChanged(int i) {
-
+            public void IconRightOnClick() {
+                userName.setVisibility(View.VISIBLE);
+                userNameEdit.setVisibility(View.GONE);
+                KeyboardUtil.hideSoftKeyboard(WonderfulChatActivity.this,userNameEdit);
+                getViewModel().setNameOrLifeMotto("userName",userNameEdit.getText().toString(),userName);
             }
         });
 
-        tabGroupView.setTabSelectedListener(new TabGroupView.TabSelectedListener() {
+        lifeMottoEdit.setIconClickListener(new DefuEditText.IconClickListener() {
             @Override
-            public void onSelect(int position) {
-                viewPager.setCurrentItem(position);
+            public void IconLeftOnClick() {
+
+            }
+
+            @Override
+            public void IconRightOnClick() {
+                lifeMotto.setVisibility(View.VISIBLE);
+                lifeMottoEdit.setVisibility(View.GONE);
+                KeyboardUtil.hideSoftKeyboard(WonderfulChatActivity.this,lifeMottoEdit);
+                getViewModel().setNameOrLifeMotto("lifeMotto",lifeMottoEdit.getText().toString(),lifeMotto);
             }
         });
+
+        initUserMessage();
     }
+
+    private void initUserMessage(){
+        String userModel = MemoryUtil.sharedPreferencesGetString("UserModel");
+        Gson gson = new Gson();
+        UserModel model = gson.fromJson(userModel, UserModel.class);
+        Glide.with(this).load(model.getImageUrl()).into(headImage);
+        userName.setText(model.getNickname());
+        lifeMotto.setText(model.getLifeMotto());
+    }
+
+//    @Subscribe(threadMode = ThreadMode.MAIN)
+//    public void onEvent(MessageEvent event){
+//        LogUtil.d(TAG,"onEvent");
+//        Glide.with(this).load(event.getUserModel().getImageUrl()).into(headImage);
+//        userName.setText(event.getUserModel().getNickname());
+//        lifeMotto.setText(event.getUserModel().getLifeMotto());
+//    }
 
     @Override
     public WonderfulChatViewModel bindViewModel() {
         return new WonderfulChatViewModel();
     }
+
+    @Override
+    public boolean onNavigationItemSelected(@NonNull MenuItem menuItem) {
+        switch (menuItem.getItemId()){
+            case R.id.menu_switchAccount:
+                Intent intent = new Intent(this,LoginActivity.class);
+                startActivity(intent);
+                finish();
+                return true;
+            case R.id.menu_register:
+                CustomDialog dialog1 = new CustomDialog(this);
+                dialog1.setConfirmClickListener(new CustomDialog.ConfirmClickListener() {
+                    @Override
+                    public void parameterPass(String parameter1, String parameter2) {
+                        LogUtil.d(TAG, "parameterPass: " + parameter1 + "-" + parameter2);
+                    }
+                });
+                dialog1.show();
+                dialog1.setParameterNote("账号：","密码：");
+                return true;
+            case R.id.menu_upload:
+                ToastUtil.showToast("待开发！");
+                return true;
+            case R.id.menu_file_manager:
+                ToastUtil.showToast("待开发！");
+                return true;
+            case R.id.menu_change_password:
+                CustomDialog dialog2 = new CustomDialog(this);
+                dialog2.setConfirmClickListener(new CustomDialog.ConfirmClickListener() {
+                    @Override
+                    public void parameterPass(String parameter1, String parameter2) {
+                        LogUtil.d(TAG, "parameterPass: " + parameter1 + "-" + parameter2);
+                    }
+                });
+                dialog2.show();
+                dialog2.setParameterNote("原密码：","新密码：");
+                return true;
+            case R.id.menu_logout:
+                getViewModel().logout();
+                return true;
+            case R.id.menu_backup:
+                chatBinding.drawerLayout.closeDrawers();
+                return true;
+            case R.id.menu_about_software:
+                getViewModel().statement();
+                return true;
+        }
+        return false;
+    }
+
+    @Override
+    public void onClick(View view) {
+        switch (view.getId()){
+            case R.id.head_image:
+                setHeadImage();
+                break;
+            case R.id.user_name:
+                userNameEdit.setText(userName.getText());
+                userName.setVisibility(View.GONE);
+                userNameEdit.setVisibility(View.VISIBLE);
+                userNameEdit.setFocusable(true);
+                userNameEdit.setFocusableInTouchMode(true);
+                userNameEdit.requestFocus();
+                KeyboardUtil.showSoftKeyboard(this,userNameEdit);
+                break;
+            case R.id.life_motto:
+                lifeMottoEdit.setText(lifeMotto.getText());
+                lifeMotto.setVisibility(View.GONE);
+                lifeMottoEdit.setVisibility(View.VISIBLE);
+                lifeMottoEdit.setFocusable(true);
+                lifeMottoEdit.setFocusableInTouchMode(true);
+                lifeMottoEdit.requestFocus();
+                KeyboardUtil.showSoftKeyboard(this,lifeMottoEdit);
+                break;
+        }
+    }
+
+    private void setHeadImage(){
+        AlertDialog.Builder dialog = new AlertDialog.Builder(this);
+        dialog.setTitle("选择图片来源");
+        dialog.setCancelable(true);
+        dialog.setPositiveButton("拍照", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                File outputImage = new File(getExternalCacheDir(),"outputImage.jpg");
+                takePhotoPath = outputImage.getPath();
+                try{
+                    if (outputImage.exists()) {
+                        outputImage.delete();
+                    }
+                    outputImage.createNewFile();
+                }catch (IOException e){
+                    e.printStackTrace();
+                }
+                if(Build.VERSION.SDK_INT>=24){
+                    imageUri = FileProvider.getUriForFile(WonderfulChatActivity.this,
+                            "com.example.wonderfulchat.fileprovider",outputImage);
+                }else{
+                    imageUri = Uri.fromFile(outputImage);
+                }
+                Intent intent = new Intent("android.media.action.IMAGE_CAPTURE");
+                intent.putExtra(MediaStore.EXTRA_OUTPUT, imageUri);
+                startActivityForResult(intent,1);
+            }
+        });
+        dialog.setNegativeButton("相册", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                if(ContextCompat.checkSelfPermission(WonderfulChatActivity.this, Manifest.permission.
+                        WRITE_EXTERNAL_STORAGE)!= PackageManager.PERMISSION_GRANTED){
+                    ActivityCompat.requestPermissions(WonderfulChatActivity.this,new String[]
+                            {Manifest.permission.WRITE_EXTERNAL_STORAGE},1);
+                }else{
+                    openAlbum();
+                }
+            }
+        });
+        dialog.show();
+    }
+
+    private void openAlbum(){
+        Intent intent = new Intent("android.intent.action.GET_CONTENT");
+        intent.setType("image/*");
+        startActivityForResult(intent,2);
+    }
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode,String[] permissions, int[] grantResults){
+        switch (requestCode){
+            case 1:
+                if (grantResults.length>0&&grantResults[0]==PackageManager.PERMISSION_GRANTED){
+                    openAlbum();
+                }else{
+                    ToastUtil.showToast("拒绝权限将无法使用此功能");
+                }
+                break;
+            default:
+        }
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode,int resultCode,Intent data){
+        switch (requestCode){
+            case 1:
+                if(resultCode==RESULT_OK){
+                    getViewModel().uploadHeadImage(takePhotoPath,headImage);
+                }
+                break;
+            case 2:
+                if(resultCode==RESULT_OK){
+                    String imageUrl;
+                    if(Build.VERSION.SDK_INT>=19){
+                        imageUrl = getViewModel().handleImageOnkitKat(data);
+                    }else{
+                        imageUrl = getViewModel().handleImageBeforeKitKat(data);
+                    }
+                    getViewModel().uploadHeadImage(imageUrl,headImage);
+                }
+            default:
+                break;
+        }
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        EventBus.getDefault().unregister(this);
+    }
+
+    private void gsonToJson(){
+        Gson gson = new Gson();
+
+        HttpUserModel loginModel = new HttpUserModel();
+        UserModel userModel = new UserModel();
+        List<UserModel> modelList = new ArrayList<>();
+
+        userModel.setAccount("wonderful");
+        userModel.setPassword("123456");
+        userModel.setNickname("德芙");
+        userModel.setRemark("巧克力");
+        userModel.setLifeMotto("为国家繁荣富强而努力奋斗");
+        userModel.setImageUrl("http://192.168.191.5:8080/file/girl.jpg");
+
+        for (int i=0; i<10; i++){
+            modelList.add(userModel);
+        }
+
+        loginModel.setResult("success");
+        loginModel.setContent(modelList);
+
+        String jsonString = gson.toJson(loginModel);
+        Log.d(TAG, "gsonToJson: " + jsonString);
+
+    }
+
 }

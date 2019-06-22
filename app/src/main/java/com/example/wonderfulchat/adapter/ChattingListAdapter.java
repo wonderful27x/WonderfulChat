@@ -6,20 +6,32 @@ import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+
+import com.bumptech.glide.Glide;
 import com.example.wonderfulchat.R;
 import com.example.wonderfulchat.databinding.ChattingItemBinding;
 import com.example.wonderfulchat.model.MessageModel;
+import com.example.wonderfulchat.model.UserModel;
+import com.example.wonderfulchat.utils.MemoryUtil;
 import com.example.wonderfulchat.viewmodel.ChattingViewModel;
+import com.google.gson.Gson;
+
 import java.util.List;
 
 public class ChattingListAdapter extends RecyclerView.Adapter<ChattingListAdapter.ViewHolder> {
 
     private List<MessageModel> messageModels;
     private ChattingViewModel chattingViewModel;
+    private String userImage;
 
     public ChattingListAdapter(List<MessageModel> messageModels,ChattingViewModel chattingViewModel){
         this.messageModels = messageModels;
         this.chattingViewModel = chattingViewModel;
+
+        String userModel = MemoryUtil.sharedPreferencesGetString("UserModel");
+        Gson gson = new Gson();
+        UserModel model = gson.fromJson(userModel, UserModel.class);
+        userImage = model.getImageUrl();
     }
     @NonNull
     @Override
@@ -39,10 +51,12 @@ public class ChattingListAdapter extends RecyclerView.Adapter<ChattingListAdapte
             binding.leftLayout.setVisibility(View.VISIBLE);
             binding.rightLayout.setVisibility(View.GONE);
             binding.receiveMessage.setText(messageModel.getMessage());
+            Glide.with(chattingViewModel.getView()).load(messageModel.getSenderImage()).into(binding.friendImage);
         }else if(messageModels.get(i).getType() == MessageModel.TYPE_SEND){
             binding.leftLayout.setVisibility(View.GONE);
             binding.rightLayout.setVisibility(View.VISIBLE);
             binding.sendMessage.setText(messageModel.getMessage());
+            Glide.with(chattingViewModel.getView()).load(userImage).into(binding.myImage);
         }
     }
 
@@ -67,4 +81,9 @@ public class ChattingListAdapter extends RecyclerView.Adapter<ChattingListAdapte
             return this.binding;
         }
     }
+
+    public List<MessageModel> getMessageModels(){
+        return messageModels;
+    }
+
 }

@@ -2,23 +2,20 @@ package com.example.wonderfulchat.viewmodel;
 
 import android.app.Activity;
 import android.content.Intent;
-import android.databinding.BindingAdapter;
-import android.databinding.ObservableField;
 import android.view.animation.AlphaAnimation;
 import android.view.animation.Animation;
-import android.widget.FrameLayout;
-
+import com.example.wonderfulchat.databinding.ActivitySplashBinding;
 import com.example.wonderfulchat.view.LoginActivity;
-import com.example.wonderfulchat.view.MainActivity;
-import com.example.wonderfulchat.view.MyApplication;
 
 public class SplashViewModel extends BaseViewModel <Activity> {
 
-    public void animation(FrameLayout frameLayout){
+    private ActivitySplashBinding dataBinding;
+
+    public void animation(){
         AlphaAnimation alphaAnimation = new AlphaAnimation(0,1);
         alphaAnimation.setDuration(2000);
         alphaAnimation.setFillAfter(true);
-        frameLayout.setAnimation(alphaAnimation);
+        dataBinding.splashFrameLayout.setAnimation(alphaAnimation);
         alphaAnimation.setAnimationListener(new Animation.AnimationListener() {
             @Override
             public void onAnimationStart(Animation animation) {
@@ -38,6 +35,22 @@ public class SplashViewModel extends BaseViewModel <Activity> {
             }
         });
         alphaAnimation.start();
+    }
+
+    public ActivitySplashBinding getDataBinding() {
+        return dataBinding;
+    }
+
+    public void setDataBinding(ActivitySplashBinding dataBinding) {
+        this.dataBinding = dataBinding;
+    }
+
+    @Override
+    public void deTachView() {
+        super.deTachView();
+        if(dataBinding != null){
+            dataBinding = null;
+        }
     }
 
 }

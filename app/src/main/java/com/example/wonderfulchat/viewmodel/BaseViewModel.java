@@ -1,5 +1,9 @@
 package com.example.wonderfulchat.viewmodel;
 
+import android.app.Activity;
+
+import com.example.wonderfulchat.view.BaseActivity;
+
 import java.lang.ref.WeakReference;
 
 public abstract class BaseViewModel <T>{

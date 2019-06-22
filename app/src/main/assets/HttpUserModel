@@ -1,0 +1,13 @@
+{
+    "content": [
+        {
+            "account": "wonderful",
+            "imageUrl": "http://192.168.10.177:8080/file/girl.jpg",
+            "lifeMotto": "为国家繁荣富强而努力奋斗",
+            "nickname": "德芙",
+            "password": "123456",
+            "remark": "巧克力"
+        }
+    ],
+    "result": "success"
+}
