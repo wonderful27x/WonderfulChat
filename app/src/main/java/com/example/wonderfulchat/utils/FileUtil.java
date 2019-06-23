@@ -110,4 +110,10 @@ public class FileUtil {
         }
     }
 
+    public static void fileDelete(File file){
+        if (file.exists() && file.isFile()){
+            file.delete();
+        }
+    }
+
 }

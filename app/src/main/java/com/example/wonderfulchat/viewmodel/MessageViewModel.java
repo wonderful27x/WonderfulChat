@@ -1,5 +1,7 @@
 package com.example.wonderfulchat.viewmodel;
 
+import android.app.AlertDialog;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Parcelable;
 import android.support.v4.app.Fragment;
@@ -29,15 +31,11 @@ public class MessageViewModel extends BaseViewModel <Fragment> {
     private List<List<MessageModel>> unReadMessageList;
     private List<List<MessageModel>> readedMessageList;
     private MessageListAdapter adapter;
-    int i=-1;
 
     public void initView(){
         unReadMessageList = new ArrayList<>();
         readedMessageList = new ArrayList<>();
         unReadMessageList.addAll(getMessageFromNet());
-        if (i != -1){
-            //unReadMessageList.remove(i);
-        }
         List<List<MessageModel>> unRead = new ArrayList<>();
         List<List<MessageModel>> readed = new ArrayList<>();
         getMessageList(unRead,readed);
@@ -45,6 +43,7 @@ public class MessageViewModel extends BaseViewModel <Fragment> {
         mergeUnReadMessageList(unRead);
         saveMessage(unReadMessageList,"UnReadMessage");
         saveMessage(readedMessageList,"ReadedMessage");
+        saveMessageAccounts();
         adapter = new MessageListAdapter(layoutBinding.getWonderfulViewModel(),unReadMessageList,readedMessageList);
         LinearLayoutManager layoutManager = new LinearLayoutManager(getView().getActivity());
         layoutBinding.recyclerView.setLayoutManager(layoutManager);
@@ -54,6 +53,11 @@ public class MessageViewModel extends BaseViewModel <Fragment> {
             @Override
             public void itemClick(int position) {
                 jumpToChatting(position);
+            }
+
+            @Override
+            public void itemLongClick(int position) {
+                messageDelete(position);
             }
         });
 
@@ -141,7 +145,7 @@ public class MessageViewModel extends BaseViewModel <Fragment> {
     }
 
     private void saveMessageAccounts(){
-        String accountAll;
+        String accountAll = "";
         StringBuilder account = new StringBuilder();
         for (List<MessageModel> unRead:unReadMessageList){
             account.append(unRead.get(0).getSenderAccount());
@@ -151,9 +155,10 @@ public class MessageViewModel extends BaseViewModel <Fragment> {
             account.append(readed.get(0).getSenderAccount());
             account.append(",");
         }
-        account.deleteCharAt(account.length()-1);
-        accountAll = account.toString();
-
+        if (account.length()>0){
+            account.deleteCharAt(account.length()-1);
+            accountAll = account.toString();
+        }
         MemoryUtil.sharedPreferencesSaveString("OldMessageAccounts",accountAll);
     }
 
@@ -253,7 +258,7 @@ public class MessageViewModel extends BaseViewModel <Fragment> {
         unReadMessageList.addAll(unRead);
     }
 
-    private void refresh(){
+    public void refresh(){
         new Thread(new Runnable() {
             @Override
             public void run() {
@@ -273,6 +278,11 @@ public class MessageViewModel extends BaseViewModel <Fragment> {
                         mergeUnReadMessageList(messageModels);
                         adapter.notifyData();
                         layoutBinding.refreshLayout.setRefreshing(false);
+                        if(messageModels != null && messageModels.size()>0){
+                            saveMessage(unReadMessageList,"UnReadMessage");
+                            saveMessage(readedMessageList,"ReadedMessage");
+                            saveMessageAccounts();
+                        }
                     }
                 });
             }
@@ -298,24 +308,70 @@ public class MessageViewModel extends BaseViewModel <Fragment> {
 //        }
 //    }
 
-    private void changeMessageState(int position){
-        if (position <= (unReadMessageList.size()-1)){
-            List<MessageModel> unRead = unReadMessageList.get(position);
-            clearUnreadMessage(unRead.get(0).getSenderAccount(),"UnReadMessage");
+    private void messageDelete(final int position){
+        AlertDialog.Builder dialog = new AlertDialog.Builder(getView().getActivity());
+        dialog.setTitle("温馨提示：");
+        dialog.setMessage("删除信息将无法恢复");
+        dialog.setCancelable(true);
+        dialog.setPositiveButton("继续删除", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                deleteMessage(position);
+            }
+        });
+        dialog.setNegativeButton("取消", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialogInterface, int i) {
+
+            }
+        });
+        dialog.show();
+    }
+
+    private void deleteMessage(int position){
+        List<MessageModel> messageModels = null;
+        String path = null;
+        String account = null;
+
+        if (position <= (unReadMessageList.size()-1)) {
+            messageModels = unReadMessageList.get(position);
+            unReadMessageList.remove(messageModels);
+            account = messageModels.get(0).getSenderAccount();
+        }else {
+            messageModels = readedMessageList.get(position - unReadMessageList.size());
+            readedMessageList.remove(messageModels);
+            account = messageModels.get(0).getSenderAccount();
         }
+
+        path = FileUtil.getDiskPath(getView().getActivity(),"UnReadMessage");
+        File file = new File(path,account);
+        FileUtil.fileDelete(file);
+
+        path = FileUtil.getDiskPath(getView().getActivity(),"ReadedMessage");
+        file = new File(path,account);
+        FileUtil.fileDelete(file);
+
+        saveMessageAccounts();
+        adapter.notifyData();
     }
 
     private void jumpToChatting(int position){
-        saveMessageAccounts();
-        List<MessageModel> unRead = null;
+        List<MessageModel> messages = null;
+        String friendName = null;
+        String friendAccount = null;
         if (position <= (unReadMessageList.size()-1)) {
-            i = position;
-            unRead = unReadMessageList.get(position);
-            clearUnreadMessage(unRead.get(0).getSenderAccount(),"UnReadMessage");
+            messages = unReadMessageList.get(position);
+            friendName = messages.get(0).getSender();
+            friendAccount = messages.get(0).getSenderAccount();
+            clearUnreadMessage(messages.get(0).getSenderAccount(),"UnReadMessage");
+        }else {
+            friendName = messages.get(0).getSender();
+            friendAccount = messages.get(0).getSenderAccount();
         }
         Intent intent = new Intent(getView().getActivity(), ChattingActivity.class);
-        intent.putExtra("friendName",unReadMessageList.get(position).get(0).getSender());
-        intent.putParcelableArrayListExtra("message", (ArrayList<? extends Parcelable>) unRead);
+        intent.putExtra("friendName",friendName);
+        intent.putExtra("friendAccount",friendAccount);
+        intent.putParcelableArrayListExtra("message", (ArrayList<? extends Parcelable>) messages);
         getView().startActivity(intent);
     }
 

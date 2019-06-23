@@ -22,6 +22,7 @@ public class MessageFragment extends BaseFragment<MessageViewModel> {
     private ImageView leftImage;
     private ImageView rightImage;
     private TextView midText;
+    private boolean firstLoad = true;
 
     @Override
     public View onCreateView(LayoutInflater inflater,ViewGroup container,Bundle savedInstanceState) {
@@ -85,7 +86,11 @@ public class MessageFragment extends BaseFragment<MessageViewModel> {
 
     @Override
     public void dataLoad() {
-        getViewModel().initView();
+        if (firstLoad){
+            getViewModel().initView();
+        }else {
+            getViewModel().refresh();
+        }
         LogUtil.d(TAG,"dataLoad");
     }
 }

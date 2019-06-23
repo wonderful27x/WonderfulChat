@@ -70,7 +70,18 @@ public class MessageListAdapter extends RecyclerView.Adapter<MessageListAdapter.
         viewHolder.binding.itemLayout.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                itemClickListener.itemClick(i);
+                if (itemClickListener != null){
+                    itemClickListener.itemClick(i);
+                }
+            }
+        });
+        viewHolder.binding.itemLayout.setOnLongClickListener(new View.OnLongClickListener() {
+            @Override
+            public boolean onLongClick(View view) {
+                if (itemClickListener != null){
+                    itemClickListener.itemLongClick(i);
+                }
+                return true;
             }
         });
     }
@@ -99,6 +110,7 @@ public class MessageListAdapter extends RecyclerView.Adapter<MessageListAdapter.
 
     public interface ItemClickListener{
         public void itemClick(int position);
+        public void itemLongClick(int position);
     }
     public void setItemClickListener(ItemClickListener itemClickListener){
         this.itemClickListener = itemClickListener;

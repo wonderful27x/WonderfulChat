@@ -29,21 +29,22 @@ public class ChattingActivity extends BaseActivity<ChattingViewModel> {
         getViewModel().setBinding(binding);
 
         Intent intent = getIntent();
-        String friend = intent.getStringExtra("friendName");
+        String friendName = intent.getStringExtra("friendName");
+        String friendAccount = intent.getStringExtra("friendAccount");
         List<MessageModel> messageModel = (List<MessageModel>) intent.getSerializableExtra("message");
 
-        getViewModel().initView(messageModel);
+        getViewModel().initView(messageModel,friendAccount);
 
-        initData(binding,friend);
+        initData(binding,friendName);
     }
 
-    private void initData(ActivityChattingBinding binding,String friend){
+    private void initData(ActivityChattingBinding binding,String friendName){
 
         midText = binding.head.findViewById(R.id.mid_text);
         leftImage = binding.head.findViewById(R.id.left_image);
         rightImage = binding.head.findViewById(R.id.right_image);
 
-        midText.setText(friend);
+        midText.setText(friendName);
         leftImage.setImageResource(R.mipmap.com_back_blue);
         rightImage.setVisibility(View.GONE);
 
@@ -58,5 +59,11 @@ public class ChattingActivity extends BaseActivity<ChattingViewModel> {
     @Override
     public ChattingViewModel bindViewModel() {
         return new ChattingViewModel();
+    }
+
+    @Override
+    protected void onDestroy() {
+        getViewModel().messageSave();
+        super.onDestroy();
     }
 }

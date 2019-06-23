@@ -55,7 +55,8 @@ public class FriendListViewModel extends BaseViewModel<Fragment> {
             @Override
             public boolean onChildClick(ExpandableListView expandableListView, View view, int i, int i1, long l) {
                 Intent intent = new Intent(getView().getActivity(), ChattingActivity.class);
-                intent.putExtra("friendName",groupModels.get(i).getChildModels().get(i1).getNickname());
+                intent.putExtra("friendName",groupModels.get(i).getChildModels().get(i1).getRemark());
+                intent.putExtra("friendAccount",groupModels.get(i).getChildModels().get(i1).getAccount());
                 getView().getActivity().startActivity(intent);
                 return true;
             }
