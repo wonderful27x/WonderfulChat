@@ -95,6 +95,7 @@ public class FriendListViewModel extends BaseViewModel<Fragment> {
 
     private void addFriend(){
         UserModel userModel = new UserModel();
+        userModel.setAccount("wonderful");
         userModel.setNickname("德芙");
         userModel.setRemark("巧克力");
         userModel.setImageUrl("http://192.168.191.5:8080/file/girl.jpg");
@@ -138,5 +139,13 @@ public class FriendListViewModel extends BaseViewModel<Fragment> {
 
     public void setLayoutBinding(FriendListFragmentLayoutBinding layoutBinding) {
         this.layoutBinding = layoutBinding;
+    }
+
+    @Override
+    public void deTachView() {
+        super.deTachView();
+        if (layoutBinding != null){
+            layoutBinding = null;
+        }
     }
 }

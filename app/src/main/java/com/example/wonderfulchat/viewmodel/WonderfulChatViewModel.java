@@ -24,6 +24,7 @@ import com.example.wonderfulchat.utils.MemoryUtil;
 import com.example.wonderfulchat.utils.ToastUtil;
 import com.example.wonderfulchat.view.FriendListFragment;
 import com.example.wonderfulchat.view.LoginActivity;
+import com.example.wonderfulchat.view.LuckyTurntableFragment;
 import com.example.wonderfulchat.view.MessageFragment;
 
 import java.util.ArrayList;
@@ -46,7 +47,7 @@ public class WonderfulChatViewModel extends BaseViewModel <AppCompatActivity> {
             }
         });
         fragments.add(messageFragment);
-        fragments.add(new FriendListFragment());
+        fragments.add(new LuckyTurntableFragment());
         fragments.add(new FriendListFragment());
         ViewPagerAdapter adapter = new ViewPagerAdapter(getView().getSupportFragmentManager(),fragments);
         viewPager.setOffscreenPageLimit(0);

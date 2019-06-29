@@ -25,11 +25,11 @@ public class FriendListFragment extends BaseFragment<FriendListViewModel> {
         binding.setWonderfulViewModel(getViewModel());
         getViewModel().setLayoutBinding(binding);
         getViewModel().initView();
-        initData(binding);
+        initView(binding);
         return binding.getRoot();
     }
 
-    private void initData(FriendListFragmentLayoutBinding binding){
+    private void initView(FriendListFragmentLayoutBinding binding){
 
         midText = binding.head.findViewById(R.id.mid_text);
         leftImage = binding.head.findViewById(R.id.left_image);

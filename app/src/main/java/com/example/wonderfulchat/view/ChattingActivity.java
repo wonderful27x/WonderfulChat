@@ -6,10 +6,12 @@ import android.os.Bundle;
 import android.view.View;
 import android.view.Window;
 import android.widget.ImageView;
+import android.widget.RelativeLayout;
 import android.widget.TextView;
 import com.example.wonderfulchat.R;
 import com.example.wonderfulchat.databinding.ActivityChattingBinding;
 import com.example.wonderfulchat.model.MessageModel;
+import com.example.wonderfulchat.utils.UnitChangeUtil;
 import com.example.wonderfulchat.viewmodel.ChattingViewModel;
 
 import java.util.List;
@@ -35,17 +37,21 @@ public class ChattingActivity extends BaseActivity<ChattingViewModel> {
 
         getViewModel().initView(messageModel,friendAccount);
 
-        initData(binding,friendName);
+        initView(binding,friendName);
     }
 
-    private void initData(ActivityChattingBinding binding,String friendName){
+    private void initView(ActivityChattingBinding binding,String friendName){
+
+        RelativeLayout.LayoutParams layoutParams = new RelativeLayout.LayoutParams(UnitChangeUtil.dp2px(25), UnitChangeUtil.dp2px(25));
+        layoutParams.addRule(RelativeLayout.CENTER_VERTICAL);
 
         midText = binding.head.findViewById(R.id.mid_text);
         leftImage = binding.head.findViewById(R.id.left_image);
         rightImage = binding.head.findViewById(R.id.right_image);
 
         midText.setText(friendName);
-        leftImage.setImageResource(R.mipmap.com_back_blue);
+        leftImage.setLayoutParams(layoutParams);
+        leftImage.setBackgroundResource(R.mipmap.com_back_blue);
         rightImage.setVisibility(View.GONE);
 
         leftImage.setOnClickListener(new View.OnClickListener() {

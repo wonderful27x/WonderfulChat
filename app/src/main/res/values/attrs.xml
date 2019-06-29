@@ -23,4 +23,21 @@
         <attr name="drawableRightHeight" format="dimension"/>
     </declare-styleable>
 
+    <declare-styleable name="defuTurntableStyle">
+        <attr name="showShadow" format="boolean"/>
+
+        <attr name="circleRadius" format="dimension"/>
+        <attr name="circleColor" format="color"/>
+        <attr name="circleTextColor" format="color"/>
+        <attr name="circleFill" format="boolean"/>
+
+        <attr name="innerCircleP" format="float"/>
+        <attr name="outerCircleP" format="float"/>
+
+        <attr name="turntableColor" format="color"/>
+        <attr name="turntableTextColor" format="color"/>
+        <attr name="turntableFill" format="boolean"/>
+        <attr name="offset" format="dimension"/>
+    </declare-styleable>
+
 </resources>
