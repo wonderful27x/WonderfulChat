@@ -5,8 +5,16 @@ import android.animation.ObjectAnimator;
 import android.animation.ValueAnimator;
 import android.content.Context;
 import android.content.res.TypedArray;
+import android.graphics.Bitmap;
+import android.graphics.Canvas;
 import android.graphics.Color;
+import android.graphics.PixelFormat;
+import android.graphics.drawable.BitmapDrawable;
+import android.graphics.drawable.Drawable;
+import android.graphics.drawable.NinePatchDrawable;
 import android.os.Build;
+import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 import android.support.annotation.RequiresApi;
 import android.util.AttributeSet;
 import android.util.Log;
@@ -14,8 +22,14 @@ import android.view.animation.AccelerateDecelerateInterpolator;
 import android.view.animation.DecelerateInterpolator;
 import android.widget.ListView;
 import android.widget.RelativeLayout;
+
+import com.bumptech.glide.Glide;
+import com.bumptech.glide.request.target.BitmapImageViewTarget;
+import com.bumptech.glide.request.target.SimpleTarget;
+import com.bumptech.glide.request.transition.Transition;
 import com.example.wonderfulchat.R;
 import com.example.wonderfulchat.model.UserModel;
+import com.example.wonderfulchat.view.MyApplication;
 
 import java.util.List;
 import java.util.Random;
@@ -52,6 +66,7 @@ public class DefuTurntable extends RelativeLayout {
     private List<UserModel> list;
     private int[] itemPosition;
     private int selectPosition;
+    private Context context;
 
     public DefuTurntable(Context context) {
         super(context);
@@ -69,6 +84,7 @@ public class DefuTurntable extends RelativeLayout {
     }
 
     private void init(final Context context, AttributeSet attrs){
+        this.context = context;
         TypedArray typedArray = context.obtainStyledAttributes(attrs, R.styleable.defuTurntableStyle);
 
         showShadow = typedArray.getBoolean(R.styleable.defuTurntableStyle_showShadow,false);
@@ -193,7 +209,7 @@ public class DefuTurntable extends RelativeLayout {
                 Log.d("DefuTurnTable", "onLongClick: ");
                 rotateFinish = false;
                 longClickUp = false;
-                circleView.showBitmap(0,false);
+                circleView.showBitmap(null,false);
                 circleView.showShadow(false);
                 turntableView.showShadow(false);
 
@@ -340,7 +356,14 @@ public class DefuTurntable extends RelativeLayout {
         int number = getRandomNumber(3);
         selectPosition = itemPosition[number];
         circleView.showText(list.get(selectPosition).getRemark());
-        circleView.showBitmap(R.mipmap.girl, true);
+
+        Glide.with(context).load(list.get(selectPosition).getImageUrl()).into(new SimpleTarget<Drawable>() {
+            @Override
+            public void onResourceReady(@NonNull Drawable resource, @Nullable Transition<? super Drawable> transition) {
+                circleView.showBitmap(drawableToBitmap(resource), true);
+            }
+        });
+
     }
 
     @Override
@@ -355,6 +378,26 @@ public class DefuTurntable extends RelativeLayout {
 
     public void setCircleClickListener(CircleClickListener circleClickListener){
         this.circleClickListener = circleClickListener;
+    }
+
+    private Bitmap drawableToBitmap(Drawable drawable) {
+        if (drawable instanceof BitmapDrawable) {
+            return ((BitmapDrawable) drawable).getBitmap();
+        } else if (drawable instanceof NinePatchDrawable) {
+            Bitmap bitmap = Bitmap
+                    .createBitmap(
+                            drawable.getIntrinsicWidth(),
+                            drawable.getIntrinsicHeight(),
+                            drawable.getOpacity() != PixelFormat.OPAQUE ? Bitmap.Config.ARGB_8888
+                                    : Bitmap.Config.RGB_565);
+            Canvas canvas = new Canvas(bitmap);
+            drawable.setBounds(0, 0, drawable.getIntrinsicWidth(),
+                    drawable.getIntrinsicHeight());
+            drawable.draw(canvas);
+            return bitmap;
+        } else {
+            return null;
+        }
     }
 
 }

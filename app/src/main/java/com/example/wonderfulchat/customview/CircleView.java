@@ -8,6 +8,7 @@ import android.graphics.Color;
 import android.graphics.Matrix;
 import android.graphics.Paint;
 import android.graphics.Path;
+import android.graphics.drawable.Drawable;
 import android.util.AttributeSet;
 import android.util.Log;
 import android.view.MotionEvent;
@@ -219,10 +220,8 @@ public class CircleView extends View {
         this.circleClickListener = circleClickListener;
     }
 
-    public void showBitmap(int bitmap,boolean showBitmap) {
-        if (showBitmap){
-            circleBitmap = BitmapFactory.decodeResource(getResources(),bitmap,null);
-        }
+    public void showBitmap(Bitmap bitmap, boolean showBitmap) {
+        circleBitmap = bitmap;
         this.showBitmap = showBitmap;
         invalidate();
     }
