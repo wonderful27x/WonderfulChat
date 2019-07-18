@@ -6,10 +6,10 @@
             android:id="@+id/menu_switchAccount"
             android:icon="@mipmap/switch_account"
             android:title="切换账号"/>
-        <item
-            android:id="@+id/menu_register"
-            android:icon="@mipmap/register"
-            android:title="注册"/>
+        <!--<item-->
+            <!--android:id="@+id/menu_register"-->
+            <!--android:icon="@mipmap/register"-->
+            <!--android:title="注册"/>-->
         <item
             android:id="@+id/menu_upload"
             android:icon="@mipmap/upload"

@@ -21,6 +21,10 @@ import com.example.wonderfulchat.utils.MemoryUtil;
 import com.example.wonderfulchat.utils.ToastUtil;
 import com.example.wonderfulchat.view.WonderfulChatActivity;
 import com.google.gson.Gson;
+import com.google.gson.JsonObject;
+
+import org.json.JSONException;
+import org.json.JSONObject;
 
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
@@ -44,21 +48,70 @@ public class LoginViewModel extends BaseViewModel<Activity> {
             e.printStackTrace();
         }
 
-        HttpUtil.sendHttpRequest(InternetAddress.LOGIN_URL, postParameters, new HttpCallbackListener() {
+        HttpUtil.httpRequestForPost(InternetAddress.LOGIN_URL, postParameters, new HttpCallbackListener() {
             @Override
             public void onFinish(final String response) {
                 getView().runOnUiThread(new Runnable() {
                     @Override
                     public void run() {
-                        if(response.equals("登录成功")){
-                            accountPassSave(isChecked.get());
-                            Intent intent = new Intent(getView(), WonderfulChatActivity.class);
-                            getView().startActivity(intent);
-                            ToastUtil.showToast("Welcome");
-                            //getView().finish();
-                            getUserMessage();
+                        getUserMessage(response);
+//                        if(response.equals("登录成功")){
+//                            accountPassSave(isChecked.get());
+//                            Intent intent = new Intent(getView(), WonderfulChatActivity.class);
+//                            getView().startActivity(intent);
+//                            ToastUtil.showToast("Welcome");
+//                            //getView().finish();
+//                            getUserMessage();
+//                        }else {
+//                            ToastUtil.showToast("账号或密码错误");
+//                        }
+                    }
+                });
+            }
+
+            @Override
+            public void onError(final Exception e) {
+                getView().runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        ToastUtil.showToast("登录失败！");
+                        LogUtil.d(TAG,"登录失败: "+e.getMessage());
+                    }
+                });
+            }
+        });
+
+        LogUtil.d(TAG, "account: "+account+" "+"password: "+password);
+    }
+
+    public void registerClick(View view){
+        ToastUtil.showToast("请长按注册");
+    }
+
+    public boolean register(View view){
+        if (account.get().length()<5){
+            ToastUtil.showToast("账号长度不得小于5！");
+            return true;
+        }
+        String postParameters = null;
+        try {
+            postParameters = "account=" + URLEncoder.encode(account.get(), "UTF-8");
+            postParameters += "&password=" + URLEncoder.encode(password.get(), "UTF-8");
+        } catch (UnsupportedEncodingException e) {
+            e.printStackTrace();
+        }
+
+        HttpUtil.httpRequestForPost(InternetAddress.REGISTER_URL, postParameters, new HttpCallbackListener() {
+            @Override
+            public void onFinish(final String response) {
+                getView().runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        if(response.equals("注册成功！")){
+                            ToastUtil.showToast("注册成功，请直接登录");
                         }else {
-                            ToastUtil.showToast("账号或密码错误");
+                            ToastUtil.showToast(response);
+                            LogUtil.d(TAG,response);
                         }
                     }
                 });
@@ -69,23 +122,39 @@ public class LoginViewModel extends BaseViewModel<Activity> {
                 getView().runOnUiThread(new Runnable() {
                     @Override
                     public void run() {
-                        ToastUtil.showToast("登录失败");
-                        LogUtil.d(TAG,"登录失败: "+e.getMessage());
+                        ToastUtil.showToast("注册失败");
+                        LogUtil.d(TAG,"注册失败: "+e.getMessage());
                     }
                 });
             }
         });
 
-        LogUtil.d(TAG, "account: "+account+" "+"password: "+password);
+        return true;
     }
 
-    private void getUserMessage(){
-        String httpUserModelString = FileUtil.getJson(getView(), "HttpUserModel");
+    private void getUserMessage(String jsonData){
         Gson gson = new Gson();
-        HttpUserModel httpUserModel = gson.fromJson(httpUserModelString, HttpUserModel.class);
-        UserModel userModel = httpUserModel.getContent().get(0);
-        String userModelString = gson.toJson(userModel);
-        MemoryUtil.sharedPreferencesSaveString("UserModel",userModelString);
+        HttpUserModel httpUserModel = gson.fromJson(jsonData, HttpUserModel.class);
+        if ("success".equals(httpUserModel.getResult())){
+            accountPassSave(isChecked.get());
+
+            UserModel userModel = httpUserModel.getContent().get(0);
+            String userModelString = gson.toJson(userModel);
+            MemoryUtil.sharedPreferencesSaveString("UserModel",userModelString);
+
+            Intent intent = new Intent(getView(), WonderfulChatActivity.class);
+            getView().startActivity(intent);
+            //getView().finish();
+        }else {
+            ToastUtil.showToast(httpUserModel.getMessage());
+        }
+
+//        String httpUserModelString = FileUtil.getJson(getView(), "HttpUserModel");
+//        Gson gson = new Gson();
+//        HttpUserModel httpUserModel = gson.fromJson(httpUserModelString, HttpUserModel.class);
+//        UserModel userModel = httpUserModel.getContent().get(0);
+//        String userModelString = gson.toJson(userModel);
+//        MemoryUtil.sharedPreferencesSaveString("UserModel",userModelString);
     }
 
     //    private void getUserMessage(){
@@ -97,10 +166,6 @@ public class LoginViewModel extends BaseViewModel<Activity> {
 //
 //        EventBus.getDefault().post(event);
 //    }
-
-    public void register(View view){
-        LogUtil.d(TAG,"register");
-    }
 
     public void checkBoxCheckedChanged(CompoundButton compoundButton, boolean isChecked){
         this.isChecked.set(isChecked);
@@ -123,6 +188,7 @@ public class LoginViewModel extends BaseViewModel<Activity> {
             @Override
             public void onTextChanged(String text) {
                 account.set(text);
+                loginBinding.account.setSelection(text.length());
                 LogUtil.d(TAG,"account change!");
             }
         });
@@ -140,6 +206,7 @@ public class LoginViewModel extends BaseViewModel<Activity> {
         setAccount(account);
         setPassword(password);
         setIschecked(isChecked);
+
     }
 
     public ObservableField<Integer> getShowHide() {

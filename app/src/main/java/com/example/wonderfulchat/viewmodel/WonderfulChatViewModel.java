@@ -20,6 +20,10 @@ import com.bumptech.glide.Glide;
 import com.example.wonderfulchat.adapter.ViewPagerAdapter;
 import com.example.wonderfulchat.customview.TabGroupView;
 import com.example.wonderfulchat.databinding.ActivityWonderfulChatBinding;
+import com.example.wonderfulchat.interfaces.HttpCallbackListener;
+import com.example.wonderfulchat.model.InternetAddress;
+import com.example.wonderfulchat.utils.HttpUtil;
+import com.example.wonderfulchat.utils.LogUtil;
 import com.example.wonderfulchat.utils.MemoryUtil;
 import com.example.wonderfulchat.utils.ToastUtil;
 import com.example.wonderfulchat.view.FriendListFragment;
@@ -32,9 +36,12 @@ import java.util.List;
 
 public class WonderfulChatViewModel extends BaseViewModel <AppCompatActivity> {
 
+    private static final String TAG = "WonderfulChatViewModel";
     private ActivityWonderfulChatBinding chatBinding;
 
     public void initView(){
+        ToastUtil.showToast("Welcome");
+
         final ViewPager viewPager = chatBinding.wonderfulChat.viewPager;
         final TabGroupView tabGroupView = chatBinding.wonderfulChat.tabGroupView;
 
@@ -135,9 +142,46 @@ public class WonderfulChatViewModel extends BaseViewModel <AppCompatActivity> {
         dialog.show();
     }
 
-    public void logout(){
-        Intent intent = new Intent(getView(), LoginActivity.class);
-        getView().startActivity(intent);
+    public void logoutOrSwitch(final String type, String account){
+        String url = InternetAddress.LOGOUT_URL + "?account=" + account;
+        HttpUtil.httpRequestForGet(url, new HttpCallbackListener() {
+            @Override
+            public void onFinish(final String response) {
+                getView().runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        if (response.equals("success")){
+                            if (type.equals("switch")){
+                                Intent intent = new Intent(getView(),LoginActivity.class);
+                                getView().startActivity(intent);
+                            }
+                            getView().finish();
+                        }else {
+                            if (type.equals("logout")){
+                                ToastUtil.showToast("退出异常！");
+                            }else {
+                                ToastUtil.showToast("切换异常！");
+                            }
+                        }
+                    }
+                });
+            }
+
+            @Override
+            public void onError(final Exception e) {
+                getView().runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        if (type.equals("logout")){
+                            ToastUtil.showToast("退出异常！");
+                        }else {
+                            ToastUtil.showToast("切换异常！");
+                        }
+                        LogUtil.e(TAG,"退出异常：" + e.getMessage());
+                    }
+                });
+            }
+        });
     }
 
     public void setNameOrLifeMotto(String type, String content, TextView textView){

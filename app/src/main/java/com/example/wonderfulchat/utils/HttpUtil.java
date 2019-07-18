@@ -15,7 +15,7 @@ import okhttp3.RequestBody;
 
 public class HttpUtil {
 
-    public static void sendHttpRequest(final String address,final String postParameters,final HttpCallbackListener listener){
+    public static void httpRequestForPost(final String address,final String postParameters,final HttpCallbackListener listener){
         new Thread(new Runnable() {
             @Override
             public void run() {
@@ -61,7 +61,7 @@ public class HttpUtil {
         }).start();
     }
 
-    public static void sendHttpRequest(final String address, final HttpCallbackListener listener){
+    public static void httpRequestForGet(final String address, final HttpCallbackListener listener){
         new Thread(new Runnable() {
             @Override
             public void run() {

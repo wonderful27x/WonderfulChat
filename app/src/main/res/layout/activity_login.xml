@@ -30,6 +30,7 @@
             android:drawableRight="@mipmap/icon_cross"
             android:drawableLeft="@mipmap/user_img"
             android:drawablePadding="5dp"
+            android:digits="@string/alphabet_and_number"
             android:text="@{loginViewModel.account}"
             app:rightClear="true" />
 
@@ -100,7 +101,8 @@
                 android:layout_marginLeft="1dp"
                 android:textColor="@color/white"
                 android:text="注册"
-                android:onClick="@{loginViewModel.register}"/>
+                android:onClick="@{loginViewModel.registerClick}"
+                android:onLongClick="@{loginViewModel.register}"/>
 
         </LinearLayout>
 

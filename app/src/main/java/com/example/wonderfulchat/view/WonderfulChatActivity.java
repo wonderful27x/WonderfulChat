@@ -16,6 +16,7 @@ import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
 import android.support.v4.content.FileProvider;
 import android.util.Log;
+import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.Window;
@@ -54,6 +55,7 @@ public class WonderfulChatActivity extends BaseActivity <WonderfulChatViewModel>
     private DefuEditText lifeMottoEdit;
     private Uri imageUri;
     private String takePhotoPath;
+    private UserModel model;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -74,12 +76,12 @@ public class WonderfulChatActivity extends BaseActivity <WonderfulChatViewModel>
 
         getViewModel().firstStatement();
 
-        View view = chatBinding.wonderfulMenu.getHeaderView(0);
-        headImage = view.findViewById(R.id.head_image);
-        userName = view.findViewById(R.id.user_name);
-        lifeMotto = view.findViewById(R.id.life_motto);
-        userNameEdit = view.findViewById(R.id.user_name_edit);
-        lifeMottoEdit = view.findViewById(R.id.life_motto_edit);
+        View headView = chatBinding.wonderfulMenu.getHeaderView(0);
+        headImage = headView.findViewById(R.id.head_image);
+        userName = headView.findViewById(R.id.user_name);
+        lifeMotto = headView.findViewById(R.id.life_motto);
+        userNameEdit = headView.findViewById(R.id.user_name_edit);
+        lifeMottoEdit = headView.findViewById(R.id.life_motto_edit);
 
         chatBinding.wonderfulMenu.setNavigationItemSelectedListener(this);
         headImage.setOnClickListener(this);
@@ -122,10 +124,25 @@ public class WonderfulChatActivity extends BaseActivity <WonderfulChatViewModel>
     private void initUserMessage(){
         String userModel = MemoryUtil.sharedPreferencesGetString("UserModel");
         Gson gson = new Gson();
-        UserModel model = gson.fromJson(userModel, UserModel.class);
-        Glide.with(this).load(model.getImageUrl()).into(headImage);
-        userName.setText(model.getNickname());
-        lifeMotto.setText(model.getLifeMotto());
+        model = gson.fromJson(userModel, UserModel.class);
+
+        if (model.getImageUrl() != null && !model.getImageUrl().equals("")){
+            Glide.with(this).load(model.getImageUrl()).into(headImage);
+        }else {
+            Glide.with(this).load(R.mipmap.default_head_image).into(headImage);
+        }
+        if (model.getNickname() != null && !model.getNickname().equals("")){
+            userName.setText(model.getNickname());
+        }else{
+            userName.setText("未设置昵称");
+        }
+        if (model.getLifeMotto() != null && !model.getLifeMotto().equals("")){
+            lifeMotto.setText("为国家繁荣富强而努力奋斗！");
+        }
+
+        Menu menu = chatBinding.wonderfulMenu.getMenu();
+        MenuItem menuItem = menu.getItem(0);
+        menuItem.setTitle("切换账号  (" + model.getAccount() + ")");
     }
 
 //    @Subscribe(threadMode = ThreadMode.MAIN)
@@ -145,21 +162,19 @@ public class WonderfulChatActivity extends BaseActivity <WonderfulChatViewModel>
     public boolean onNavigationItemSelected(@NonNull MenuItem menuItem) {
         switch (menuItem.getItemId()){
             case R.id.menu_switchAccount:
-                Intent intent = new Intent(this,LoginActivity.class);
-                startActivity(intent);
-                finish();
+                getViewModel().logoutOrSwitch("switch",model.getAccount());
                 return true;
-            case R.id.menu_register:
-                CustomDialog dialog1 = new CustomDialog(this);
-                dialog1.setConfirmClickListener(new CustomDialog.ConfirmClickListener() {
-                    @Override
-                    public void parameterPass(String parameter1, String parameter2) {
-                        LogUtil.d(TAG, "parameterPass: " + parameter1 + "-" + parameter2);
-                    }
-                });
-                dialog1.show();
-                dialog1.setParameterNote("账号：","密码：");
-                return true;
+//            case R.id.menu_register:
+//                CustomDialog dialog1 = new CustomDialog(this);
+//                dialog1.setConfirmClickListener(new CustomDialog.ConfirmClickListener() {
+//                    @Override
+//                    public void parameterPass(String parameter1, String parameter2) {
+//                        LogUtil.d(TAG, "parameterPass: " + parameter1 + "-" + parameter2);
+//                    }
+//                });
+//                dialog1.show();
+//                dialog1.setParameterNote("账号：","密码：");
+//                return true;
             case R.id.menu_upload:
                 ToastUtil.showToast("待开发！");
                 return true;
@@ -178,7 +193,7 @@ public class WonderfulChatActivity extends BaseActivity <WonderfulChatViewModel>
                 dialog2.setParameterNote("原密码：","新密码：");
                 return true;
             case R.id.menu_logout:
-                getViewModel().logout();
+                getViewModel().logoutOrSwitch("logout",model.getAccount());
                 return true;
             case R.id.menu_backup:
                 chatBinding.drawerLayout.closeDrawers();
