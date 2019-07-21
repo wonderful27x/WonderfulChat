@@ -20,16 +20,21 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.Window;
+import android.widget.EditText;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 import com.bumptech.glide.Glide;
 import com.example.wonderfulchat.R;
 import com.example.wonderfulchat.customview.CustomDialog;
 import com.example.wonderfulchat.customview.DefuEditText;
 import com.example.wonderfulchat.databinding.ActivityWonderfulChatBinding;
+import com.example.wonderfulchat.interfaces.HttpCallbackListener;
 import com.example.wonderfulchat.model.HttpUserModel;
+import com.example.wonderfulchat.model.InternetAddress;
 import com.example.wonderfulchat.model.MessageEvent;
 import com.example.wonderfulchat.model.UserModel;
+import com.example.wonderfulchat.utils.HttpUtil;
 import com.example.wonderfulchat.utils.KeyboardUtil;
 import com.example.wonderfulchat.utils.LogUtil;
 import com.example.wonderfulchat.utils.MemoryUtil;
@@ -53,6 +58,7 @@ public class WonderfulChatActivity extends BaseActivity <WonderfulChatViewModel>
     private TextView lifeMotto;
     private DefuEditText userNameEdit;
     private DefuEditText lifeMottoEdit;
+    private LinearLayout headLayout;
     private Uri imageUri;
     private String takePhotoPath;
     private UserModel model;
@@ -82,6 +88,7 @@ public class WonderfulChatActivity extends BaseActivity <WonderfulChatViewModel>
         lifeMotto = headView.findViewById(R.id.life_motto);
         userNameEdit = headView.findViewById(R.id.user_name_edit);
         lifeMottoEdit = headView.findViewById(R.id.life_motto_edit);
+        headLayout = headView.findViewById(R.id.headLayout);
 
         chatBinding.wonderfulMenu.setNavigationItemSelectedListener(this);
         headImage.setOnClickListener(this);
@@ -96,10 +103,13 @@ public class WonderfulChatActivity extends BaseActivity <WonderfulChatViewModel>
 
             @Override
             public void IconRightOnClick() {
+                String oldUserName = userName.getText().toString().trim();
+                String newUserName = userNameEdit.getText().toString().trim();
+                userName.setText(newUserName);
                 userName.setVisibility(View.VISIBLE);
                 userNameEdit.setVisibility(View.GONE);
                 KeyboardUtil.hideSoftKeyboard(WonderfulChatActivity.this,userNameEdit);
-                getViewModel().setNameOrLifeMotto("userName",userNameEdit.getText().toString(),userName);
+                getViewModel().changeField(model.getAccount(),"nickname",newUserName,oldUserName,userName);
             }
         });
 
@@ -111,10 +121,26 @@ public class WonderfulChatActivity extends BaseActivity <WonderfulChatViewModel>
 
             @Override
             public void IconRightOnClick() {
+                String oldMotto = lifeMotto.getText().toString().trim();
+                String newMotto = lifeMottoEdit.getText().toString().trim();
+                lifeMotto.setText(newMotto);
                 lifeMotto.setVisibility(View.VISIBLE);
                 lifeMottoEdit.setVisibility(View.GONE);
                 KeyboardUtil.hideSoftKeyboard(WonderfulChatActivity.this,lifeMottoEdit);
-                getViewModel().setNameOrLifeMotto("lifeMotto",lifeMottoEdit.getText().toString(),lifeMotto);
+                getViewModel().changeField(model.getAccount(),"lifemotto",newMotto,oldMotto,lifeMotto);
+            }
+        });
+
+        headLayout.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                userName.setVisibility(View.VISIBLE);
+                userNameEdit.setVisibility(View.GONE);
+                userNameEdit.setText(userName.getText().toString());
+
+                lifeMotto.setVisibility(View.VISIBLE);
+                lifeMottoEdit.setVisibility(View.GONE);
+                lifeMottoEdit.setText(lifeMotto.getText().toString());
             }
         });
 
@@ -133,11 +159,17 @@ public class WonderfulChatActivity extends BaseActivity <WonderfulChatViewModel>
         }
         if (model.getNickname() != null && !model.getNickname().equals("")){
             userName.setText(model.getNickname());
+            userNameEdit.setText(model.getNickname());
         }else{
             userName.setText("未设置昵称");
+            userNameEdit.setText("未设置昵称");
         }
         if (model.getLifeMotto() != null && !model.getLifeMotto().equals("")){
+            lifeMotto.setText(model.getLifeMotto());
+            lifeMottoEdit.setText(model.getLifeMotto());
+        }else{
             lifeMotto.setText("为国家繁荣富强而努力奋斗！");
+            lifeMottoEdit.setText("为国家繁荣富强而努力奋斗！");
         }
 
         Menu menu = chatBinding.wonderfulMenu.getMenu();
@@ -159,7 +191,7 @@ public class WonderfulChatActivity extends BaseActivity <WonderfulChatViewModel>
     }
 
     @Override
-    public boolean onNavigationItemSelected(@NonNull MenuItem menuItem) {
+    public boolean onNavigationItemSelected(@NonNull final MenuItem menuItem) {
         switch (menuItem.getItemId()){
             case R.id.menu_switchAccount:
                 getViewModel().logoutOrSwitch("switch",model.getAccount());
@@ -186,6 +218,11 @@ public class WonderfulChatActivity extends BaseActivity <WonderfulChatViewModel>
                 dialog2.setConfirmClickListener(new CustomDialog.ConfirmClickListener() {
                     @Override
                     public void parameterPass(String parameter1, String parameter2) {
+                        if (parameter2.length()<5){
+                            ToastUtil.showToast("密码长度不能小于5！");
+                            return;
+                        }
+                        getViewModel().changePassword(model.getAccount(),parameter1,parameter2);
                         LogUtil.d(TAG, "parameterPass: " + parameter1 + "-" + parameter2);
                     }
                 });
@@ -212,7 +249,7 @@ public class WonderfulChatActivity extends BaseActivity <WonderfulChatViewModel>
                 setHeadImage();
                 break;
             case R.id.user_name:
-                userNameEdit.setText(userName.getText());
+                userNameEdit.setText(userName.getText().toString().trim());
                 userName.setVisibility(View.GONE);
                 userNameEdit.setVisibility(View.VISIBLE);
                 userNameEdit.setFocusable(true);
@@ -221,7 +258,7 @@ public class WonderfulChatActivity extends BaseActivity <WonderfulChatViewModel>
                 KeyboardUtil.showSoftKeyboard(this,userNameEdit);
                 break;
             case R.id.life_motto:
-                lifeMottoEdit.setText(lifeMotto.getText());
+                lifeMottoEdit.setText(lifeMotto.getText().toString().trim());
                 lifeMotto.setVisibility(View.GONE);
                 lifeMottoEdit.setVisibility(View.VISIBLE);
                 lifeMottoEdit.setFocusable(true);
@@ -320,8 +357,38 @@ public class WonderfulChatActivity extends BaseActivity <WonderfulChatViewModel>
 
     @Override
     protected void onDestroy() {
+//        EventBus.getDefault().unregister(this);
+        logoutBeforeDestroy();
+        LogUtil.d(TAG,"destroy");
         super.onDestroy();
-        EventBus.getDefault().unregister(this);
+    }
+
+    public void logoutBeforeDestroy(){
+        String url = InternetAddress.LOGOUT_URL + "?account=" + model.getAccount();
+        HttpUtil.httpRequestForGet(url, new HttpCallbackListener() {
+            @Override
+            public void onFinish(final String response) {
+                runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        if (response.equals("fail")){
+                            ToastUtil.showToast("退出异常！");
+                        }
+                    }
+                });
+            }
+
+            @Override
+            public void onError(final Exception e) {
+                runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        ToastUtil.showToast("退出异常！");
+                        LogUtil.e(TAG,"退出异常：" + e.getMessage());
+                    }
+                });
+            }
+        });
     }
 
     private void gsonToJson(){

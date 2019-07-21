@@ -60,7 +60,7 @@ public class ChattingViewModel extends BaseViewModel<AppCompatActivity> {
             message.setMessage(content+i);
             message.setSender(account);
             message.setSenderAccount("wonderful"+i);
-            message.setSenderImage("http://192.168.10.177:8080/file/girl.jpg");
+            message.setSenderImage("http://192.168.31.32:8080/file/girl.jpg");
             message.setReceiver("机构鞥我");
             message.setReceiverAccount("thisismyse");
             message.setTime("2019-06-12 12:07");

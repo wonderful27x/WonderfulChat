@@ -75,7 +75,7 @@ public class LoginViewModel extends BaseViewModel<Activity> {
                     @Override
                     public void run() {
                         ToastUtil.showToast("登录失败！");
-                        LogUtil.d(TAG,"登录失败: "+e.getMessage());
+                        LogUtil.e(TAG,"登录失败: "+e.getMessage());
                     }
                 });
             }
@@ -91,6 +91,10 @@ public class LoginViewModel extends BaseViewModel<Activity> {
     public boolean register(View view){
         if (account.get().length()<5){
             ToastUtil.showToast("账号长度不得小于5！");
+            return true;
+        }
+        if (password.get().length()<5){
+            ToastUtil.showToast("密码长度不得小于5！");
             return true;
         }
         String postParameters = null;
@@ -122,8 +126,8 @@ public class LoginViewModel extends BaseViewModel<Activity> {
                 getView().runOnUiThread(new Runnable() {
                     @Override
                     public void run() {
-                        ToastUtil.showToast("注册失败");
-                        LogUtil.d(TAG,"注册失败: "+e.getMessage());
+                        ToastUtil.showToast("注册失败！");
+                        LogUtil.e(TAG,"注册失败: "+e.getMessage());
                     }
                 });
             }
@@ -147,6 +151,7 @@ public class LoginViewModel extends BaseViewModel<Activity> {
             //getView().finish();
         }else {
             ToastUtil.showToast(httpUserModel.getMessage());
+            LogUtil.d(TAG,httpUserModel.getMessage());
         }
 
 //        String httpUserModelString = FileUtil.getJson(getView(), "HttpUserModel");

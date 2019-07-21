@@ -89,7 +89,19 @@ public class ExpandableListViewAdapter extends BaseExpandableListAdapter {
 
         UserModel userModel = groupModels.get(i).getChildModels().get(i1);
         Glide.with(viewModel.getView()).load(userModel.getImageUrl()).into(childLayoutBinding.headImage);
-        childLayoutBinding.friendName.setText(userModel.getRemark() + "～" + userModel.getNickname());
+        String content = "";
+        if(userModel.getRemark() == null){
+            if(userModel.getNickname() != null){
+                content = userModel.getNickname();
+            }
+        }else {
+            if(userModel.getNickname() != null){
+                content = userModel.getRemark() + "～" + userModel.getNickname();
+            }else {
+                content = userModel.getRemark();
+            }
+        }
+        childLayoutBinding.friendName.setText(content);
         childLayoutBinding.myWord.setText(userModel.getLifeMotto());
 
         return view;

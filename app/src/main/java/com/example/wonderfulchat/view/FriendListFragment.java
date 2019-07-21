@@ -46,7 +46,7 @@ public class FriendListFragment extends BaseFragment<FriendListViewModel> {
         rightImage.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                getViewModel().findAndaddFriend();
+                getViewModel().findAddFriend();
             }
         });
     }

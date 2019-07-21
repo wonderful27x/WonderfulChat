@@ -123,7 +123,7 @@ public class CircleView extends View {
             drawCircleText(canvas,text);
         }else {
             canvas.drawCircle(circleX,circleY,circleRadius,paint);
-            drawCircleText(canvas,"");
+            drawCircleText(canvas,text);
         }
 
     }

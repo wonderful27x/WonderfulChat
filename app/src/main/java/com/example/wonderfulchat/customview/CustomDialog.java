@@ -5,6 +5,8 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.graphics.Point;
 import android.os.Bundle;
+import android.text.Editable;
+import android.text.TextWatcher;
 import android.view.Display;
 import android.view.View;
 import android.view.WindowManager;
@@ -15,7 +17,8 @@ import com.example.wonderfulchat.R;
 
 public class CustomDialog extends Dialog {
 
-    private ConfirmClickListener listener;
+    private ConfirmClickListener confirmClickListener;
+    private TextChangeListener textChangeListener;
     private DefuEditText parameter1;
     private DefuEditText parameter2;
     private TextView parameterNote1;
@@ -61,9 +64,30 @@ public class CustomDialog extends Dialog {
         confirm.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                String oldPass = parameter1.getText().toString();
-                String newPass = parameter2.getText().toString();
-                listener.parameterPass(oldPass,newPass);
+                if (confirmClickListener != null){
+                    String oldPass = parameter1.getText().toString();
+                    String newPass = parameter2.getText().toString();
+                    confirmClickListener.parameterPass(oldPass,newPass);
+                }
+            }
+        });
+
+        parameter1.addTextChangedListener(new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) {
+
+            }
+
+            @Override
+            public void onTextChanged(CharSequence charSequence, int i, int i1, int i2) {
+                if (textChangeListener != null){
+                    textChangeListener.textChanged(charSequence.toString());
+                }
+            }
+
+            @Override
+            public void afterTextChanged(Editable editable) {
+
             }
         });
     }
@@ -72,8 +96,8 @@ public class CustomDialog extends Dialog {
         public void parameterPass(String parameter1,String parameter2);
     }
 
-    public void setConfirmClickListener(ConfirmClickListener listener){
-        this.listener = listener;
+    public void setConfirmClickListener(ConfirmClickListener confirmClickListener){
+        this.confirmClickListener = confirmClickListener;
     }
 
     public void setParameterNote(String note1,String note2){
@@ -126,6 +150,14 @@ public class CustomDialog extends Dialog {
 
     public void setConfirmText(String text){
         confirm.setText(text);
+    }
+
+    public interface TextChangeListener{
+        public void textChanged(String text);
+    }
+
+    public void setTextChangeListener(TextChangeListener textChangeListener){
+        this.textChangeListener = textChangeListener;
     }
 
 }

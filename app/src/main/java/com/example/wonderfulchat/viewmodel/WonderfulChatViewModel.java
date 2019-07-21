@@ -31,6 +31,8 @@ import com.example.wonderfulchat.view.LoginActivity;
 import com.example.wonderfulchat.view.LuckyTurntableFragment;
 import com.example.wonderfulchat.view.MessageFragment;
 
+import java.io.UnsupportedEncodingException;
+import java.net.URLEncoder;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -157,11 +159,12 @@ public class WonderfulChatViewModel extends BaseViewModel <AppCompatActivity> {
                             }
                             getView().finish();
                         }else {
-                            if (type.equals("logout")){
-                                ToastUtil.showToast("退出异常！");
-                            }else {
+                            if (type.equals("switch")){
                                 ToastUtil.showToast("切换异常！");
+                            }else {
+                                ToastUtil.showToast("退出异常！");
                             }
+                            LogUtil.d(TAG,response);
                         }
                     }
                 });
@@ -182,6 +185,83 @@ public class WonderfulChatViewModel extends BaseViewModel <AppCompatActivity> {
                 });
             }
         });
+    }
+
+    public void changePassword(String account,String oldPass,String newPass){
+        String postParameters = null;
+        try {
+            postParameters = "account=" + URLEncoder.encode(account, "UTF-8");
+            postParameters += "&oldPass=" + URLEncoder.encode(oldPass, "UTF-8");
+            postParameters += "&newPass=" + URLEncoder.encode(newPass, "UTF-8");
+        } catch (UnsupportedEncodingException e) {
+            e.printStackTrace();
+        }
+        HttpUtil.httpRequestForPost(InternetAddress.CHANGE_PASS_URL, postParameters, new HttpCallbackListener() {
+            @Override
+            public void onFinish(final String response) {
+                getView().runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        if (response.equals("修改密码成功！")){
+                            clearPass();
+                            Intent intent = new Intent(getView(),LoginActivity.class);
+                            getView().startActivity(intent);
+                            getView().finish();
+                        }
+                        ToastUtil.showToast(response);
+                        LogUtil.d(TAG,response);
+                    }
+                });
+            }
+
+            @Override
+            public void onError(final Exception e) {
+                getView().runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        ToastUtil.showToast("修改密码失败！");
+                        LogUtil.e(TAG,"修改密码失败: "+e.getMessage());
+                    }
+                });
+            }
+        });
+    }
+
+    public void changeField(String account, String field, final String content, final String oldContent, final TextView textView){
+        String url = InternetAddress.CHANGE_FIELD_URL + "?account=" + account + "&field=" + field + "&content=" + content;
+        HttpUtil.httpRequestForGet(url, new HttpCallbackListener() {
+            @Override
+            public void onFinish(final String response) {
+                getView().runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        if (response.equals("success")){
+                            ToastUtil.showToast("修改成功！");
+                        }else {
+                            textView.setText(oldContent);
+                            ToastUtil.showToast("修改失败！");
+                            LogUtil.d(TAG,response);
+                        }
+                    }
+                });
+            }
+
+            @Override
+            public void onError(final Exception e) {
+                getView().runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        textView.setText(oldContent);
+                        ToastUtil.showToast("修改失败！");
+                        LogUtil.e(TAG,"修改失败：" + e.getMessage());
+                    }
+                });
+            }
+        });
+    }
+
+    private void clearPass(){
+        MemoryUtil.sharedPreferencesSaveString("password","");
     }
 
     public void setNameOrLifeMotto(String type, String content, TextView textView){
