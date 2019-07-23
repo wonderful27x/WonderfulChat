@@ -342,13 +342,12 @@ public class WonderfulChatActivity extends BaseActivity <WonderfulChatViewModel>
                 break;
             case 2:
                 if(resultCode==RESULT_OK){
-                    String imageUrl;
                     if(Build.VERSION.SDK_INT>=19){
-                        imageUrl = getViewModel().handleImageOnkitKat(data);
+                        takePhotoPath = getViewModel().handleImageOnkitKat(data);
                     }else{
-                        imageUrl = getViewModel().handleImageBeforeKitKat(data);
+                        takePhotoPath = getViewModel().handleImageBeforeKitKat(data);
                     }
-                    getViewModel().uploadHeadImage(imageUrl,headImage);
+                    getViewModel().uploadHeadImage(takePhotoPath,headImage);
                 }
             default:
                 break;

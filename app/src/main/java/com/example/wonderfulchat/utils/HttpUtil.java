@@ -1,12 +1,16 @@
 package com.example.wonderfulchat.utils;
 
 import com.example.wonderfulchat.interfaces.HttpCallbackListener;
+import com.example.wonderfulchat.model.ParameterPass;
+
 import java.io.BufferedReader;
 import java.io.DataOutputStream;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.URL;
+import java.util.HashMap;
+
 import okhttp3.FormBody;
 import okhttp3.MediaType;
 import okhttp3.OkHttpClient;
@@ -14,6 +18,10 @@ import okhttp3.Request;
 import okhttp3.RequestBody;
 
 public class HttpUtil {
+
+    public static final String GET = "get";
+    public static final String POST_FORM = "postForm";
+    public static final String POST_JSON = "postJson";
 
     public static void httpRequestForPost(final String address,final String postParameters,final HttpCallbackListener listener){
         new Thread(new Runnable() {
@@ -100,24 +108,24 @@ public class HttpUtil {
         }).start();
     }
 
-    private static void sendOkHttpRequest(String address,String postParameters, String type, okhttp3.Callback callback){
+    public static void sendOkHttpRequest(String address, ParameterPass pass,okhttp3.Callback callback){
         OkHttpClient client = new OkHttpClient();
         Request request = null;
-        if(type.equals("GET")){
+        if(pass.getType().equals(GET)){
             request = new Request.Builder()
                     .url(address)
                     .get()
                     .build();
-        }else if(type.equals("POST_FORM")){
-            RequestBody requestBody = stringToBody(postParameters);
+        }else if(pass.getType().equals(POST_FORM)){
+            RequestBody requestBody = stringToBody(pass.getMap());
 
             request = new Request.Builder()
                     .url(address)
                     .post(requestBody)
                     .build();
-        }else if(type.equals("POST_JSON")){
+        }else if(pass.getType().equals(POST_JSON)){
             RequestBody requestBody = FormBody.create(MediaType.parse("application/json; charset=utf-8")
-                    , postParameters);
+                    , pass.getString());
             request = new Request.Builder()
                     .url(address)
                     .post(requestBody)
@@ -131,6 +139,14 @@ public class HttpUtil {
         String [] dataArray = data.split(",");
         for (int i=0; i<dataArray.length; i+=2){
             builder.add(dataArray[i],dataArray[i+1]);
+        }
+        return builder.build();
+    }
+
+    private static RequestBody stringToBody(HashMap<String ,String> map){
+        FormBody.Builder builder = new FormBody.Builder();
+        for (String key:map.keySet()){
+            builder.add(key,map.get(key));
         }
         return builder.build();
     }
