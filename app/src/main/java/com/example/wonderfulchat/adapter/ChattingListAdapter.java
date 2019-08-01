@@ -11,6 +11,7 @@ import com.bumptech.glide.Glide;
 import com.example.wonderfulchat.R;
 import com.example.wonderfulchat.databinding.ChattingItemBinding;
 import com.example.wonderfulchat.model.MessageModel;
+import com.example.wonderfulchat.model.MessageType;
 import com.example.wonderfulchat.model.UserModel;
 import com.example.wonderfulchat.utils.MemoryUtil;
 import com.example.wonderfulchat.viewmodel.ChattingViewModel;
@@ -47,12 +48,12 @@ public class ChattingListAdapter extends RecyclerView.Adapter<ChattingListAdapte
     public void onBindViewHolder(@NonNull ChattingListAdapter.ViewHolder viewHolder, int i) {
         MessageModel messageModel = messageModels.get(i);
         ChattingItemBinding binding = viewHolder.getBinding();
-        if (messageModels.get(i).getType() == MessageModel.TYPE_RECEIVE){
+        if (messageModels.get(i).getType() == MessageType.MESSAGE_RECEIVE.getCode()){
             binding.leftLayout.setVisibility(View.VISIBLE);
             binding.rightLayout.setVisibility(View.GONE);
             binding.receiveMessage.setText(messageModel.getMessage());
             Glide.with(chattingViewModel.getView()).load(messageModel.getSenderImage()).into(binding.friendImage);
-        }else if(messageModels.get(i).getType() == MessageModel.TYPE_SEND){
+        }else if(messageModels.get(i).getType() == MessageType.MESSAGE_SEND.getCode()){
             binding.leftLayout.setVisibility(View.GONE);
             binding.rightLayout.setVisibility(View.VISIBLE);
             binding.sendMessage.setText(messageModel.getMessage());

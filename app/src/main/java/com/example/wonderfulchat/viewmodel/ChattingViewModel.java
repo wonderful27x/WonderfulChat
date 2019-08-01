@@ -5,27 +5,65 @@ import android.support.v7.widget.LinearLayoutManager;
 import android.view.View;
 import com.example.wonderfulchat.adapter.ChattingListAdapter;
 import com.example.wonderfulchat.databinding.ActivityChattingBinding;
+import com.example.wonderfulchat.model.CommonConstant;
 import com.example.wonderfulchat.model.HttpMessageModel;
+import com.example.wonderfulchat.model.InternetAddress;
 import com.example.wonderfulchat.model.MessageModel;
+import com.example.wonderfulchat.model.MessageType;
+import com.example.wonderfulchat.model.UserModel;
 import com.example.wonderfulchat.utils.FileUtil;
+import com.example.wonderfulchat.utils.LogUtil;
+import com.example.wonderfulchat.utils.MemoryUtil;
+import com.example.wonderfulchat.utils.ToastUtil;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 
+import java.io.BufferedReader;
+import java.io.BufferedWriter;
 import java.io.File;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.io.OutputStream;
+import java.io.OutputStreamWriter;
+import java.net.Socket;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.atomic.AtomicInteger;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 public class ChattingViewModel extends BaseViewModel<AppCompatActivity> {
+
+    private static final String TAG = "ChattingViewModel";
 
     private ActivityChattingBinding binding;
     private ChattingListAdapter adapter;
     private List<MessageModel> messageModels;
     private String friendAccount;
+    private UserModel userModel;
+    private Socket socket = null;
+    private BufferedReader reader = null;
+    private BufferedWriter writer = null;
+    private AtomicInteger startTimes;
+    private boolean socketRun = true;
+    private Gson gson;
 
     public void initView(List<MessageModel> message,String friendAccount){
         this.friendAccount = friendAccount;
         messageModels = new ArrayList<>();
+        startTimes = new AtomicInteger(3);
+        gson = new Gson();
+
+        binding.messageSend.setEnabled(false);
+        String userString = MemoryUtil.sharedPreferencesGetString("UserModel");
+        Gson gson = new Gson();
+        userModel = gson.fromJson(userString,UserModel.class);
+
+        SocketRunnable runnable = new SocketRunnable();
+        Thread thread = new Thread(runnable);
+        thread.start();
+
         List<MessageModel> unReadMessage = message;
         List<MessageModel> newMessage = getMessageFromNet(friendAccount);
         List<MessageModel> readMessage = getReadMessage(friendAccount);
@@ -64,7 +102,7 @@ public class ChattingViewModel extends BaseViewModel<AppCompatActivity> {
             message.setReceiver("机构鞥我");
             message.setReceiverAccount("thisismyse");
             message.setTime("2019-06-12 12:07");
-            message.setType(MessageModel.TYPE_RECEIVE);
+            message.setType(MessageType.MESSAGE_RECEIVE.getCode());
             messages.add(message);
         }
 
@@ -82,7 +120,6 @@ public class ChattingViewModel extends BaseViewModel<AppCompatActivity> {
         if ("".equals(jsonData)){
             return null;
         }
-        Gson gson = new Gson();
         readMessage = gson.fromJson(jsonData,new TypeToken<List<MessageModel>>(){}.getType());
         return readMessage;
     }
@@ -102,9 +139,10 @@ public class ChattingViewModel extends BaseViewModel<AppCompatActivity> {
     public void sendMessage(View view){
         String message = binding.messageContent.getText().toString();
         if (message.isEmpty())return;
-        MessageModel model = new MessageModel();
-        model.setType(MessageModel.TYPE_SEND);
-        model.setMessage(message);
+//        MessageModel model = new MessageModel();
+//        model.setType(MessageType.MESSAGE_SEND.getCode());
+//        model.setMessage(message);
+        MessageModel model = sendMessage(MessageType.MESSAGE_SEND,userModel.getAccount(),friendAccount,message);
         messageModels.add(model);
         adapter.notifyItemInserted(messageModels.size());
         binding.recyclerView.scrollToPosition(messageModels.size()-1);
@@ -128,5 +166,71 @@ public class ChattingViewModel extends BaseViewModel<AppCompatActivity> {
 
     public void setBinding(ActivityChattingBinding binding){
         this.binding = binding;
+    }
+
+    private void stopSocket(){
+        socketRun = false;
+    }
+
+    private MessageModel sendMessage(MessageType type,String sender,String receiver,String message){
+        MessageModel messageModel = new MessageModel();
+        messageModel.setType(type.getCode());
+        messageModel.setSender(sender);
+        messageModel.setReceiver(receiver);
+        messageModel.setMessage(message);
+        String messageData = gson.toJson(messageModel);
+        try {
+            writer.write(messageData);
+            writer.flush();
+        } catch (IOException ex) {
+            Logger.getLogger(ChattingViewModel.class.getName()).log(Level.SEVERE, null, ex);
+        }
+
+        return messageModel;
+    }
+
+    class SocketRunnable implements Runnable{
+        String message;
+        MessageModel messageModel = new MessageModel();
+
+        @Override
+        public void run() {
+            while (startTimes.get() >0){
+                try {
+                    socket = new Socket(InternetAddress.HOST_IP,8888);
+                    InputStream input = socket.getInputStream();
+                    OutputStream out = socket.getOutputStream();
+                    reader = new BufferedReader(new InputStreamReader(input));
+                    writer = new BufferedWriter(new OutputStreamWriter(out));
+                    startTimes.set(0);
+
+                    while(socketRun && (message = reader.readLine()) != null){
+                        messageModel = gson.fromJson(message,MessageModel.class);
+                        switch (MessageType.getByValue(messageModel.getType())){
+                            case ANSWER:
+                                if (CommonConstant.IDENTITY_REQUEST.equals(messageModel.getMessage())){
+                                    sendMessage(MessageType.ANSWER,"client","server",userModel.getAccount());
+                                }else if (CommonConstant.ACCEPT.equals(messageModel.getMessage())){
+                                    binding.messageSend.setEnabled(true);
+                                }else if (CommonConstant.REFUSE.equals(messageModel.getMessage())){
+                                    ToastUtil.showToast("未知的身份，请求被拒绝！");
+                                    LogUtil.d(TAG,CommonConstant.REFUSE);
+                                }
+                                break;
+                            case MESSAGE_RECEIVE:
+                                break;
+                            case ERROR:
+                                LogUtil.e(TAG,messageModel.getMessage());
+                                break;
+                            default:
+                                break;
+                        }
+                    }
+                } catch (IOException e) {
+                    startTimes.getAndDecrement();
+                    e.printStackTrace();
+                }
+            }
+        }
     }
 }

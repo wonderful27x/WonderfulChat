@@ -5,8 +5,6 @@ import android.os.Parcelable;
 
 public class MessageModel implements Parcelable {
 
-    public static final int TYPE_RECEIVE = 0;
-    public static final int TYPE_SEND = 1;
     private String sender;
     private String senderImage;
     private String senderAccount;
