@@ -25,8 +25,8 @@ public class LuckyTurntableFragment extends BaseFragment<LuckyTurntableViewModel
         LuckyTurntableFragmentLayoutBinding binding = DataBindingUtil.inflate(inflater, R.layout.lucky_turntable_fragment_layout,container,false);
         binding.setWonderfulViewModel(getViewModel());
         getViewModel().setBinding(binding);
-        getViewModel().initView();
         initView(binding);
+        getViewModel().initView();
         return binding.getRoot();
     }
 

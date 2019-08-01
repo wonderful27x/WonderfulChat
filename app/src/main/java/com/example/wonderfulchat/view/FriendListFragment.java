@@ -24,8 +24,8 @@ public class FriendListFragment extends BaseFragment<FriendListViewModel> {
         FriendListFragmentLayoutBinding binding = DataBindingUtil.inflate(inflater, R.layout.friend_list_fragment_layout, container, false);
         binding.setWonderfulViewModel(getViewModel());
         getViewModel().setLayoutBinding(binding);
-        getViewModel().initView();
         initView(binding);
+        getViewModel().initView();
         return binding.getRoot();
     }
 

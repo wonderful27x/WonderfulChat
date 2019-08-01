@@ -30,7 +30,9 @@ import java.net.Socket;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.logging.Handler;
 import java.util.logging.Level;
+import java.util.logging.LogRecord;
 import java.util.logging.Logger;
 
 public class ChattingViewModel extends BaseViewModel<AppCompatActivity> {
@@ -180,7 +182,7 @@ public class ChattingViewModel extends BaseViewModel<AppCompatActivity> {
         messageModel.setMessage(message);
         String messageData = gson.toJson(messageModel);
         try {
-            writer.write(messageData);
+            writer.write(messageData + "\n");
             writer.flush();
         } catch (IOException ex) {
             Logger.getLogger(ChattingViewModel.class.getName()).log(Level.SEVERE, null, ex);
@@ -191,11 +193,11 @@ public class ChattingViewModel extends BaseViewModel<AppCompatActivity> {
 
     class SocketRunnable implements Runnable{
         String message;
-        MessageModel messageModel = new MessageModel();
+        MessageModel messageModel;
 
         @Override
         public void run() {
-            while (startTimes.get() >0){
+            while (socketRun && startTimes.get() >0){
                 try {
                     socket = new Socket(InternetAddress.HOST_IP,8888);
                     InputStream input = socket.getInputStream();
@@ -205,12 +207,14 @@ public class ChattingViewModel extends BaseViewModel<AppCompatActivity> {
                     startTimes.set(0);
 
                     while(socketRun && (message = reader.readLine()) != null){
+                        if(!socketRun)return;
                         messageModel = gson.fromJson(message,MessageModel.class);
                         switch (MessageType.getByValue(messageModel.getType())){
                             case ANSWER:
                                 if (CommonConstant.IDENTITY_REQUEST.equals(messageModel.getMessage())){
                                     sendMessage(MessageType.ANSWER,"client","server",userModel.getAccount());
                                 }else if (CommonConstant.ACCEPT.equals(messageModel.getMessage())){
+                                    sendMessage(MessageType.SOCKET_KEY,"client","server",userModel.getAccount() + "$" + friendAccount);
                                     binding.messageSend.setEnabled(true);
                                 }else if (CommonConstant.REFUSE.equals(messageModel.getMessage())){
                                     ToastUtil.showToast("未知的身份，请求被拒绝！");
@@ -218,6 +222,9 @@ public class ChattingViewModel extends BaseViewModel<AppCompatActivity> {
                                 }
                                 break;
                             case MESSAGE_RECEIVE:
+                                messageModels.add(messageModel);
+                                adapter.notifyItemInserted(messageModels.size());
+                                binding.recyclerView.scrollToPosition(messageModels.size()-1);
                                 break;
                             case ERROR:
                                 LogUtil.e(TAG,messageModel.getMessage());
@@ -229,8 +236,31 @@ public class ChattingViewModel extends BaseViewModel<AppCompatActivity> {
                 } catch (IOException e) {
                     startTimes.getAndDecrement();
                     e.printStackTrace();
+                }finally {
+                    try {
+                        if (reader != null){
+                            reader.close();
+                        }
+                        if (writer != null){
+                            writer.close();
+                        }
+                        if (socket != null){
+                            socket.close();
+                        }
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
                 }
             }
+        }
+    }
+
+    @Override
+    public void deTachView() {
+        super.deTachView();
+        stopSocket();
+        if (binding != null){
+            binding = null;
         }
     }
 }

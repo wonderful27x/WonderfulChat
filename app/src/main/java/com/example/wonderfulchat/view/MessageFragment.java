@@ -28,8 +28,9 @@ public class MessageFragment extends BaseFragment<MessageViewModel> {
          MessageFragmentLayoutBinding binding = DataBindingUtil.inflate(inflater, R.layout.message_fragment_layout, container, false);
          binding.setWonderfulViewModel(getViewModel());
          getViewModel().setLayoutBinding(binding);
-         //getViewModel().initView();
+
          initView(binding);
+         //getViewModel().initView();
 
          return binding.getRoot();
     }

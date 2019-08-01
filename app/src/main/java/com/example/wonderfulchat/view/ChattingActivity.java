@@ -34,9 +34,9 @@ public class ChattingActivity extends BaseActivity<ChattingViewModel> {
         String friendAccount = intent.getStringExtra("friendAccount");
         List<MessageModel> messageModel = (List<MessageModel>) intent.getSerializableExtra("message");
 
+        initView(binding,friendName);
         getViewModel().initView(messageModel,friendAccount);
 
-        initView(binding,friendName);
     }
 
     private void initView(ActivityChattingBinding binding,String friendName){
