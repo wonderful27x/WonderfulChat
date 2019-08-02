@@ -41,7 +41,7 @@ public class ChattingActivity extends BaseActivity<ChattingViewModel> {
 
     private void initView(ActivityChattingBinding binding,String friendName){
 
-        RelativeLayout.LayoutParams layoutParams = new RelativeLayout.LayoutParams(UnitChangeUtil.dp2px(25), UnitChangeUtil.dp2px(25));
+        RelativeLayout.LayoutParams layoutParams = new RelativeLayout.LayoutParams(UnitChangeUtil.dp2px(35), UnitChangeUtil.dp2px(35));
         layoutParams.addRule(RelativeLayout.CENTER_VERTICAL);
 
         midText = binding.head.findViewById(R.id.mid_text);
@@ -56,9 +56,31 @@ public class ChattingActivity extends BaseActivity<ChattingViewModel> {
         leftImage.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                finish();
+                getViewModel().exit();
+                getViewModel().messageSave();
+                try {
+                    Thread.sleep(500);
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }finally {
+                    finish();
+                }
             }
         });
+    }
+
+    @Override
+    public void onBackPressed() {
+        getViewModel().exit();
+        getViewModel().messageSave();
+        try {
+            Thread.sleep(500);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }finally {
+            finish();
+        }
+        super.onBackPressed();
     }
 
     @Override
@@ -68,7 +90,6 @@ public class ChattingActivity extends BaseActivity<ChattingViewModel> {
 
     @Override
     protected void onDestroy() {
-        getViewModel().messageSave();
         super.onDestroy();
     }
 }

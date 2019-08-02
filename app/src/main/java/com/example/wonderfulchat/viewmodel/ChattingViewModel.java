@@ -186,9 +186,20 @@ public class ChattingViewModel extends BaseViewModel<AppCompatActivity> {
 
     private void stopSocket(){
         socketRun = false;
+        String message = "Bye !";
+        MessageModel model = buildMessage(MessageType.SOCKET_CLOSE,"client","server",message);
+        Message sendMessage = messageSendHandler.obtainMessage();
+        sendMessage.what = MessageType.SOCKET_CLOSE.getCode();
+        sendMessage.obj = model;
+        sendMessage.sendToTarget();
     }
+
     private void stopLoop(){
         messageSendHandler.getLooper().quit();
+    }
+
+    public void exit(){
+        stopSocket();
     }
 
     private MessageModel sendMessage(MessageType type,String sender,String receiver,String message){
@@ -313,6 +324,10 @@ public class ChattingViewModel extends BaseViewModel<AppCompatActivity> {
                 case MESSAGE_SEND:
                     sendMessage((MessageModel) message.obj);
                     break;
+                case SOCKET_CLOSE:
+                    sendMessage((MessageModel) message.obj);
+                    messageSendHandler.getLooper().quit();
+                    break;
             }
             return true;
         }
@@ -339,8 +354,6 @@ public class ChattingViewModel extends BaseViewModel<AppCompatActivity> {
     @Override
     public void deTachView() {
         super.deTachView();
-        stopSocket();
-        stopLoop();
         if (binding != null){
             binding = null;
         }
