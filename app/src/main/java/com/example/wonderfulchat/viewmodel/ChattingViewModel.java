@@ -1,12 +1,14 @@
 package com.example.wonderfulchat.viewmodel;
 
+import android.os.Handler;
+import android.os.Looper;
+import android.os.Message;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.view.View;
 import com.example.wonderfulchat.adapter.ChattingListAdapter;
 import com.example.wonderfulchat.databinding.ActivityChattingBinding;
 import com.example.wonderfulchat.model.CommonConstant;
-import com.example.wonderfulchat.model.HttpMessageModel;
 import com.example.wonderfulchat.model.InternetAddress;
 import com.example.wonderfulchat.model.MessageModel;
 import com.example.wonderfulchat.model.MessageType;
@@ -17,7 +19,6 @@ import com.example.wonderfulchat.utils.MemoryUtil;
 import com.example.wonderfulchat.utils.ToastUtil;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
-
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.File;
@@ -30,9 +31,7 @@ import java.net.Socket;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
-import java.util.logging.Handler;
 import java.util.logging.Level;
-import java.util.logging.LogRecord;
 import java.util.logging.Logger;
 
 public class ChattingViewModel extends BaseViewModel<AppCompatActivity> {
@@ -50,6 +49,8 @@ public class ChattingViewModel extends BaseViewModel<AppCompatActivity> {
     private AtomicInteger startTimes;
     private boolean socketRun = true;
     private Gson gson;
+    private Handler handler;
+    private Handler messageSendHandler;
 
     public void initView(List<MessageModel> message,String friendAccount){
         this.friendAccount = friendAccount;
@@ -62,9 +63,17 @@ public class ChattingViewModel extends BaseViewModel<AppCompatActivity> {
         Gson gson = new Gson();
         userModel = gson.fromJson(userString,UserModel.class);
 
+        Looper looper = Looper.getMainLooper();
+        MessageCallback callback = new MessageCallback();
+        handler = new Handler(looper,callback);
+
         SocketRunnable runnable = new SocketRunnable();
-        Thread thread = new Thread(runnable);
-        thread.start();
+        Thread receiveThread = new Thread(runnable);
+        receiveThread.start();
+
+        MessageSendRunnable messageSendRunnable = new MessageSendRunnable();
+        Thread sendThread = new Thread(messageSendRunnable);
+        sendThread.start();
 
         List<MessageModel> unReadMessage = message;
         List<MessageModel> newMessage = getMessageFromNet(friendAccount);
@@ -144,7 +153,12 @@ public class ChattingViewModel extends BaseViewModel<AppCompatActivity> {
 //        MessageModel model = new MessageModel();
 //        model.setType(MessageType.MESSAGE_SEND.getCode());
 //        model.setMessage(message);
-        MessageModel model = sendMessage(MessageType.MESSAGE_SEND,userModel.getAccount(),friendAccount,message);
+        MessageModel model = buildMessage(MessageType.MESSAGE_SEND,userModel.getAccount(),friendAccount,message);
+        Message sendMessage = messageSendHandler.obtainMessage();
+        sendMessage.what = MessageType.MESSAGE_SEND.getCode();
+        sendMessage.obj = model;
+        sendMessage.sendToTarget();
+
         messageModels.add(model);
         adapter.notifyItemInserted(messageModels.size());
         binding.recyclerView.scrollToPosition(messageModels.size()-1);
@@ -173,6 +187,9 @@ public class ChattingViewModel extends BaseViewModel<AppCompatActivity> {
     private void stopSocket(){
         socketRun = false;
     }
+    private void stopLoop(){
+        messageSendHandler.getLooper().quit();
+    }
 
     private MessageModel sendMessage(MessageType type,String sender,String receiver,String message){
         MessageModel messageModel = new MessageModel();
@@ -189,6 +206,26 @@ public class ChattingViewModel extends BaseViewModel<AppCompatActivity> {
         }
 
         return messageModel;
+    }
+
+    private MessageModel buildMessage(MessageType type,String sender,String receiver,String message){
+        MessageModel messageModel = new MessageModel();
+        messageModel.setType(type.getCode());
+        messageModel.setSenderAccount(sender);
+        messageModel.setReceiverAccount(receiver);
+        messageModel.setMessage(message);
+
+        return messageModel;
+    }
+
+    private void sendMessage(MessageModel messageModel){
+        String messageData = gson.toJson(messageModel);
+        try {
+            writer.write(messageData + "\n");
+            writer.flush();
+        } catch (IOException ex) {
+            Logger.getLogger(ChattingViewModel.class.getName()).log(Level.SEVERE, null, ex);
+        }
     }
 
     class SocketRunnable implements Runnable{
@@ -215,16 +252,19 @@ public class ChattingViewModel extends BaseViewModel<AppCompatActivity> {
                                     sendMessage(MessageType.ANSWER,"client","server",userModel.getAccount());
                                 }else if (CommonConstant.ACCEPT.equals(messageModel.getMessage())){
                                     sendMessage(MessageType.SOCKET_KEY,"client","server",userModel.getAccount() + "$" + friendAccount);
-                                    binding.messageSend.setEnabled(true);
+                                    Message message = handler.obtainMessage();
+                                    message.what = 0;
+                                    message.sendToTarget();
                                 }else if (CommonConstant.REFUSE.equals(messageModel.getMessage())){
                                     ToastUtil.showToast("未知的身份，请求被拒绝！");
                                     LogUtil.d(TAG,CommonConstant.REFUSE);
                                 }
                                 break;
                             case MESSAGE_RECEIVE:
-                                messageModels.add(messageModel);
-                                adapter.notifyItemInserted(messageModels.size());
-                                binding.recyclerView.scrollToPosition(messageModels.size()-1);
+                                Message message = handler.obtainMessage();
+                                message.what = 1;
+                                message.obj = messageModel;
+                                message.sendToTarget();
                                 break;
                             case ERROR:
                                 LogUtil.e(TAG,messageModel.getMessage());
@@ -255,10 +295,52 @@ public class ChattingViewModel extends BaseViewModel<AppCompatActivity> {
         }
     }
 
+    class MessageSendRunnable implements Runnable{
+
+        @Override
+        public void run() {
+            Looper.prepare();
+            messageSendHandler = new Handler(new MessageSendCallback());
+            Looper.loop();
+        }
+    }
+
+    class MessageSendCallback implements Handler.Callback{
+
+        @Override
+        public boolean handleMessage(Message message) {
+            switch (MessageType.getByValue(message.what)){
+                case MESSAGE_SEND:
+                    sendMessage((MessageModel) message.obj);
+                    break;
+            }
+            return true;
+        }
+    }
+
+    class MessageCallback implements Handler.Callback {
+
+        @Override
+        public boolean handleMessage(Message message) {
+            switch (message.what){
+                case 0:
+                    binding.messageSend.setEnabled(true);
+                    break;
+                case 1:
+                    messageModels.add((MessageModel) message.obj);
+                    adapter.notifyItemInserted(messageModels.size());
+                    binding.recyclerView.scrollToPosition(messageModels.size()-1);
+                    break;
+            }
+            return true;
+        }
+    }
+
     @Override
     public void deTachView() {
         super.deTachView();
         stopSocket();
+        stopLoop();
         if (binding != null){
             binding = null;
         }
