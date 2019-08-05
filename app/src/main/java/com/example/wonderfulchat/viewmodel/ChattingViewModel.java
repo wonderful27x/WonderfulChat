@@ -104,7 +104,7 @@ public class ChattingViewModel extends BaseViewModel<AppCompatActivity> {
     private List<MessageModel> getMessageFromNet(String account){
         List<MessageModel> messages = new ArrayList<>();
         String content = "经费世界公司哦手机覅韩国就送大奖哦挤公交感觉颇为烦恼";
-        for (int i=0; i<2; i++){
+        for (int i=0; i<1; i++){
             MessageModel message = new MessageModel();
             message.setMessage(content+i);
             message.setSender(account);

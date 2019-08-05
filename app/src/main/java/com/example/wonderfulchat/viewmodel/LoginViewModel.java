@@ -139,6 +139,7 @@ public class LoginViewModel extends BaseViewModel<Activity> {
     private void getUserMessage(String jsonData){
         Gson gson = new Gson();
         HttpUserModel httpUserModel = gson.fromJson(jsonData, HttpUserModel.class);
+        if(httpUserModel == null)return;
         if ("success".equals(httpUserModel.getResult())){
             accountPassSave(isChecked.get());
 
@@ -149,8 +150,10 @@ public class LoginViewModel extends BaseViewModel<Activity> {
             Intent intent = new Intent(getView(), WonderfulChatActivity.class);
             getView().startActivity(intent);
             //getView().finish();
-        }else {
+        }else if("fail".equals(httpUserModel.getResult())){
             ToastUtil.showToast(httpUserModel.getMessage());
+            LogUtil.d(TAG,httpUserModel.getMessage());
+        }else if("error".equals(httpUserModel.getResult())){
             LogUtil.d(TAG,httpUserModel.getMessage());
         }
 

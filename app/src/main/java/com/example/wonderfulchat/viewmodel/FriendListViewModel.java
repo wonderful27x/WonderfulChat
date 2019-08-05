@@ -100,14 +100,19 @@ public class FriendListViewModel extends BaseViewModel<Fragment> {
                     public void run() {
                         Gson gson = new Gson();
                         HttpUserModel httpUserModel = gson.fromJson(response, HttpUserModel.class);
-                        if (httpUserModel != null && httpUserModel.getContent() != null){
-                            List<UserModel> userList = httpUserModel.getContent();
-                            userModels.clear();
-                            userModels.addAll(userList);
-                            groupModels.get(0).setNumber(userModels.size());
-                            adapter.notifyDataSetChanged();
-                        }else {
-                            ToastUtil.showToast("无数据！");
+                        if(httpUserModel == null)return;
+                        if ("success".equals(httpUserModel.getResult())){
+                            if(httpUserModel.getContent() != null){
+                                List<UserModel> userList = httpUserModel.getContent();
+                                userModels.clear();
+                                userModels.addAll(userList);
+                                groupModels.get(0).setNumber(userModels.size());
+                                adapter.notifyDataSetChanged();
+                            }
+                        }else if("fail".equals(httpUserModel.getResult())){
+                            ToastUtil.showToast(httpUserModel.getMessage());
+                        }else if("error".equals(httpUserModel.getResult())){
+                            LogUtil.e(TAG,httpUserModel.getMessage());
                         }
                         layoutBinding.refreshLayout.setRefreshing(false);
                     }
@@ -239,16 +244,27 @@ public class FriendListViewModel extends BaseViewModel<Fragment> {
                     public void run() {
                         Gson gson = new Gson();
                         HttpUserModel httpUserModel = gson.fromJson(response, HttpUserModel.class);
-                        if (httpUserModel != null && httpUserModel.getContent() != null && httpUserModel.getContent().size() >0){
-                            friend = httpUserModel.getContent().get(0);
-                            friendExist = true;
-                            dialog.imageHideShow(true,false);
-                            dialog.setImage(R.mipmap.check_ok,-1);
-                            dialog.setConfirmText("添加");
-                        }else {
+                        if (httpUserModel == null)return;
+                        if ("success".equals(httpUserModel.getResult())){
+                            if(httpUserModel.getContent() != null && httpUserModel.getContent().size() >0){
+                                friend = httpUserModel.getContent().get(0);
+                                friendExist = true;
+                                dialog.imageHideShow(true,false);
+                                dialog.setImage(R.mipmap.check_ok,-1);
+                                dialog.setConfirmText("添加");
+                            }else {
+                                dialog.imageHideShow(true,false);
+                                dialog.setImage(R.mipmap.check_false,-1);
+                                ToastUtil.showToast("未找到，请检查账号是否正确！");
+                            }
+                        }else if("fail".equals(httpUserModel.getResult())){
                             dialog.imageHideShow(true,false);
                             dialog.setImage(R.mipmap.check_false,-1);
-                            ToastUtil.showToast("未找到，请检查账号是否正确！");
+                            ToastUtil.showToast(httpUserModel.getMessage());
+                        }else if("error".equals(httpUserModel.getResult())){
+                            dialog.imageHideShow(true,false);
+                            dialog.setImage(R.mipmap.check_false,-1);
+                            LogUtil.e(TAG,httpUserModel.getMessage());
                         }
                     }
                 });
