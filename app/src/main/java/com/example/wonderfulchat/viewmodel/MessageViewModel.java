@@ -158,7 +158,9 @@ public class MessageViewModel extends BaseViewModel <Fragment> {
                         if(httpMessageModel == null)return;
                         if("success".equals(httpMessageModel.getResult())){
                             if(httpMessageModel.getContent() != null){
-                                analyzeMessage(httpMessageModel.getContent());
+                                List<List<MessageModel>> arrayList = httpMessageModel.getContent();
+                                removeEmpty(arrayList);
+                                analyzeMessage(arrayList);
                             }
                         }else if("fail".equals(httpMessageModel.getResult())){
                             ToastUtil.showToast(httpMessageModel.getMessage());
@@ -316,6 +318,16 @@ public class MessageViewModel extends BaseViewModel <Fragment> {
             }
         }
         unReadMessageList.addAll(unRead);
+    }
+
+    private void removeEmpty(List<List<MessageModel>> arrayList){
+        for (int i=0; i<arrayList.size(); i++){
+            List list = arrayList.get(i);
+            if (list.size() <=0){
+                arrayList.remove(i);
+                i--;
+            }
+        }
     }
 
     public void refresh(){

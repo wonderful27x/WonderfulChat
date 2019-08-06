@@ -3,7 +3,9 @@ package com.example.wonderfulchat.model;
 import android.os.Parcel;
 import android.os.Parcelable;
 
-public class MessageModel implements Parcelable {
+import java.io.Serializable;
+
+public class MessageModel implements Parcelable, Serializable {
 
     private String sender;
     private String senderImage;

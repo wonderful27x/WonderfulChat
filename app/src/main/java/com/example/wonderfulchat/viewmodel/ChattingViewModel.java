@@ -28,7 +28,9 @@ import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.io.OutputStreamWriter;
 import java.net.Socket;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.logging.Level;
@@ -80,9 +82,9 @@ public class ChattingViewModel extends BaseViewModel<AppCompatActivity> {
         List<MessageModel> readMessage = getReadMessage(friendAccount);
         mergeMessage(readMessage,unReadMessage,newMessage);
 
-        List<String> messageList = new ArrayList<>();
-        messageList.add("接哦结果就哦我");
-        for (int i=0; i<20; i++){
+//        List<String> messageList = new ArrayList<>();
+//        messageList.add("接哦结果就哦我");
+//        for (int i=0; i<20; i++){
 //            MessageModel model= new MessageModel();
 //            model.setMessage(messageList);
 //            model.setSenderImage("http://192.168.191.4:8080/file/girl.jpg");
@@ -92,7 +94,7 @@ public class ChattingViewModel extends BaseViewModel<AppCompatActivity> {
 //                model.setType(MessageModel.TYPE_SEND);
 //            }
 //            messageModels.add(model);
-        }
+//        }
 
         adapter = new ChattingListAdapter(messageModels,this);
         LinearLayoutManager manager = new LinearLayoutManager(getView());
@@ -103,19 +105,19 @@ public class ChattingViewModel extends BaseViewModel<AppCompatActivity> {
 
     private List<MessageModel> getMessageFromNet(String account){
         List<MessageModel> messages = new ArrayList<>();
-        String content = "经费世界公司哦手机覅韩国就送大奖哦挤公交感觉颇为烦恼";
-        for (int i=0; i<1; i++){
-            MessageModel message = new MessageModel();
-            message.setMessage(content+i);
-            message.setSender(account);
-            message.setSenderAccount("wonderful"+i);
-            message.setSenderImage("http://172.16.169.97:8080/file/girl.jpg");
-            message.setReceiver("机构鞥我");
-            message.setReceiverAccount("thisismyse");
-            message.setTime("2019-06-12 12:07");
-            message.setType(MessageType.MESSAGE_RECEIVE.getCode());
-            messages.add(message);
-        }
+//        String content = "经费世界公司哦手机覅韩国就送大奖哦挤公交感觉颇为烦恼";
+//        for (int i=0; i<1; i++){
+//            MessageModel message = new MessageModel();
+//            message.setMessage(content+i);
+//            message.setSender(account);
+//            message.setSenderAccount("wonderful"+i);
+//            message.setSenderImage("http://172.16.169.97:8080/file/girl.jpg");
+//            message.setReceiver("机构鞥我");
+//            message.setReceiverAccount("thisismyse");
+//            message.setTime("2019-06-12 12:07");
+//            message.setType(MessageType.MESSAGE_RECEIVE.getCode());
+//            messages.add(message);
+//        }
 
         return messages;
     }
@@ -153,7 +155,12 @@ public class ChattingViewModel extends BaseViewModel<AppCompatActivity> {
 //        MessageModel model = new MessageModel();
 //        model.setType(MessageType.MESSAGE_SEND.getCode());
 //        model.setMessage(message);
-        MessageModel model = buildMessage(MessageType.MESSAGE_SEND,userModel.getAccount(),friendAccount,message);
+
+        Date date = new Date();
+        SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd hh:mm:ss");
+        String time = format.format(date);
+
+        MessageModel model = buildMessage(MessageType.MESSAGE_SEND.getCode(),time,message,userModel.getNickname(),userModel.getAccount(),"",friendAccount,"");
         Message sendMessage = messageSendHandler.obtainMessage();
         sendMessage.what = MessageType.MESSAGE_SEND.getCode();
         sendMessage.obj = model;
@@ -187,7 +194,11 @@ public class ChattingViewModel extends BaseViewModel<AppCompatActivity> {
     private void stopSocket(){
         socketRun = false;
         String message = "Bye !";
-        MessageModel model = buildMessage(MessageType.SOCKET_CLOSE,"client","server",message);
+        Date date = new Date();
+        SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd hh:mm:ss");
+        String time = format.format(date);
+
+        MessageModel model = buildMessage(MessageType.SOCKET_CLOSE.getCode(),time,message,"client","client","server","server","");
         Message sendMessage = messageSendHandler.obtainMessage();
         sendMessage.what = MessageType.SOCKET_CLOSE.getCode();
         sendMessage.obj = model;
@@ -219,12 +230,27 @@ public class ChattingViewModel extends BaseViewModel<AppCompatActivity> {
         return messageModel;
     }
 
-    private MessageModel buildMessage(MessageType type,String sender,String receiver,String message){
+//    private MessageModel buildMessage(MessageType type,String sender,String receiver,String message){
+//        MessageModel messageModel = new MessageModel();
+//        messageModel.setType(type.getCode());
+//        messageModel.setSenderAccount(sender);
+//        messageModel.setReceiverAccount(receiver);
+//        messageModel.setMessage(message);
+//
+//        return messageModel;
+//    }
+
+    private MessageModel buildMessage(int Type,String time,String message,String sender,String senderAccount,String receiver,String receiverAccount,String senderImage){
+
         MessageModel messageModel = new MessageModel();
-        messageModel.setType(type.getCode());
-        messageModel.setSenderAccount(sender);
-        messageModel.setReceiverAccount(receiver);
+        messageModel.setType(Type);
+        messageModel.setTime(time);
         messageModel.setMessage(message);
+        messageModel.setSender(sender);
+        messageModel.setSenderAccount(senderAccount);
+        messageModel.setReceiver(receiver);
+        messageModel.setReceiverAccount(receiverAccount);
+        messageModel.setSenderImage(senderImage);
 
         return messageModel;
     }
