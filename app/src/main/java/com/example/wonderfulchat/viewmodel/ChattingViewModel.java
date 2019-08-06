@@ -28,6 +28,7 @@ import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.io.OutputStreamWriter;
 import java.net.Socket;
+import java.nio.charset.StandardCharsets;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
@@ -276,8 +277,8 @@ public class ChattingViewModel extends BaseViewModel<AppCompatActivity> {
                     socket = new Socket(InternetAddress.HOST_IP,8888);
                     InputStream input = socket.getInputStream();
                     OutputStream out = socket.getOutputStream();
-                    reader = new BufferedReader(new InputStreamReader(input));
-                    writer = new BufferedWriter(new OutputStreamWriter(out));
+                    reader = new BufferedReader(new InputStreamReader(input, "UTF-8"));
+                    writer = new BufferedWriter(new OutputStreamWriter(out,"UTF-8"));
                     startTimes.set(0);
 
                     while(socketRun && (message = reader.readLine()) != null){
@@ -286,15 +287,20 @@ public class ChattingViewModel extends BaseViewModel<AppCompatActivity> {
                         switch (MessageType.getByValue(messageModel.getType())){
                             case ANSWER:
                                 if (CommonConstant.IDENTITY_REQUEST.equals(messageModel.getMessage())){
-                                    sendMessage(MessageType.ANSWER,"client","server",userModel.getAccount());
+                                    sendMessage(MessageType.ANSWER,"client","server",userModel.getAccount() + "$" + friendAccount);
                                 }else if (CommonConstant.ACCEPT.equals(messageModel.getMessage())){
                                     sendMessage(MessageType.SOCKET_KEY,"client","server",userModel.getAccount() + "$" + friendAccount);
                                     Message message = handler.obtainMessage();
                                     message.what = 0;
                                     message.sendToTarget();
                                 }else if (CommonConstant.REFUSE.equals(messageModel.getMessage())){
-                                    ToastUtil.showToast("未知的身份，请求被拒绝！");
-                                    LogUtil.d(TAG,CommonConstant.REFUSE);
+                                    Message message = handler.obtainMessage();
+                                    message.what = 2;
+                                    message.sendToTarget();
+                                }else if(CommonConstant.REFUSE_FRIEND.equals(messageModel.getMessage())){
+                                    Message message = handler.obtainMessage();
+                                    message.what = 3;
+                                    message.sendToTarget();
                                 }
                                 break;
                             case MESSAGE_RECEIVE:
@@ -371,6 +377,14 @@ public class ChattingViewModel extends BaseViewModel<AppCompatActivity> {
                     messageModels.add((MessageModel) message.obj);
                     adapter.notifyItemInserted(messageModels.size());
                     binding.recyclerView.scrollToPosition(messageModels.size()-1);
+                    break;
+                case 2:
+                    ToastUtil.showToast("未知的身份，请求被拒绝！");
+                    LogUtil.d(TAG,CommonConstant.REFUSE);
+                    break;
+                case 3:
+                    ToastUtil.showToast("对方未添加好友，请求被拒绝！");
+                    LogUtil.d(TAG,CommonConstant.REFUSE_FRIEND);
                     break;
             }
             return true;
