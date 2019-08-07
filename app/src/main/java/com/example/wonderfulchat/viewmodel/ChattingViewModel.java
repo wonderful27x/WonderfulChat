@@ -8,12 +8,15 @@ import android.support.v7.widget.LinearLayoutManager;
 import android.view.View;
 import com.example.wonderfulchat.adapter.ChattingListAdapter;
 import com.example.wonderfulchat.databinding.ActivityChattingBinding;
+import com.example.wonderfulchat.interfaces.HttpCallbackListener;
 import com.example.wonderfulchat.model.CommonConstant;
+import com.example.wonderfulchat.model.HttpMessageModel;
 import com.example.wonderfulchat.model.InternetAddress;
 import com.example.wonderfulchat.model.MessageModel;
 import com.example.wonderfulchat.model.MessageType;
 import com.example.wonderfulchat.model.UserModel;
 import com.example.wonderfulchat.utils.FileUtil;
+import com.example.wonderfulchat.utils.HttpUtil;
 import com.example.wonderfulchat.utils.LogUtil;
 import com.example.wonderfulchat.utils.MemoryUtil;
 import com.example.wonderfulchat.utils.ToastUtil;
@@ -55,7 +58,7 @@ public class ChattingViewModel extends BaseViewModel<AppCompatActivity> {
     private Handler handler;
     private Handler messageSendHandler;
 
-    public void initView(List<MessageModel> message,String friendAccount){
+    public void initView(List<MessageModel> unReadMessage,String friendAccount){
         this.friendAccount = friendAccount;
         messageModels = new ArrayList<>();
         startTimes = new AtomicInteger(3);
@@ -78,10 +81,8 @@ public class ChattingViewModel extends BaseViewModel<AppCompatActivity> {
         Thread sendThread = new Thread(messageSendRunnable);
         sendThread.start();
 
-        List<MessageModel> unReadMessage = message;
-        List<MessageModel> newMessage = getMessageFromNet(friendAccount);
         List<MessageModel> readMessage = getReadMessage(friendAccount);
-        mergeMessage(readMessage,unReadMessage,newMessage);
+        mergeMessage(readMessage,unReadMessage,null);
 
 //        List<String> messageList = new ArrayList<>();
 //        messageList.add("接哦结果就哦我");
@@ -102,10 +103,13 @@ public class ChattingViewModel extends BaseViewModel<AppCompatActivity> {
         binding.recyclerView.setLayoutManager(manager);
         binding.recyclerView.setAdapter(adapter);
         binding.recyclerView.scrollToPosition(messageModels.size()-1);
+
+        getMessageFromNet();
     }
 
-    private List<MessageModel> getMessageFromNet(String account){
-        List<MessageModel> messages = new ArrayList<>();
+    //进入是再请求一次网络，拿到最新消息
+    private void getMessageFromNet(){
+//        List<MessageModel> messages = new ArrayList<>();
 //        String content = "经费世界公司哦手机覅韩国就送大奖哦挤公交感觉颇为烦恼";
 //        for (int i=0; i<1; i++){
 //            MessageModel message = new MessageModel();
@@ -120,9 +124,43 @@ public class ChattingViewModel extends BaseViewModel<AppCompatActivity> {
 //            messages.add(message);
 //        }
 
-        return messages;
+        String url = InternetAddress.GET_NEWEST_MESSAGE_URL + "?account=" + userModel.getAccount() + "&friendAccount=" + friendAccount;
+        HttpUtil.httpRequestForGet(url, new HttpCallbackListener() {
+            @Override
+            public void onFinish(final String response) {
+                getView().runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        Gson gson = new Gson();
+                        HttpMessageModel httpMessageModel = gson.fromJson(response, HttpMessageModel.class);
+                        if(httpMessageModel == null)return;
+                        if("success".equals(httpMessageModel.getResult())){
+                            if(httpMessageModel.getContent() != null && httpMessageModel.getContent().size()>0){
+                                List<MessageModel> messageList = httpMessageModel.getContent().get(0);
+                                mergeMessage(null,messageList,null);
+                                adapter.notifyDataSetChanged();
+                                binding.recyclerView.scrollToPosition(messageModels.size()-1);
+                            }
+                        }else{
+                            LogUtil.e(TAG,"消息获取失败：" + httpMessageModel.getMessage());
+                        }
+                    }
+                });
+            }
+
+            @Override
+            public void onError(final Exception e) {
+                getView().runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        LogUtil.e(TAG,"消息获取失败：" + e.getMessage());
+                    }
+                });
+            }
+        });
     }
 
+    //获取已读消息，因为传递进来的只是未读消息
     private List<MessageModel> getReadMessage(String account){
         List<MessageModel> readMessage;
         String path = FileUtil.getDiskPath(getView(),"ReadedMessage");
@@ -187,6 +225,17 @@ public class ChattingViewModel extends BaseViewModel<AppCompatActivity> {
         String content = gson.toJson(messageModels);
         FileUtil.fileSave(file,content,false);
     }
+
+//    //清空好友消息,将此好友的未读消息清空
+//    public void clearUnreadMessage(){
+//        String path = FileUtil.getDiskPath(getView(),"UnReadMessage");
+//        File file = new File(path, friendAccount);
+//        if (!file.exists()){
+//            return;
+//        }else {
+//            FileUtil.fileClear(file);
+//        }
+//    }
 
     public void setBinding(ActivityChattingBinding binding){
         this.binding = binding;

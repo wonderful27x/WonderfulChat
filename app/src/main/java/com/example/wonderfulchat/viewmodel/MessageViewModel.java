@@ -12,6 +12,7 @@ import com.example.wonderfulchat.databinding.MessageFragmentLayoutBinding;
 import com.example.wonderfulchat.interfaces.HttpCallbackListener;
 import com.example.wonderfulchat.model.HttpMessageModel;
 import com.example.wonderfulchat.model.InternetAddress;
+import com.example.wonderfulchat.model.MessageEvent;
 import com.example.wonderfulchat.model.MessageModel;
 import com.example.wonderfulchat.model.UserModel;
 import com.example.wonderfulchat.utils.FileUtil;
@@ -22,6 +23,9 @@ import com.example.wonderfulchat.utils.ToastUtil;
 import com.example.wonderfulchat.view.ChattingActivity;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
+
+import org.greenrobot.eventbus.EventBus;
+
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -463,6 +467,27 @@ public class MessageViewModel extends BaseViewModel <Fragment> {
         intent.putExtra("friendAccount",friendAccount);
         intent.putParcelableArrayListExtra("message", (ArrayList<? extends Parcelable>) messages);
         getView().startActivity(intent);
+    }
+
+    public void answerRequest(String name,String account){
+        List<MessageModel> list = null;
+        for (List<MessageModel> item:unReadMessageList)     {
+            if (account.equals(item.get(0).getSenderAccount())){
+                list = item;
+                break;
+            }
+        }
+        clearUnreadMessage(account,"UnReadMessage");
+        Intent intent = new Intent(getView().getActivity(), ChattingActivity.class);
+        intent.putExtra("friendName",name);
+        intent.putExtra("friendAccount",account);
+        intent.putParcelableArrayListExtra("message", (ArrayList<? extends Parcelable>) list);
+        getView().startActivity(intent);
+
+//        MessageEvent event = new MessageEvent();
+//        event.setType("message");
+//        event.setMessageList(list);
+//        EventBus.getDefault().post(event);
     }
 
     public MessageFragmentLayoutBinding getLayoutBinding() {

@@ -2,17 +2,27 @@ package com.example.wonderfulchat.view;
 
 import android.databinding.DataBindingUtil;
 import android.os.Bundle;
+import android.support.annotation.Nullable;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 import com.example.wonderfulchat.R;
 import com.example.wonderfulchat.databinding.MessageFragmentLayoutBinding;
+import com.example.wonderfulchat.model.MessageEvent;
+import com.example.wonderfulchat.model.MessageModel;
 import com.example.wonderfulchat.utils.LogUtil;
 import com.example.wonderfulchat.utils.UnitChangeUtil;
 import com.example.wonderfulchat.viewmodel.MessageViewModel;
+
+import org.greenrobot.eventbus.EventBus;
+import org.greenrobot.eventbus.Subscribe;
+import org.greenrobot.eventbus.ThreadMode;
+
+import java.util.List;
 
 public class MessageFragment extends BaseFragment<MessageViewModel> {
 
@@ -24,15 +34,21 @@ public class MessageFragment extends BaseFragment<MessageViewModel> {
     private boolean firstLoad = true;
 
     @Override
+    public void onCreate(@Nullable Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        EventBus.getDefault().register(this);
+    }
+
+    @Override
     public View onCreateView(LayoutInflater inflater,ViewGroup container,Bundle savedInstanceState) {
-         MessageFragmentLayoutBinding binding = DataBindingUtil.inflate(inflater, R.layout.message_fragment_layout, container, false);
-         binding.setWonderfulViewModel(getViewModel());
-         getViewModel().setLayoutBinding(binding);
+        MessageFragmentLayoutBinding binding = DataBindingUtil.inflate(inflater, R.layout.message_fragment_layout, container, false);
+        binding.setWonderfulViewModel(getViewModel());
+        getViewModel().setLayoutBinding(binding);
 
-         initView(binding);
-         //getViewModel().initView();
+        initView(binding);
+        //getViewModel().initView();
 
-         return binding.getRoot();
+        return binding.getRoot();
     }
 
     private void initView(MessageFragmentLayoutBinding binding){
@@ -83,6 +99,15 @@ public class MessageFragment extends BaseFragment<MessageViewModel> {
 //            LogUtil.d(TAG,"fragment visible");
 //        }
 //    }
+
+    @Subscribe(threadMode = ThreadMode.MAIN)
+    public void onEvent(MessageEvent event) {
+        if ("startChatting".equals(event.getType())){
+            String name = event.getUserModel().getNickname();
+            String account = event.getUserModel().getAccount();
+            getViewModel().answerRequest(name,account);
+        }
+    }
 
     @Override
     public void dataLoad() {

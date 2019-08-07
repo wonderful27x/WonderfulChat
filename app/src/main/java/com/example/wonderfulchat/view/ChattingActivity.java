@@ -73,6 +73,7 @@ public class ChattingActivity extends BaseActivity<ChattingViewModel> {
     public void onBackPressed() {
         getViewModel().exit();
         getViewModel().messageSave();
+//        getViewModel().clearUnreadMessage();
         try {
             Thread.sleep(500);
         } catch (InterruptedException e) {

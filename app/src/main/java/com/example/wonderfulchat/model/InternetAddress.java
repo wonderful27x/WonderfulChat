@@ -13,4 +13,5 @@ public class InternetAddress {
     public static final String ADD_FRIEND_URL = HOST + "/wonderfulChat/addFriend";
     public static final String UPLOAD_IMAGE_URL = HOST + "/wonderfulChat/uploadImage";
     public static final String GET_MESSAGE_URL = HOST + "/wonderfulChat/getMessage";
+    public static final String GET_NEWEST_MESSAGE_URL = HOST + "/wonderfulChat/getNewestMessage";
 }

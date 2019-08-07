@@ -10,8 +10,15 @@ import android.widget.RelativeLayout;
 import android.widget.TextView;
 import com.example.wonderfulchat.R;
 import com.example.wonderfulchat.databinding.FriendListFragmentLayoutBinding;
+import com.example.wonderfulchat.model.MessageEvent;
+import com.example.wonderfulchat.model.MessageModel;
 import com.example.wonderfulchat.utils.UnitChangeUtil;
 import com.example.wonderfulchat.viewmodel.FriendListViewModel;
+import org.greenrobot.eventbus.EventBus;
+import org.greenrobot.eventbus.Subscribe;
+import org.greenrobot.eventbus.ThreadMode;
+
+import java.util.List;
 
 public class FriendListFragment extends BaseFragment<FriendListViewModel> {
 
@@ -23,6 +30,7 @@ public class FriendListFragment extends BaseFragment<FriendListViewModel> {
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         FriendListFragmentLayoutBinding binding = DataBindingUtil.inflate(inflater, R.layout.friend_list_fragment_layout, container, false);
         binding.setWonderfulViewModel(getViewModel());
+//        EventBus.getDefault().register(this);
         getViewModel().setLayoutBinding(binding);
         initView(binding);
         getViewModel().initView();
@@ -50,6 +58,14 @@ public class FriendListFragment extends BaseFragment<FriendListViewModel> {
             }
         });
     }
+
+//    @Subscribe(threadMode = ThreadMode.MAIN)
+//    public void onEvent(MessageEvent event) {
+//        if ("message".equals(event.getType())){
+//            List<MessageModel> messageList = event.getMessageList();
+//            getViewModel().jumpToChatting(messageList);
+//        }
+//    }
 
     @Override
     public FriendListViewModel bindViewModel() {

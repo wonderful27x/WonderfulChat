@@ -1,6 +1,7 @@
 package com.example.wonderfulchat.viewmodel;
 
 import android.content.Intent;
+import android.os.Parcelable;
 import android.support.v4.app.Fragment;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.util.Log;
@@ -14,6 +15,8 @@ import com.example.wonderfulchat.interfaces.HttpCallbackListener;
 import com.example.wonderfulchat.model.GroupModel;
 import com.example.wonderfulchat.model.HttpUserModel;
 import com.example.wonderfulchat.model.InternetAddress;
+import com.example.wonderfulchat.model.MessageEvent;
+import com.example.wonderfulchat.model.MessageModel;
 import com.example.wonderfulchat.model.UserModel;
 import com.example.wonderfulchat.utils.FileUtil;
 import com.example.wonderfulchat.utils.HttpUtil;
@@ -22,6 +25,9 @@ import com.example.wonderfulchat.utils.MemoryUtil;
 import com.example.wonderfulchat.utils.ToastUtil;
 import com.example.wonderfulchat.view.ChattingActivity;
 import com.google.gson.Gson;
+
+import org.greenrobot.eventbus.EventBus;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -36,6 +42,8 @@ public class FriendListViewModel extends BaseViewModel<Fragment> {
     private UserModel model;
     private UserModel friend;
     private boolean friendExist = false;
+    private String friendName;
+    private String friendAccount;
 
     public void initView(){
         String userModel = MemoryUtil.sharedPreferencesGetString("UserModel");
@@ -69,16 +77,33 @@ public class FriendListViewModel extends BaseViewModel<Fragment> {
         layoutBinding.friendList.setOnChildClickListener(new ExpandableListView.OnChildClickListener() {
             @Override
             public boolean onChildClick(ExpandableListView expandableListView, View view, int i, int i1, long l) {
-                Intent intent = new Intent(getView().getActivity(), ChattingActivity.class);
-                intent.putExtra("friendName",groupModels.get(i).getChildModels().get(i1).getRemark());
-                intent.putExtra("friendAccount",groupModels.get(i).getChildModels().get(i1).getAccount());
-                getView().getActivity().startActivity(intent);
+//                Intent intent = new Intent(getView().getActivity(), ChattingActivity.class);
+//                intent.putExtra("friendName",groupModels.get(i).getChildModels().get(i1).getRemark());
+//                intent.putExtra("friendAccount",groupModels.get(i).getChildModels().get(i1).getAccount());
+//                getView().getActivity().startActivity(intent);
+                friendName = groupModels.get(i).getChildModels().get(i1).getRemark();
+                friendAccount = groupModels.get(i).getChildModels().get(i1).getAccount();
+                MessageEvent event = new MessageEvent();
+                UserModel user = new UserModel();
+                user.setNickname(friendName);
+                user.setAccount(friendAccount);
+                event.setType("startChatting");
+                event.setUserModel(user);
+                EventBus.getDefault().post(event);
                 return true;
             }
         });
 
         getFriendList();
     }
+
+//    public void jumpToChatting(List<MessageModel> messageList){
+//        Intent intent = new Intent(getView().getActivity(), ChattingActivity.class);
+//        intent.putExtra("friendName",friendName);
+//        intent.putExtra("friendAccount",friendName);
+//        intent.putParcelableArrayListExtra("message",(ArrayList<? extends Parcelable>)messageList);
+//        getView().getActivity().startActivity(intent);
+//    }
 
 //    private List<UserModel> getUserMessage(){
 //        String userModel = FileUtil.getJson(getView().getActivity(), "HttpFriendList");
