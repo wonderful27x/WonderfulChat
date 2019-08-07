@@ -58,6 +58,7 @@ public class ChattingActivity extends BaseActivity<ChattingViewModel> {
             public void onClick(View view) {
                 getViewModel().exit();
                 getViewModel().messageSave();
+                getViewModel().saveMessageAccounts();
                 try {
                     Thread.sleep(500);
                 } catch (InterruptedException e) {
@@ -73,6 +74,7 @@ public class ChattingActivity extends BaseActivity<ChattingViewModel> {
     public void onBackPressed() {
         getViewModel().exit();
         getViewModel().messageSave();
+        getViewModel().saveMessageAccounts();
 //        getViewModel().clearUnreadMessage();
         try {
             Thread.sleep(500);

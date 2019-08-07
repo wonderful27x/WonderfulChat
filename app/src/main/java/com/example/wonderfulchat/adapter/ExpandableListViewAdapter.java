@@ -6,22 +6,32 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseExpandableListAdapter;
 import com.bumptech.glide.Glide;
+import com.bumptech.glide.request.RequestOptions;
 import com.example.wonderfulchat.R;
 import com.example.wonderfulchat.databinding.ChildLayoutBinding;
 import com.example.wonderfulchat.databinding.GroupLayoutBinding;
 import com.example.wonderfulchat.model.GroupModel;
 import com.example.wonderfulchat.model.UserModel;
+import com.example.wonderfulchat.utils.MemoryUtil;
 import com.example.wonderfulchat.viewmodel.FriendListViewModel;
+import com.google.gson.Gson;
+
 import java.util.List;
 
 public class ExpandableListViewAdapter extends BaseExpandableListAdapter {
 
     private List<GroupModel> groupModels;
     private FriendListViewModel viewModel;
+    private RequestOptions options;
 
     public ExpandableListViewAdapter(FriendListViewModel viewModel,List<GroupModel> groupModels){
         this.groupModels = groupModels;
         this.viewModel = viewModel;
+
+        options = new RequestOptions()
+                .placeholder(R.mipmap.default_head_image)
+                .fallback(R.mipmap.default_head_image)
+                .error(R.mipmap.default_head_image);
     }
 
     @Override
@@ -88,7 +98,11 @@ public class ExpandableListViewAdapter extends BaseExpandableListAdapter {
         }
 
         UserModel userModel = groupModels.get(i).getChildModels().get(i1);
-        Glide.with(viewModel.getView()).load(userModel.getImageUrl()).into(childLayoutBinding.headImage);
+
+        Glide.with(viewModel.getView())
+                .load(userModel.getImageUrl())
+                .apply(options)
+                .into(childLayoutBinding.headImage);
         String content = "";
         if(userModel.getRemark() == null){
             if(userModel.getNickname() != null){

@@ -1,6 +1,7 @@
 package com.example.wonderfulchat.adapter;
 
 import android.databinding.DataBindingUtil;
+import android.graphics.drawable.Drawable;
 import android.support.annotation.NonNull;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
@@ -8,10 +9,14 @@ import android.view.View;
 import android.view.ViewGroup;
 
 import com.bumptech.glide.Glide;
+import com.bumptech.glide.request.RequestOptions;
 import com.example.wonderfulchat.R;
 import com.example.wonderfulchat.databinding.MessageItemBinding;
 import com.example.wonderfulchat.model.MessageModel;
+import com.example.wonderfulchat.model.UserModel;
+import com.example.wonderfulchat.utils.MemoryUtil;
 import com.example.wonderfulchat.viewmodel.MessageViewModel;
+import com.google.gson.Gson;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -22,17 +27,28 @@ public class MessageListAdapter extends RecyclerView.Adapter<MessageListAdapter.
     private List<List<MessageModel>> readedMessageList;
     private List<List<MessageModel>> messageList;
     private MessageViewModel messageViewModel;
+    private UserModel userModel;
     private ItemClickListener itemClickListener;
     private int notePosition;
+    private RequestOptions options;
 
     public MessageListAdapter(MessageViewModel messageViewModel, List<List<MessageModel>> unReadMessageList,List<List<MessageModel>> readedMessageList){
         this.unReadMessageList = unReadMessageList;
         this.readedMessageList = readedMessageList;
         this.messageViewModel = messageViewModel;
+
+        String modelString = MemoryUtil.sharedPreferencesGetString("UserModel");
+        Gson gson = new Gson();
+        userModel = gson.fromJson(modelString, UserModel.class);
+
         messageList = new ArrayList<>();
         messageList.addAll(unReadMessageList);
         messageList.addAll(messageList.size(),readedMessageList);
         notePosition = unReadMessageList.size();
+        options = new RequestOptions()
+                .placeholder(R.mipmap.default_head_image)
+                .fallback(R.mipmap.default_head_image)
+                .error(R.mipmap.default_head_image);
     }
 
     public void notifyData(){
@@ -64,9 +80,19 @@ public class MessageListAdapter extends RecyclerView.Adapter<MessageListAdapter.
             viewHolder.getBinding().messageNum.setText(messageModels.size()+"");
             viewHolder.getBinding().messageNum.setVisibility(View.VISIBLE);
         }
-        viewHolder.getBinding().userName.setText(messageModel.getSender());
+        //这里逻辑有问题，应该从数据库取出friend的信息
+        String name = messageModel.getSender();
+        String image = messageModel.getSenderImage();
+        if (userModel.getNickname().equals(name)){
+            name = messageModel.getReceiverAccount();
+            image = "";
+        }
+        viewHolder.getBinding().userName.setText(name);
         viewHolder.getBinding().lastTime.setText(messageModel.getTime());
-        Glide.with(messageViewModel.getView()).load(messageModel.getSenderImage()).into(viewHolder.getBinding().headImage);
+        Glide.with(messageViewModel.getView())
+                .load(image)
+                .apply(options)
+                .into(viewHolder.getBinding().headImage);
         viewHolder.binding.itemLayout.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {

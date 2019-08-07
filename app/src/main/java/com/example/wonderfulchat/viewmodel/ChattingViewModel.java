@@ -199,12 +199,15 @@ public class ChattingViewModel extends BaseViewModel<AppCompatActivity> {
         SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd hh:mm:ss");
         String time = format.format(date);
 
-        MessageModel model = buildMessage(MessageType.MESSAGE_SEND.getCode(),time,message,userModel.getNickname(),userModel.getAccount(),"",friendAccount,"");
+        MessageModel model = buildMessage(MessageType.MESSAGE_RECEIVE.getCode(),time,message,userModel.getNickname(),userModel.getAccount(),"",friendAccount,userModel.getImageUrl());
+
+        String messageData = gson.toJson(model);
         Message sendMessage = messageSendHandler.obtainMessage();
         sendMessage.what = MessageType.MESSAGE_SEND.getCode();
-        sendMessage.obj = model;
+        sendMessage.obj = messageData;
         sendMessage.sendToTarget();
 
+        model.setType(MessageType.MESSAGE_SEND.getCode());
         messageModels.add(model);
         adapter.notifyItemInserted(messageModels.size());
         binding.recyclerView.scrollToPosition(messageModels.size()-1);
@@ -212,6 +215,7 @@ public class ChattingViewModel extends BaseViewModel<AppCompatActivity> {
     }
 
     public void messageSave(){
+        if(messageModels == null || messageModels.size()<=0)return;
         String path = FileUtil.getDiskPath(getView(),"ReadedMessage");
         Gson gson = new Gson();
         File file = new File(path, friendAccount);
@@ -237,6 +241,38 @@ public class ChattingViewModel extends BaseViewModel<AppCompatActivity> {
 //        }
 //    }
 
+    //拿到有消息记录的所有账号
+    private String[] getOldMessageAccounts(){
+        String s = MemoryUtil.sharedPreferencesGetString("OldMessageAccounts");
+        if (s.equals("")){
+            return null;
+        }
+        String[] accounts = s.split(",");
+        return accounts;
+    }
+
+    //将此好友账号添加到记录账号里，否则消息列表在某些特殊情况下将无法展示已读消息
+    public void saveMessageAccounts() {
+        String[] accountAll;
+        accountAll = getOldMessageAccounts();
+        if (accountAll == null){
+            MemoryUtil.sharedPreferencesSaveString("OldMessageAccounts", friendAccount);
+            return;
+        }
+        for (String account : accountAll) {
+            if (friendAccount.equals(account)) {
+                return;
+            }
+        }
+        StringBuilder builder = new StringBuilder();
+        for (String account : accountAll) {
+            builder.append(account);
+            builder.append(",");
+        }
+        builder.append(friendAccount);
+        MemoryUtil.sharedPreferencesSaveString("OldMessageAccounts", builder.toString());
+    }
+
     public void setBinding(ActivityChattingBinding binding){
         this.binding = binding;
     }
@@ -249,9 +285,10 @@ public class ChattingViewModel extends BaseViewModel<AppCompatActivity> {
         String time = format.format(date);
 
         MessageModel model = buildMessage(MessageType.SOCKET_CLOSE.getCode(),time,message,"client","client","server","server","");
+        String messageData = gson.toJson(model);
         Message sendMessage = messageSendHandler.obtainMessage();
         sendMessage.what = MessageType.SOCKET_CLOSE.getCode();
-        sendMessage.obj = model;
+        sendMessage.obj = messageData;
         sendMessage.sendToTarget();
     }
 
@@ -305,10 +342,9 @@ public class ChattingViewModel extends BaseViewModel<AppCompatActivity> {
         return messageModel;
     }
 
-    private void sendMessage(MessageModel messageModel){
-        String messageData = gson.toJson(messageModel);
+    private void sendMessage(String message){
         try {
-            writer.write(messageData + "\n");
+            writer.write(message + "\n");
             writer.flush();
         } catch (IOException ex) {
             Logger.getLogger(ChattingViewModel.class.getName()).log(Level.SEVERE, null, ex);
@@ -403,10 +439,10 @@ public class ChattingViewModel extends BaseViewModel<AppCompatActivity> {
         public boolean handleMessage(Message message) {
             switch (MessageType.getByValue(message.what)){
                 case MESSAGE_SEND:
-                    sendMessage((MessageModel) message.obj);
+                    sendMessage((String)message.obj);
                     break;
                 case SOCKET_CLOSE:
-                    sendMessage((MessageModel) message.obj);
+                    sendMessage((String) message.obj);
                     messageSendHandler.getLooper().quit();
                     break;
             }

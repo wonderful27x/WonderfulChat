@@ -8,6 +8,7 @@ import android.view.View;
 import android.view.ViewGroup;
 
 import com.bumptech.glide.Glide;
+import com.bumptech.glide.request.RequestOptions;
 import com.example.wonderfulchat.R;
 import com.example.wonderfulchat.databinding.ChattingItemBinding;
 import com.example.wonderfulchat.model.MessageModel;
@@ -23,16 +24,21 @@ public class ChattingListAdapter extends RecyclerView.Adapter<ChattingListAdapte
 
     private List<MessageModel> messageModels;
     private ChattingViewModel chattingViewModel;
-    private String userImage;
+    private UserModel userModel;
+    private RequestOptions options;
 
     public ChattingListAdapter(List<MessageModel> messageModels,ChattingViewModel chattingViewModel){
         this.messageModels = messageModels;
         this.chattingViewModel = chattingViewModel;
 
-        String userModel = MemoryUtil.sharedPreferencesGetString("UserModel");
+        String modelString = MemoryUtil.sharedPreferencesGetString("UserModel");
         Gson gson = new Gson();
-        UserModel model = gson.fromJson(userModel, UserModel.class);
-        userImage = model.getImageUrl();
+        userModel = gson.fromJson(modelString, UserModel.class);
+
+        options = new RequestOptions()
+                .placeholder(R.mipmap.default_head_image)
+                .fallback(R.mipmap.default_head_image)
+                .error(R.mipmap.default_head_image);
     }
     @NonNull
     @Override
@@ -48,16 +54,22 @@ public class ChattingListAdapter extends RecyclerView.Adapter<ChattingListAdapte
     public void onBindViewHolder(@NonNull ChattingListAdapter.ViewHolder viewHolder, int i) {
         MessageModel messageModel = messageModels.get(i);
         ChattingItemBinding binding = viewHolder.getBinding();
-        if (messageModels.get(i).getType() == MessageType.MESSAGE_RECEIVE.getCode()){
+        if (messageModel.getType() == MessageType.MESSAGE_RECEIVE.getCode()){
             binding.leftLayout.setVisibility(View.VISIBLE);
             binding.rightLayout.setVisibility(View.GONE);
             binding.receiveMessage.setText(messageModel.getMessage());
-            Glide.with(chattingViewModel.getView()).load(messageModel.getSenderImage()).into(binding.friendImage);
-        }else if(messageModels.get(i).getType() == MessageType.MESSAGE_SEND.getCode()){
+            Glide.with(chattingViewModel.getView())
+                    .load(messageModel.getSenderImage())
+                    .apply(options)
+                    .into(binding.friendImage);
+        }else if(messageModel.getType() == MessageType.MESSAGE_SEND.getCode()){
             binding.leftLayout.setVisibility(View.GONE);
             binding.rightLayout.setVisibility(View.VISIBLE);
             binding.sendMessage.setText(messageModel.getMessage());
-            Glide.with(chattingViewModel.getView()).load(userImage).into(binding.myImage);
+            Glide.with(chattingViewModel.getView())
+                    .load(userModel.getImageUrl())
+                    .apply(options)
+                    .into(binding.myImage);
         }
     }
 

@@ -25,6 +25,7 @@ import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 import com.bumptech.glide.Glide;
+import com.bumptech.glide.request.RequestOptions;
 import com.example.wonderfulchat.R;
 import com.example.wonderfulchat.customview.CustomDialog;
 import com.example.wonderfulchat.customview.DefuEditText;
@@ -151,12 +152,14 @@ public class WonderfulChatActivity extends BaseActivity <WonderfulChatViewModel>
         String userModel = MemoryUtil.sharedPreferencesGetString("UserModel");
         Gson gson = new Gson();
         model = gson.fromJson(userModel, UserModel.class);
-
-        if (model.getImageUrl() != null && !model.getImageUrl().equals("")){
-            Glide.with(this).load(model.getImageUrl()).into(headImage);
-        }else {
-            Glide.with(this).load(R.mipmap.default_head_image).into(headImage);
-        }
+        RequestOptions options = new RequestOptions()
+                .placeholder(R.mipmap.default_head_image)
+                .fallback(R.mipmap.default_head_image)
+                .error(R.mipmap.default_head_image);
+        Glide.with(this)
+                .load(model.getImageUrl())
+                .apply(options)
+                .into(headImage);
         if (model.getNickname() != null && !model.getNickname().equals("")){
             userName.setText(model.getNickname());
             userNameEdit.setText(model.getNickname());
