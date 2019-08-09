@@ -24,7 +24,7 @@ import java.util.List;
 public class MessageListAdapter extends RecyclerView.Adapter<MessageListAdapter.ViewHolder>{
 
     private List<List<MessageModel>> unReadMessageList;
-    private List<List<MessageModel>> readedMessageList;
+    private List<List<MessageModel>> ReadMessageList;
     private List<List<MessageModel>> messageList;
     private MessageViewModel messageViewModel;
     private UserModel userModel;
@@ -32,9 +32,9 @@ public class MessageListAdapter extends RecyclerView.Adapter<MessageListAdapter.
     private int notePosition;
     private RequestOptions options;
 
-    public MessageListAdapter(MessageViewModel messageViewModel, List<List<MessageModel>> unReadMessageList,List<List<MessageModel>> readedMessageList){
+    public MessageListAdapter(MessageViewModel messageViewModel, List<List<MessageModel>> unReadMessageList,List<List<MessageModel>> ReadMessageList){
         this.unReadMessageList = unReadMessageList;
-        this.readedMessageList = readedMessageList;
+        this.ReadMessageList = ReadMessageList;
         this.messageViewModel = messageViewModel;
 
         String modelString = MemoryUtil.sharedPreferencesGetString("UserModel");
@@ -43,7 +43,7 @@ public class MessageListAdapter extends RecyclerView.Adapter<MessageListAdapter.
 
         messageList = new ArrayList<>();
         messageList.addAll(unReadMessageList);
-        messageList.addAll(messageList.size(),readedMessageList);
+        messageList.addAll(messageList.size(),ReadMessageList);
         notePosition = unReadMessageList.size();
         options = new RequestOptions()
                 .placeholder(R.mipmap.default_head_image)
@@ -54,7 +54,7 @@ public class MessageListAdapter extends RecyclerView.Adapter<MessageListAdapter.
     public void notifyData(){
         messageList.clear();
         messageList.addAll(unReadMessageList);
-        messageList.addAll(messageList.size(),readedMessageList);
+        messageList.addAll(messageList.size(),ReadMessageList);
         notePosition = unReadMessageList.size();
         notifyDataSetChanged();
     }

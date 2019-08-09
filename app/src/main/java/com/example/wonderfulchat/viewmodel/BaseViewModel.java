@@ -31,7 +31,7 @@ public abstract class BaseViewModel <T>{
         return isViewPause;
     }
 
-    public void deTachView(){
+    public void detachView(){
         if(weakView != null){
             weakView.clear();
             weakView = null;

@@ -36,7 +36,7 @@ public class MessageFragment extends BaseFragment<MessageViewModel> {
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        EventBus.getDefault().register(this);
+//        EventBus.getDefault().register(this);
     }
 
     @Override
@@ -46,7 +46,7 @@ public class MessageFragment extends BaseFragment<MessageViewModel> {
         getViewModel().setLayoutBinding(binding);
 
         initView(binding);
-        //getViewModel().initView();
+        getViewModel().initView();
 
         return binding.getRoot();
     }
@@ -100,22 +100,24 @@ public class MessageFragment extends BaseFragment<MessageViewModel> {
 //        }
 //    }
 
-    @Subscribe(threadMode = ThreadMode.MAIN)
-    public void onEvent(MessageEvent event) {
-        if ("startChatting".equals(event.getType())){
-            String name = event.getUserModel().getNickname();
-            String account = event.getUserModel().getAccount();
-            getViewModel().answerRequest(name,account);
-        }
-    }
+//    @Subscribe(threadMode = ThreadMode.MAIN)
+//    public void onEvent(MessageEvent event) {
+//        if ("startChatting".equals(event.getType())){
+//            String name = event.getUserModel().getNickname();
+//            String account = event.getUserModel().getAccount();
+//            getViewModel().answerRequest(name,account);
+//        }
+//    }
 
     @Override
     public void dataLoad() {
-        if (firstLoad){
-            getViewModel().initView();
-        }else {
-            getViewModel().refresh();
-        }
+        getViewModel().refresh();
+//        if (firstLoad){
+//            firstLoad = false;
+//            getViewModel().initView();
+//        }else {
+//            getViewModel().refresh();
+//        }
         LogUtil.d(TAG,"dataLoad");
     }
 }

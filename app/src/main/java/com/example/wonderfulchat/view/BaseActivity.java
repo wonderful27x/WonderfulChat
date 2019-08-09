@@ -24,7 +24,7 @@ public abstract class BaseActivity <T extends BaseViewModel<? super AppCompatAct
     protected void onDestroy() {
         super.onDestroy();
         if(viewModel != null){
-            viewModel.deTachView();
+            viewModel.detachView();
             viewModel = null;
         }
     }

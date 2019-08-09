@@ -425,8 +425,8 @@ public class WonderfulChatViewModel extends BaseViewModel <AppCompatActivity> {
     }
 
     @Override
-    public void deTachView() {
-        super.deTachView();
+    public void detachView() {
+        super.detachView();
         if (chatBinding != null){
             chatBinding = null;
         }

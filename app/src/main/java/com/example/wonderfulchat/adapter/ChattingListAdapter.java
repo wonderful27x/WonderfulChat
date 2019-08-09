@@ -58,6 +58,7 @@ public class ChattingListAdapter extends RecyclerView.Adapter<ChattingListAdapte
             binding.leftLayout.setVisibility(View.VISIBLE);
             binding.rightLayout.setVisibility(View.GONE);
             binding.receiveMessage.setText(messageModel.getMessage());
+
             Glide.with(chattingViewModel.getView())
                     .load(messageModel.getSenderImage())
                     .apply(options)
@@ -66,6 +67,7 @@ public class ChattingListAdapter extends RecyclerView.Adapter<ChattingListAdapte
             binding.leftLayout.setVisibility(View.GONE);
             binding.rightLayout.setVisibility(View.VISIBLE);
             binding.sendMessage.setText(messageModel.getMessage());
+
             Glide.with(chattingViewModel.getView())
                     .load(userModel.getImageUrl())
                     .apply(options)

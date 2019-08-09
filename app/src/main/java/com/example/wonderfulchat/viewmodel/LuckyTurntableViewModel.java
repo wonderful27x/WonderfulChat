@@ -46,8 +46,8 @@ public class LuckyTurntableViewModel extends BaseViewModel<Fragment> {
     }
 
     @Override
-    public void deTachView() {
-        super.deTachView();
+    public void detachView() {
+        super.detachView();
         if (layoutBinding != null){
             layoutBinding = null;
         }

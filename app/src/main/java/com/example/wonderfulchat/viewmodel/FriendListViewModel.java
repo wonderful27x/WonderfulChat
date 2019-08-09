@@ -25,9 +25,11 @@ import com.example.wonderfulchat.utils.MemoryUtil;
 import com.example.wonderfulchat.utils.ToastUtil;
 import com.example.wonderfulchat.view.ChattingActivity;
 import com.google.gson.Gson;
+import com.google.gson.reflect.TypeToken;
 
 import org.greenrobot.eventbus.EventBus;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -81,20 +83,65 @@ public class FriendListViewModel extends BaseViewModel<Fragment> {
 //                intent.putExtra("friendName",groupModels.get(i).getChildModels().get(i1).getRemark());
 //                intent.putExtra("friendAccount",groupModels.get(i).getChildModels().get(i1).getAccount());
 //                getView().getActivity().startActivity(intent);
-                friendName = groupModels.get(i).getChildModels().get(i1).getRemark();
-                friendAccount = groupModels.get(i).getChildModels().get(i1).getAccount();
-                MessageEvent event = new MessageEvent();
-                UserModel user = new UserModel();
-                user.setNickname(friendName);
-                user.setAccount(friendAccount);
-                event.setType("startChatting");
-                event.setUserModel(user);
-                EventBus.getDefault().post(event);
+
+//                friendName = groupModels.get(i).getChildModels().get(i1).getRemark();
+//                friendAccount = groupModels.get(i).getChildModels().get(i1).getAccount();
+//                MessageEvent event = new MessageEvent();
+//                UserModel user = new UserModel();
+//                user.setNickname(friendName);
+//                user.setAccount(friendAccount);
+//                event.setType("startChatting");
+//                event.setUserModel(user);
+//                EventBus.getDefault().post(event);
+
+                jumpToChatting(i,i1);
                 return true;
             }
         });
 
         getFriendList();
+    }
+
+    private void jumpToChatting(int group,int child){
+        String friendName = groupModels.get(group).getChildModels().get(child).getRemark();
+        String friendAccount = groupModels.get(group).getChildModels().get(child).getAccount();
+        List<MessageModel> unReadMessage = getMessageListFromPhone("UnReadMessage",friendAccount);
+        clearUnreadMessage(friendAccount,"UnReadMessage");
+
+        Intent intent = new Intent(getView().getActivity(), ChattingActivity.class);
+        intent.putExtra("friendName",friendName);
+        intent.putExtra("friendAccount",friendAccount);
+        intent.putParcelableArrayListExtra("message", (ArrayList<? extends Parcelable>) unReadMessage);
+        getView().getActivity().startActivity(intent);
+
+    }
+
+    //清空好友消息,点击跳转后信息即为已读，则将未读消息清空
+    public void clearUnreadMessage(String name,String messageState){
+        String path = FileUtil.getDiskPath(getView().getActivity(),messageState);
+        File file = new File(path, name);
+        if (!file.exists()){
+            return;
+        }else {
+            FileUtil.fileClear(file);
+        }
+    }
+
+    //读取好友消息,根据类型可读取已读消息或未读消息
+    private List<MessageModel> getMessageListFromPhone(String readState,String account){
+        List<MessageModel> messageModels;
+        String path = FileUtil.getDiskPath(getView().getActivity(),readState);
+        File file = new File(path,account);
+        if (!file.exists()){
+            return null;
+        }
+        String jsonData = FileUtil.fileRead(file);
+        if ("".equals(jsonData)){
+            return null;
+        }
+        Gson gson = new Gson();
+        messageModels = gson.fromJson(jsonData,new TypeToken<List<MessageModel>>(){}.getType());
+        return messageModels;
     }
 
 //    public void jumpToChatting(List<MessageModel> messageList){
@@ -317,8 +364,8 @@ public class FriendListViewModel extends BaseViewModel<Fragment> {
     }
 
     @Override
-    public void deTachView() {
-        super.deTachView();
+    public void detachView() {
+        super.detachView();
         if (layoutBinding != null){
             layoutBinding = null;
         }

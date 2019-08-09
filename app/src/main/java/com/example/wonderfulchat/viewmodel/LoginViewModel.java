@@ -277,8 +277,8 @@ public class LoginViewModel extends BaseViewModel<Activity> {
     }
 
     @Override
-    public void deTachView() {
-        super.deTachView();
+    public void detachView() {
+        super.detachView();
         if (loginBinding != null){
             loginBinding = null;
         }

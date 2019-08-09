@@ -12,8 +12,8 @@ import com.example.wonderfulchat.databinding.MessageFragmentLayoutBinding;
 import com.example.wonderfulchat.interfaces.HttpCallbackListener;
 import com.example.wonderfulchat.model.HttpMessageModel;
 import com.example.wonderfulchat.model.InternetAddress;
-import com.example.wonderfulchat.model.MessageEvent;
 import com.example.wonderfulchat.model.MessageModel;
+import com.example.wonderfulchat.model.MessageType;
 import com.example.wonderfulchat.model.UserModel;
 import com.example.wonderfulchat.utils.FileUtil;
 import com.example.wonderfulchat.utils.HttpUtil;
@@ -23,9 +23,6 @@ import com.example.wonderfulchat.utils.ToastUtil;
 import com.example.wonderfulchat.view.ChattingActivity;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
-
-import org.greenrobot.eventbus.EventBus;
-
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -36,7 +33,7 @@ public class MessageViewModel extends BaseViewModel <Fragment> {
     private static final String TAG = "MessageViewModel";
     private MessageFragmentLayoutBinding layoutBinding;
     private List<List<MessageModel>> unReadMessageList;
-    private List<List<MessageModel>> readedMessageList;
+    private List<List<MessageModel>> readMessageList;
     private MessageListAdapter adapter;
     private UserModel userModel;
 
@@ -46,16 +43,21 @@ public class MessageViewModel extends BaseViewModel <Fragment> {
         userModel = gson.fromJson(modelString, UserModel.class);
 
         unReadMessageList = new ArrayList<>();
-        readedMessageList = new ArrayList<>();
+        readMessageList = new ArrayList<>();
         List<List<MessageModel>> unRead = new ArrayList<>();
         List<List<MessageModel>> readed = new ArrayList<>();
         getMessageList(unRead,readed);
-        mergeReadedMessage(unReadMessageList,readed);
-        mergeUnReadMessageList(unRead);
-        saveMessage(unReadMessageList,"UnReadMessage");
-        saveMessage(readedMessageList,"ReadedMessage");
-        saveMessageAccounts();
-        adapter = new MessageListAdapter(layoutBinding.getWonderfulViewModel(),unReadMessageList,readedMessageList);
+        unReadMessageList.addAll(unRead);
+        readMessageList.addAll(readed);
+//        List<List<MessageModel>> unRead = new ArrayList<>();
+//        List<List<MessageModel>> readed = new ArrayList<>();
+//        getMessageList(unRead,readed);
+//        mergeReadMessage(unReadMessageList,readed);
+//        mergeUnReadMessageList(unRead);
+//        saveMessage(unReadMessageList,"UnReadMessage");
+//        saveMessage(ReadMessageList,"ReadMessage");
+//        saveMessageAccounts();
+        adapter = new MessageListAdapter(layoutBinding.getWonderfulViewModel(),unReadMessageList,readMessageList);
         LinearLayoutManager layoutManager = new LinearLayoutManager(getView().getActivity());
         layoutBinding.recyclerView.setLayoutManager(layoutManager);
         layoutBinding.recyclerView.setAdapter(adapter);
@@ -79,15 +81,18 @@ public class MessageViewModel extends BaseViewModel <Fragment> {
             }
         });
 
-        getMessageFromNet();
+//        getMessageFromNet();
     }
 
     //将消息存入文件系统，分为已读和未读两大文件，每个文件中每个好友账号都存入独立的消息列表Json数据
+    //注意：这种将整个文件重新存一遍的方式会造成性能问题
     private void saveMessage(List<List<MessageModel>> messageList,String messageState){
+        if (messageList == null || messageList.size() <=0)return;
         String path = FileUtil.getDiskPath(getView().getActivity(),messageState);
         Gson gson = new Gson();
         for (List<MessageModel> messageModels:messageList){
-            File file = new File(path, messageModels.get(0).getSenderAccount());
+            String account = accountFilter(messageModels.get(0));
+            File file = new File(path, account);
             if (!file.exists()){
                 try {
                     file.createNewFile();
@@ -100,7 +105,7 @@ public class MessageViewModel extends BaseViewModel <Fragment> {
         }
     }
 
-    //清空好友消息
+    //清空好友消息,点击跳转后信息即为已读，则将未读消息清空
     public void clearUnreadMessage(String name,String messageState){
         String path = FileUtil.getDiskPath(getView().getActivity(),messageState);
         File file = new File(path, name);
@@ -111,6 +116,7 @@ public class MessageViewModel extends BaseViewModel <Fragment> {
         }
     }
 
+    //从网络获取新的好友消息
     private void getMessageFromNet(){
 //        List<MessageModel> messages = new ArrayList<>();
 //        List<List<MessageModel>> messageList = new ArrayList<>();
@@ -193,7 +199,7 @@ public class MessageViewModel extends BaseViewModel <Fragment> {
     //拿到有消息记录的所有账号
     private String[] getOldMessageAccounts(){
         String s = MemoryUtil.sharedPreferencesGetString("OldMessageAccounts");
-        if (s.equals("")){
+        if (s == null || s.equals("")){
             return null;
         }
         String[] accounts = s.split(",");
@@ -208,8 +214,9 @@ public class MessageViewModel extends BaseViewModel <Fragment> {
             account.append(unRead.get(0).getSenderAccount());
             account.append(",");
         }
-        for (List<MessageModel> readed:readedMessageList){
-            account.append(readed.get(0).getSenderAccount());
+        for (List<MessageModel> read:readMessageList){
+            String senderAccount = accountFilter(read.get(0));
+            account.append(senderAccount);
             account.append(",");
         }
         if (account.length()>0){
@@ -219,7 +226,7 @@ public class MessageViewModel extends BaseViewModel <Fragment> {
         MemoryUtil.sharedPreferencesSaveString("OldMessageAccounts",accountAll);
     }
 
-    //读取好友消息
+    //读取好友消息,根据类型可读取已读消息或未读消息
     private List<MessageModel> getMessageListFromPhone(String readState,String account){
         List<MessageModel> messageModels;
         String path = FileUtil.getDiskPath(getView().getActivity(),readState);
@@ -258,7 +265,7 @@ public class MessageViewModel extends BaseViewModel <Fragment> {
 
     //读取未读消息和已读消息（二者互斥，即同一个好友的消息状态只能是未读或已读），
     // 注意这是指获取的消息我们在代码中控制令其唯一，但是在已读和未读文件系统中有可能有相同好友的数据，即有未读和已读的消息。
-    private void getMessageList(List<List<MessageModel>> unRead,List<List<MessageModel>> readed){
+    private void getMessageList(List<List<MessageModel>> unRead,List<List<MessageModel>> read){
         String [] messageAccounts = getOldMessageAccounts();
         if (messageAccounts == null)return;
         for (String account:messageAccounts){
@@ -267,50 +274,96 @@ public class MessageViewModel extends BaseViewModel <Fragment> {
             if (messageModels != null){
                 unRead.add(messageModels);
             }
-            //否则从"ReadedMessage"文件中读取
+            //否则从"ReadMessage"文件中读取
             else {
-                messageModels = getMessageListFromPhone("ReadedMessage",account);
+                messageModels = getMessageListFromPhone("ReadMessage",account);
                 if (messageModels != null){
-                    readed.add(messageModels);
+                    read.add(messageModels);
                 }
             }
 
         }
     }
 
-//    private void mergeReadedMessage(List<List<MessageModel>> unReaded,List<List<MessageModel>> readed){
-//        for (List<MessageModel> messageModels:unReaded){
-//            for (int i=0; i<readed.size(); i++){
-//                List<MessageModel> readedList = readed.get(i);
-//                if (messageModels.get(0).getSenderAccount().equals(readedList.get(0).getSenderAccount())){
-//                    readed.remove(i);
-//                    break;
-//                }
-//            }
-//        }
-//        readedMessageList.addAll(readed);
-//    }
+    //读取指定账号的所有已读消息
+    private List<List<MessageModel>> getReadMessageList(List<String> accounts){
+        if(accounts == null || accounts.size() <=0) return null;
+        List<List<MessageModel>> messageList = new ArrayList<>();
+        for (String account:accounts){
+            List<MessageModel> readMessage = getMessageListFromPhone("ReadMessage",account);
+            messageList.add(readMessage);
+        }
+        if (messageList.size() <=0){
+            messageList = null;
+        }
+        return messageList;
+    }
 
     //将最新的消息（从网络获取，一定是未读状态）和已读消息合并，得出最终的已读消息，即如果已读消息和未读消息是相同的好友则不作处理，
-    // 注意虽然没做处理但是这条已读消息并没有被删除，因此在跳转到聊天Activity时仍然能够从"ReadedMessage"文件中读取到。
-    private void mergeReadedMessage(List<List<MessageModel>> unReadList,List<List<MessageModel>> readedList){
+    // 注意虽然没做处理但是这条已读消息并没有被删除，因此在跳转到聊天Activity时仍然能够从"ReadMessage"文件中读取到。
+    private void mergeReadMessage(List<List<MessageModel>> unRead,List<List<MessageModel>> read){
+        if (unRead == null && read == null){
+            return ;
+        }else if(read == null){
+            return ;
+        }else if(unRead == null){
+            readMessageList.addAll(read);
+            return;
+        }
+
+        for (List<MessageModel> messageModels:unRead){
+            for (int i=0; i<read.size(); i++){
+                List<MessageModel> readList = read.get(i);
+                String account = accountFilter(readList.get(0));
+                if (messageModels.get(0).getSenderAccount().equals(account)){
+                    read.remove(i);
+                    break;
+                }
+            }
+        }
+        readMessageList.addAll(read);
+    }
+
+    //将最新的消息（从网络获取，一定是未读状态）和已读消息合并，得出最终的已读消息，即如果已读消息和未读消息是相同的好友则不作处理，
+    // 注意虽然没做处理但是这条已读消息并没有被删除，因此在跳转到聊天Activity时仍然能够从"ReadMessage"文件中读取到。
+    private List<List<MessageModel>> getReadMessage(List<List<MessageModel>> unReadList,List<List<MessageModel>> readList){
+        List<List<MessageModel>> readMessage = new ArrayList<>();
+        if (unReadList == null && readList == null){
+            return null;
+        }else if(readList == null){
+            return null;
+        }else if(unReadList == null){
+            readMessage.addAll(readList);
+            if (readMessage.size() <= 0){
+                return null;
+            }else {
+                return readMessage;
+            }
+        }
         boolean theSame = false;
-        for (List<MessageModel> readed:readedList){
+        for (List<MessageModel> read:readList){
             theSame = false;
+            String readAccount = accountFilter(read.get(0));
             for (List<MessageModel> unRead:unReadList){
-                if (readed.get(0).getSenderAccount().equals(unRead.get(0).getSenderAccount())){
+                if (readAccount.equals(unRead.get(0).getSenderAccount())){
                     theSame = true;
                     break;
                 }
             }
             if (!theSame){
-                readedMessageList.add(readed);
+                readMessage.add(read);
             }
         }
+
+        if (readMessage.size() <=0){
+            readMessage = null;
+        }
+        return readMessage;
     }
 
     //将最新的消息（从网络获取，一定是未读状态）和未读消息合并，得出最终的未读消息，即如果两个未读消息是同一个好友则将消息合并。
     private void mergeUnReadMessageList(List<List<MessageModel>> unRead){
+        if (unRead == null)return;
         for (List<MessageModel> messageModels:unReadMessageList){
             for (int i=0; i<unRead.size(); i++){
                 List<MessageModel> unReadList = unRead.get(i);
@@ -324,10 +377,33 @@ public class MessageViewModel extends BaseViewModel <Fragment> {
         unReadMessageList.addAll(unRead);
     }
 
+    //合并已读消息,将新老已读消息合并
+    private void mergeReadMessage(List<List<MessageModel>> read){
+        if (read == null)return;
+        for (List<MessageModel> messageModels:readMessageList){
+            for (int i=0; i<read.size(); i++){
+                List<MessageModel> readList = read.get(i);
+                String messageModelAccount = accountFilter(messageModels.get(0));
+                String readListAccount = accountFilter(readList.get(0));
+                if (messageModelAccount.equals(readListAccount)){
+                    messageModels.addAll(readList);
+                    read.remove(i);
+                    break;
+                }
+            }
+        }
+        readMessageList.addAll(read);
+    }
+
+    /**
+     * 空项移除函数，将列表内的空列表移除
+     *
+     * @param arrayList 需要移除空项的列表
+     */
     private void removeEmpty(List<List<MessageModel>> arrayList){
         for (int i=0; i<arrayList.size(); i++){
             List list = arrayList.get(i);
-            if (list.size() <=0){
+            if (list == null || list.size() <=0){
                 arrayList.remove(i);
                 i--;
             }
@@ -349,15 +425,15 @@ public class MessageViewModel extends BaseViewModel <Fragment> {
 //                    public void run() {
 //                        List<List<MessageModel>> messageModels = getMessageFromNet();
 //                        List<List<MessageModel>> readed = new ArrayList<>();
-//                        readed.addAll(readedMessageList);
-//                        readedMessageList.clear();
-//                        mergeReadedMessage(messageModels,readed);
+//                        readed.addAll(ReadMessageList);
+//                        ReadMessageList.clear();
+//                        mergeReadMessage(messageModels,readed);
 //                        mergeUnReadMessageList(messageModels);
 //                        adapter.notifyData();
 //                        layoutBinding.refreshLayout.setRefreshing(false);
 //                        if(messageModels != null && messageModels.size()>0){
 //                            saveMessage(unReadMessageList,"UnReadMessage");
-//                            saveMessage(readedMessageList,"ReadedMessage");
+//                            saveMessage(ReadMessageList,"ReadMessage");
 //                            saveMessageAccounts();
 //                        }
 //                    }
@@ -367,18 +443,91 @@ public class MessageViewModel extends BaseViewModel <Fragment> {
     }
 
     private void analyzeMessage(List<List<MessageModel>> messageModels){
-        List<List<MessageModel>> readed = new ArrayList<>();
-        readed.addAll(readedMessageList);
-        readedMessageList.clear();
-        mergeReadedMessage(messageModels,readed);
+//        List<List<MessageModel>> readed = new ArrayList<>(ReadMessageList);
+//        ReadMessageList.clear();
+//        mergeReadMessage(messageModels,readed);
+//        mergeUnReadMessageList(messageModels);
+//        adapter.notifyData();
+//        layoutBinding.refreshLayout.setRefreshing(false);
+//        if(messageModels != null && messageModels.size()>0){
+//            saveMessage(unReadMessageList,"UnReadMessage");
+//            saveMessage(ReadMessageList,"ReadMessage");
+//            saveMessageAccounts();
+//        }
+
+//        List<List<MessageModel>> newReadMessage = getNewReadMessage();
+//        mergeUnReadMessageList(messageModels);
+//        List<List<MessageModel>> oldRead = getReadMessage(unReadMessageList,ReadMessageList);
+//        List<List<MessageModel>> newRead = getReadMessage(unReadMessageList,newReadMessage);
+//        ReadMessageList.clear();
+//        mergeReadMessage(oldRead);
+//        mergeReadMessage(newRead);
+//        adapter.notifyData();
+//        saveMessage(unReadMessageList,"UnReadMessage");
+//        saveMessage(ReadMessageList,"ReadMessage");
+//        saveMessageAccounts();
+
+        unReadMessageList.clear();
+        readMessageList.clear();
+        List<List<MessageModel>> read = new ArrayList<>();
+        getMessageList(unReadMessageList,read);
+        mergeReadMessage(messageModels,read);
         mergeUnReadMessageList(messageModels);
         adapter.notifyData();
-        layoutBinding.refreshLayout.setRefreshing(false);
-        if(messageModels != null && messageModels.size()>0){
-            saveMessage(unReadMessageList,"UnReadMessage");
-            saveMessage(readedMessageList,"ReadedMessage");
-            saveMessageAccounts();
+        saveMessage(unReadMessageList,"UnReadMessage");
+        saveMessage(readMessageList,"ReadMessage");
+        saveMessageAccounts();
+    }
+
+    /**
+     * 获取最新的已读消息，为列表展示以外的已读消息，即ReadMessageList之外的已读消息
+     *
+     * @return 返回获取到的已读消息列表
+     */
+    private List<List<MessageModel>> getNewReadMessage(){
+        List<String> newAccount = new ArrayList<>();
+        String[] accounts =  getOldMessageAccounts();
+        boolean theSame = false;
+
+        if (accounts == null || accounts.length <=0){
+            return null;
         }
+        List<String> ccountAll = new ArrayList<>();
+
+        for (List<MessageModel>read:readMessageList){
+            String filterAccount = accountFilter(read.get(0));
+            ccountAll.add(filterAccount);
+        }
+
+        for (List<MessageModel>unRead:unReadMessageList){
+            ccountAll.add(unRead.get(0).getSenderAccount());
+        }
+
+        for (String account:accounts){
+            theSame = false;
+            for (String item:ccountAll){
+                if (account.equals(item)){
+                    theSame = true;
+                    break;
+                }
+            }
+            if (!theSame){
+                newAccount.add(account);
+            }
+        }
+
+        return getReadMessageList(newAccount);
+    }
+
+    //账号过滤，拿到朋友的账号，因为消息包含了本人发送的消息
+    private String accountFilter(MessageModel model){
+        String account = "";
+        if (model.getType() == MessageType.MESSAGE_SEND.getCode()){
+            account = model.getReceiverAccount();
+        }else if (model.getType() == MessageType.MESSAGE_RECEIVE.getCode()){
+            account = model.getSenderAccount();
+        }
+        return account;
     }
 
 //    private void addMessage(List<MessageModel> messageModels){
@@ -420,6 +569,11 @@ public class MessageViewModel extends BaseViewModel <Fragment> {
         dialog.show();
     }
 
+    /**
+     * 删除好友的消息记录，包括已读和未读
+     *
+     * @param position 消息列表的位置，根据位置获取指定好友的信息
+     */
     private void deleteMessage(int position){
         List<MessageModel> messageModels = null;
         String path = null;
@@ -430,16 +584,16 @@ public class MessageViewModel extends BaseViewModel <Fragment> {
             unReadMessageList.remove(messageModels);
             account = messageModels.get(0).getSenderAccount();
         }else {
-            messageModels = readedMessageList.get(position - unReadMessageList.size());
-            readedMessageList.remove(messageModels);
-            account = messageModels.get(0).getSenderAccount();
+            messageModels = readMessageList.get(position - unReadMessageList.size());
+            readMessageList.remove(messageModels);
+            account = accountFilter(messageModels.get(0));
         }
 
         path = FileUtil.getDiskPath(getView().getActivity(),"UnReadMessage");
         File file = new File(path,account);
         FileUtil.fileDelete(file);
 
-        path = FileUtil.getDiskPath(getView().getActivity(),"ReadedMessage");
+        path = FileUtil.getDiskPath(getView().getActivity(),"ReadMessage");
         file = new File(path,account);
         FileUtil.fileDelete(file);
 
@@ -451,17 +605,25 @@ public class MessageViewModel extends BaseViewModel <Fragment> {
     //如果点击的是已读消息则不作处理，同样在聊天Activity退出的时候会把所有聊天信息存为已读
     private void jumpToChatting(int position){
         List<MessageModel> messages = null;
-        String friendName = null;
-        String friendAccount = null;
+        String friendName = "";
+        String friendAccount = "";
         if (position <= (unReadMessageList.size()-1)) {
             messages = unReadMessageList.get(position);
             friendName = messages.get(0).getSender();
             friendAccount = messages.get(0).getSenderAccount();
             clearUnreadMessage(messages.get(0).getSenderAccount(),"UnReadMessage");
         }else {
-            friendName = messages.get(0).getSender();
-            friendAccount = messages.get(0).getSenderAccount();
+            messages = readMessageList.get(position - unReadMessageList.size());
+            if (messages.get(0).getType() == MessageType.MESSAGE_SEND.getCode()){
+                friendName = messages.get(0).getReceiver();
+                friendAccount = messages.get(0).getReceiverAccount();
+            }else if (messages.get(0).getType() == MessageType.MESSAGE_RECEIVE.getCode()){
+                friendName = messages.get(0).getSender();
+                friendAccount = messages.get(0).getSenderAccount();
+            }
+            messages = null;
         }
+
         Intent intent = new Intent(getView().getActivity(), ChattingActivity.class);
         intent.putExtra("friendName",friendName);
         intent.putExtra("friendAccount",friendAccount);
@@ -469,26 +631,32 @@ public class MessageViewModel extends BaseViewModel <Fragment> {
         getView().startActivity(intent);
     }
 
-    public void answerRequest(String name,String account){
-        List<MessageModel> list = null;
-        for (List<MessageModel> item:unReadMessageList)     {
-            if (account.equals(item.get(0).getSenderAccount())){
-                list = item;
-                break;
-            }
-        }
-        clearUnreadMessage(account,"UnReadMessage");
-        Intent intent = new Intent(getView().getActivity(), ChattingActivity.class);
-        intent.putExtra("friendName",name);
-        intent.putExtra("friendAccount",account);
-        intent.putParcelableArrayListExtra("message", (ArrayList<? extends Parcelable>) list);
-        getView().startActivity(intent);
-
-//        MessageEvent event = new MessageEvent();
-//        event.setType("message");
-//        event.setMessageList(list);
-//        EventBus.getDefault().post(event);
-    }
+//    /**
+//     * 应答点击好友列表的动作，即跳转到聊天Activity,这样做主要为了拿到未读消息
+//     *
+//     * @param name 好友昵称
+//     * @param account 好友账号
+//     */
+//    public void answerRequest(String name,String account){
+//        List<MessageModel> list = null;
+//        for (List<MessageModel> item:unReadMessageList)     {
+//            if (account.equals(item.get(0).getSenderAccount())){
+//                list = item;
+//                break;
+//            }
+//        }
+//        clearUnreadMessage(account,"UnReadMessage");
+//        Intent intent = new Intent(getView().getActivity(), ChattingActivity.class);
+//        intent.putExtra("friendName",name);
+//        intent.putExtra("friendAccount",account);
+//        intent.putParcelableArrayListExtra("message", (ArrayList<? extends Parcelable>) list);
+//        getView().startActivity(intent);
+//
+////        MessageEvent event = new MessageEvent();
+////        event.setType("message");
+////        event.setMessageList(list);
+////        EventBus.getDefault().post(event);
+//    }
 
     public MessageFragmentLayoutBinding getLayoutBinding() {
         return layoutBinding;
@@ -499,8 +667,8 @@ public class MessageViewModel extends BaseViewModel <Fragment> {
     }
 
     @Override
-    public void deTachView() {
-        super.deTachView();
+    public void detachView() {
+        super.detachView();
         if (layoutBinding != null){
             layoutBinding = null;
         }

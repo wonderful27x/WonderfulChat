@@ -163,7 +163,7 @@ public class ChattingViewModel extends BaseViewModel<AppCompatActivity> {
     //获取已读消息，因为传递进来的只是未读消息
     private List<MessageModel> getReadMessage(String account){
         List<MessageModel> readMessage;
-        String path = FileUtil.getDiskPath(getView(),"ReadedMessage");
+        String path = FileUtil.getDiskPath(getView(),"ReadMessage");
         File file = new File(path,account);
         if (!file.exists()){
             return null;
@@ -216,7 +216,7 @@ public class ChattingViewModel extends BaseViewModel<AppCompatActivity> {
 
     public void messageSave(){
         if(messageModels == null || messageModels.size()<=0)return;
-        String path = FileUtil.getDiskPath(getView(),"ReadedMessage");
+        String path = FileUtil.getDiskPath(getView(),"ReadMessage");
         Gson gson = new Gson();
         File file = new File(path, friendAccount);
         if (!file.exists()){
@@ -477,8 +477,8 @@ public class ChattingViewModel extends BaseViewModel<AppCompatActivity> {
     }
 
     @Override
-    public void deTachView() {
-        super.deTachView();
+    public void detachView() {
+        super.detachView();
         if (binding != null){
             binding = null;
         }

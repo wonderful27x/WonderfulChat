@@ -46,8 +46,8 @@ public class SplashViewModel extends BaseViewModel <Activity> {
     }
 
     @Override
-    public void deTachView() {
-        super.deTachView();
+    public void detachView() {
+        super.detachView();
         if(dataBinding != null){
             dataBinding = null;
         }

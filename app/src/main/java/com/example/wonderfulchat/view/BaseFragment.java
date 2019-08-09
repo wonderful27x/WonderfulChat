@@ -30,7 +30,7 @@ public abstract class BaseFragment <T extends BaseViewModel<? super Fragment>> e
     public void onDestroy() {
         super.onDestroy();
         if (viewModel != null){
-            viewModel.deTachView();
+            viewModel.detachView();
             viewModel = null;
         }
     }
