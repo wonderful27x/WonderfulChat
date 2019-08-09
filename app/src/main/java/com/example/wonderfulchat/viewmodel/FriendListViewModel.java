@@ -44,8 +44,8 @@ public class FriendListViewModel extends BaseViewModel<Fragment> {
     private UserModel model;
     private UserModel friend;
     private boolean friendExist = false;
-    private String friendName;
-    private String friendAccount;
+//    private String friendName;
+//    private String friendAccount;
 
     public void initView(){
         String userModel = MemoryUtil.sharedPreferencesGetString("UserModel");
@@ -103,16 +103,25 @@ public class FriendListViewModel extends BaseViewModel<Fragment> {
     }
 
     private void jumpToChatting(int group,int child){
-        String friendName = groupModels.get(group).getChildModels().get(child).getRemark();
-        String friendAccount = groupModels.get(group).getChildModels().get(child).getAccount();
-        List<MessageModel> unReadMessage = getMessageListFromPhone("UnReadMessage",friendAccount);
-        clearUnreadMessage(friendAccount,"UnReadMessage");
+        UserModel friendModel = groupModels.get(group).getChildModels().get(child);
+        List<MessageModel> unReadMessage = getMessageListFromPhone("UnReadMessage",friendModel.getAccount());
+        clearUnreadMessage(friendModel.getAccount(),"UnReadMessage");
 
         Intent intent = new Intent(getView().getActivity(), ChattingActivity.class);
-        intent.putExtra("friendName",friendName);
-        intent.putExtra("friendAccount",friendAccount);
+        intent.putExtra("friendModel",friendModel);
         intent.putParcelableArrayListExtra("message", (ArrayList<? extends Parcelable>) unReadMessage);
         getView().getActivity().startActivity(intent);
+
+//        String friendName = groupModels.get(group).getChildModels().get(child).getRemark();
+//        String friendAccount = groupModels.get(group).getChildModels().get(child).getAccount();
+//        List<MessageModel> unReadMessage = getMessageListFromPhone("UnReadMessage",friendAccount);
+//        clearUnreadMessage(friendAccount,"UnReadMessage");
+//
+//        Intent intent = new Intent(getView().getActivity(), ChattingActivity.class);
+//        intent.putExtra("friendName",friendName);
+//        intent.putExtra("friendAccount",friendAccount);
+//        intent.putParcelableArrayListExtra("message", (ArrayList<? extends Parcelable>) unReadMessage);
+//        getView().getActivity().startActivity(intent);
 
     }
 
@@ -180,6 +189,7 @@ public class FriendListViewModel extends BaseViewModel<Fragment> {
                                 userModels.addAll(userList);
                                 groupModels.get(0).setNumber(userModels.size());
                                 adapter.notifyDataSetChanged();
+                                saveToDatabase();
                             }
                         }else if("fail".equals(httpUserModel.getResult())){
                             ToastUtil.showToast(httpUserModel.getMessage());
@@ -206,7 +216,15 @@ public class FriendListViewModel extends BaseViewModel<Fragment> {
 
     }
 
-
+    //将数据存入数据库
+    private void saveToDatabase(){
+        for (UserModel userModel:userModels){
+            int num = userModel.updateAll("account=?",userModel.getAccount());
+            if (num<=0){
+                userModel.save();
+            }
+        }
+    }
 
     public void findAddFriend(){
         friendExist = false;

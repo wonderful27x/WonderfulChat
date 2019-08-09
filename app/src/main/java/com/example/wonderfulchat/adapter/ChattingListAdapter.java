@@ -25,15 +25,14 @@ public class ChattingListAdapter extends RecyclerView.Adapter<ChattingListAdapte
     private List<MessageModel> messageModels;
     private ChattingViewModel chattingViewModel;
     private UserModel userModel;
+    private UserModel friendModel;
     private RequestOptions options;
 
-    public ChattingListAdapter(List<MessageModel> messageModels,ChattingViewModel chattingViewModel){
+    public ChattingListAdapter(UserModel userModel,UserModel friendModel,List<MessageModel> messageModels,ChattingViewModel chattingViewModel){
+        this.userModel = userModel;
+        this.friendModel = friendModel;
         this.messageModels = messageModels;
         this.chattingViewModel = chattingViewModel;
-
-        String modelString = MemoryUtil.sharedPreferencesGetString("UserModel");
-        Gson gson = new Gson();
-        userModel = gson.fromJson(modelString, UserModel.class);
 
         options = new RequestOptions()
                 .placeholder(R.mipmap.default_head_image)
@@ -60,7 +59,7 @@ public class ChattingListAdapter extends RecyclerView.Adapter<ChattingListAdapte
             binding.receiveMessage.setText(messageModel.getMessage());
 
             Glide.with(chattingViewModel.getView())
-                    .load(messageModel.getSenderImage())
+                    .load(friendModel.getImageUrl())
                     .apply(options)
                     .into(binding.friendImage);
         }else if(messageModel.getType() == MessageType.MESSAGE_SEND.getCode()){

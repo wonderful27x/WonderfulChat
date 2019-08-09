@@ -28,6 +28,7 @@ import org.json.JSONObject;
 
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
+import java.util.List;
 
 public class LoginViewModel extends BaseViewModel<Activity> {
 
@@ -143,10 +144,10 @@ public class LoginViewModel extends BaseViewModel<Activity> {
         if ("success".equals(httpUserModel.getResult())){
             accountPassSave(isChecked.get());
 
-            UserModel userModel = httpUserModel.getContent().get(0);
-            String userModelString = gson.toJson(userModel);
+            List<UserModel> userModels = httpUserModel.getContent();
+            String userModelString = gson.toJson(userModels.get(0));
             MemoryUtil.sharedPreferencesSaveString("UserModel",userModelString);
-
+            saveToDatabase(userModels);
             Intent intent = new Intent(getView(), WonderfulChatActivity.class);
             getView().startActivity(intent);
             //getView().finish();
@@ -154,6 +155,7 @@ public class LoginViewModel extends BaseViewModel<Activity> {
             ToastUtil.showToast(httpUserModel.getMessage());
             LogUtil.d(TAG,httpUserModel.getMessage());
         }else if("error".equals(httpUserModel.getResult())){
+            ToastUtil.showToast("登录失败！");
             LogUtil.d(TAG,httpUserModel.getMessage());
         }
 
@@ -174,6 +176,25 @@ public class LoginViewModel extends BaseViewModel<Activity> {
 //
 //        EventBus.getDefault().post(event);
 //    }
+
+//    //将数据存入数据库
+//    private void saveToDatabase(UserModel userModel){
+//        int num = userModel.updateAll("account=?",userModel.getAccount());
+//        if (num<=0){
+//            userModel.save();
+//        }
+//    }
+
+    //将数据存入数据库
+    private void saveToDatabase(List<UserModel> userModels){
+        for (int i=1; i<userModels.size(); i++){
+            UserModel userModel = userModels.get(i);
+            int num = userModel.updateAll("account=?",userModel.getAccount());
+            if (num<=0){
+                userModel.save();
+            }
+        }
+    }
 
     public void checkBoxCheckedChanged(CompoundButton compoundButton, boolean isChecked){
         this.isChecked.set(isChecked);

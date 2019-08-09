@@ -13,10 +13,13 @@ import com.bumptech.glide.request.RequestOptions;
 import com.example.wonderfulchat.R;
 import com.example.wonderfulchat.databinding.MessageItemBinding;
 import com.example.wonderfulchat.model.MessageModel;
+import com.example.wonderfulchat.model.MessageType;
 import com.example.wonderfulchat.model.UserModel;
 import com.example.wonderfulchat.utils.MemoryUtil;
 import com.example.wonderfulchat.viewmodel.MessageViewModel;
 import com.google.gson.Gson;
+
+import org.litepal.LitePal;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -27,7 +30,7 @@ public class MessageListAdapter extends RecyclerView.Adapter<MessageListAdapter.
     private List<List<MessageModel>> ReadMessageList;
     private List<List<MessageModel>> messageList;
     private MessageViewModel messageViewModel;
-    private UserModel userModel;
+//    private UserModel userModel;
     private ItemClickListener itemClickListener;
     private int notePosition;
     private RequestOptions options;
@@ -37,9 +40,9 @@ public class MessageListAdapter extends RecyclerView.Adapter<MessageListAdapter.
         this.ReadMessageList = ReadMessageList;
         this.messageViewModel = messageViewModel;
 
-        String modelString = MemoryUtil.sharedPreferencesGetString("UserModel");
-        Gson gson = new Gson();
-        userModel = gson.fromJson(modelString, UserModel.class);
+//        String modelString = MemoryUtil.sharedPreferencesGetString("UserModel");
+//        Gson gson = new Gson();
+//        userModel = gson.fromJson(modelString, UserModel.class);
 
         messageList = new ArrayList<>();
         messageList.addAll(unReadMessageList);
@@ -77,16 +80,34 @@ public class MessageListAdapter extends RecyclerView.Adapter<MessageListAdapter.
         if (i>=notePosition){
             viewHolder.getBinding().messageNum.setVisibility(View.GONE);
         }else {
-            viewHolder.getBinding().messageNum.setText(messageModels.size()+"");
+            viewHolder.getBinding().messageNum.setText(String.valueOf(messageModels.size()));
             viewHolder.getBinding().messageNum.setVisibility(View.VISIBLE);
         }
-        //这里逻辑有问题，应该从数据库取出friend的信息
-        String name = messageModel.getSender();
-        String image = messageModel.getSenderImage();
-        if (userModel.getNickname().equals(name)){
-            name = messageModel.getReceiverAccount();
-            image = "";
+
+        UserModel userModel = null;
+        String name = "";
+        String image = "";
+        if (messageModel.getType() == MessageType.MESSAGE_RECEIVE.getCode()){
+            userModel = getUserModelFromDatabase(messageModel.getSenderAccount());
+        }else if (messageModel.getType() == MessageType.MESSAGE_SEND.getCode()){
+            userModel = getUserModelFromDatabase(messageModel.getReceiverAccount());
         }
+        if (userModel != null){
+            name = userModel.getNickname() == null ? "" : userModel.getNickname();
+            image = userModel.getImageUrl() == null ? "" : userModel.getImageUrl();
+        }
+
+//        //这里逻辑不好，应该从数据库取出friend的信息
+//        String name = "";
+//        String image = "";
+//        if (messageModel.getType() == MessageType.MESSAGE_RECEIVE.getCode()){
+//            name = messageModel.getSender();
+//            image = messageModel.getSenderImage();
+//        }else if (messageModel.getType() == MessageType.MESSAGE_SEND.getCode()){
+//            name = messageModel.getReceiver();
+//            image = "";
+//        }
+
         viewHolder.getBinding().userName.setText(name);
         viewHolder.getBinding().lastTime.setText(messageModel.getTime());
         Glide.with(messageViewModel.getView())
@@ -140,5 +161,11 @@ public class MessageListAdapter extends RecyclerView.Adapter<MessageListAdapter.
     }
     public void setItemClickListener(ItemClickListener itemClickListener){
         this.itemClickListener = itemClickListener;
+    }
+
+    private UserModel getUserModelFromDatabase(String account){
+        List<UserModel> userModel = LitePal.where("account=?",account).find(UserModel.class);
+        if (userModel == null)return null;
+        return userModel.get(0);
     }
 }

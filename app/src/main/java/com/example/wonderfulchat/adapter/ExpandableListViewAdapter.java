@@ -103,17 +103,16 @@ public class ExpandableListViewAdapter extends BaseExpandableListAdapter {
                 .load(userModel.getImageUrl())
                 .apply(options)
                 .into(childLayoutBinding.headImage);
-        String content = "";
-        if(userModel.getRemark() == null){
-            if(userModel.getNickname() != null){
-                content = userModel.getNickname();
-            }
+
+        String content;
+        if(userModel.getRemark() == null && userModel.getNickname() == null){
+            content = userModel.getAccount();
+        }else if(userModel.getRemark() != null && userModel.getNickname() == null){
+            content = userModel.getRemark();
+        }else if(userModel.getRemark() == null && userModel.getNickname() != null){
+            content = userModel.getNickname();
         }else {
-            if(userModel.getNickname() != null){
-                content = userModel.getRemark() + "～" + userModel.getNickname();
-            }else {
-                content = userModel.getRemark();
-            }
+            content = userModel.getRemark() + "～" + userModel.getNickname();
         }
         childLayoutBinding.friendName.setText(content);
         childLayoutBinding.myWord.setText(userModel.getLifeMotto());

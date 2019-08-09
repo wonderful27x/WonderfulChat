@@ -105,7 +105,7 @@ public class WonderfulChatViewModel extends BaseViewModel <AppCompatActivity> {
         tabGroupView.setTabSelectedListener(new TabGroupView.TabSelectedListener() {
             @Override
             public void onSelect(int position) {
-                viewPager.setCurrentItem(position);
+                viewPager.setCurrentItem(position,false);
             }
         });
 

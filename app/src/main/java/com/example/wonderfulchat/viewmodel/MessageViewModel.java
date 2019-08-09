@@ -23,6 +23,10 @@ import com.example.wonderfulchat.utils.ToastUtil;
 import com.example.wonderfulchat.view.ChattingActivity;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
+
+import org.litepal.LitePal;
+import org.litepal.crud.LitePalSupport;
+
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -604,32 +608,60 @@ public class MessageViewModel extends BaseViewModel <Fragment> {
     //跳转到聊天Activity,如果点击的是未读消息则清空，这时在聊天Activity退出的时候会把所有聊天信息存为已读
     //如果点击的是已读消息则不作处理，同样在聊天Activity退出的时候会把所有聊天信息存为已读
     private void jumpToChatting(int position){
-        List<MessageModel> messages = null;
-        String friendName = "";
-        String friendAccount = "";
+        List<MessageModel> messages;
+        UserModel friendModel = null;
         if (position <= (unReadMessageList.size()-1)) {
             messages = unReadMessageList.get(position);
-            friendName = messages.get(0).getSender();
-            friendAccount = messages.get(0).getSenderAccount();
+            String account = messages.get(0).getSenderAccount();
+            friendModel = getUserModelFromDatabase(account);
             clearUnreadMessage(messages.get(0).getSenderAccount(),"UnReadMessage");
         }else {
             messages = readMessageList.get(position - unReadMessageList.size());
             if (messages.get(0).getType() == MessageType.MESSAGE_SEND.getCode()){
-                friendName = messages.get(0).getReceiver();
-                friendAccount = messages.get(0).getReceiverAccount();
+                String account = messages.get(0).getReceiverAccount();
+                friendModel = getUserModelFromDatabase(account);
             }else if (messages.get(0).getType() == MessageType.MESSAGE_RECEIVE.getCode()){
-                friendName = messages.get(0).getSender();
-                friendAccount = messages.get(0).getSenderAccount();
+                String account = messages.get(0).getSenderAccount();
+                friendModel = getUserModelFromDatabase(account);
             }
             messages = null;
         }
 
         Intent intent = new Intent(getView().getActivity(), ChattingActivity.class);
-        intent.putExtra("friendName",friendName);
-        intent.putExtra("friendAccount",friendAccount);
+        intent.putExtra("friendModel",friendModel);
         intent.putParcelableArrayListExtra("message", (ArrayList<? extends Parcelable>) messages);
         getView().startActivity(intent);
     }
+
+//    //跳转到聊天Activity,如果点击的是未读消息则清空，这时在聊天Activity退出的时候会把所有聊天信息存为已读
+//    //如果点击的是已读消息则不作处理，同样在聊天Activity退出的时候会把所有聊天信息存为已读
+//    private void jumpToChatting(int position){
+//        List<MessageModel> messages = null;
+//        String friendName = "";
+//        String friendAccount = "";
+//        if (position <= (unReadMessageList.size()-1)) {
+//            messages = unReadMessageList.get(position);
+//            friendName = messages.get(0).getSender();
+//            friendAccount = messages.get(0).getSenderAccount();
+//            clearUnreadMessage(messages.get(0).getSenderAccount(),"UnReadMessage");
+//        }else {
+//            messages = readMessageList.get(position - unReadMessageList.size());
+//            if (messages.get(0).getType() == MessageType.MESSAGE_SEND.getCode()){
+//                friendName = messages.get(0).getReceiver();
+//                friendAccount = messages.get(0).getReceiverAccount();
+//            }else if (messages.get(0).getType() == MessageType.MESSAGE_RECEIVE.getCode()){
+//                friendName = messages.get(0).getSender();
+//                friendAccount = messages.get(0).getSenderAccount();
+//            }
+//            messages = null;
+//        }
+//
+//        Intent intent = new Intent(getView().getActivity(), ChattingActivity.class);
+//        intent.putExtra("friendName",friendName);
+//        intent.putExtra("friendAccount",friendAccount);
+//        intent.putParcelableArrayListExtra("message", (ArrayList<? extends Parcelable>) messages);
+//        getView().startActivity(intent);
+//    }
 
 //    /**
 //     * 应答点击好友列表的动作，即跳转到聊天Activity,这样做主要为了拿到未读消息
@@ -657,6 +689,12 @@ public class MessageViewModel extends BaseViewModel <Fragment> {
 ////        event.setMessageList(list);
 ////        EventBus.getDefault().post(event);
 //    }
+
+    private UserModel getUserModelFromDatabase(String account){
+        List<UserModel> userModel = LitePal.where("account=?",account).find(UserModel.class);
+        if (userModel == null)return null;
+        return userModel.get(0);
+    }
 
     public MessageFragmentLayoutBinding getLayoutBinding() {
         return layoutBinding;

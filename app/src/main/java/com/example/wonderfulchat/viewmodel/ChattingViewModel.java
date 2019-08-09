@@ -47,7 +47,7 @@ public class ChattingViewModel extends BaseViewModel<AppCompatActivity> {
     private ActivityChattingBinding binding;
     private ChattingListAdapter adapter;
     private List<MessageModel> messageModels;
-    private String friendAccount;
+    private UserModel friendModel;
     private UserModel userModel;
     private Socket socket = null;
     private BufferedReader reader = null;
@@ -58,8 +58,8 @@ public class ChattingViewModel extends BaseViewModel<AppCompatActivity> {
     private Handler handler;
     private Handler messageSendHandler;
 
-    public void initView(List<MessageModel> unReadMessage,String friendAccount){
-        this.friendAccount = friendAccount;
+    public void initView(List<MessageModel> unReadMessage,UserModel friendModel){
+        this.friendModel = friendModel;
         messageModels = new ArrayList<>();
         startTimes = new AtomicInteger(3);
         gson = new Gson();
@@ -81,7 +81,7 @@ public class ChattingViewModel extends BaseViewModel<AppCompatActivity> {
         Thread sendThread = new Thread(messageSendRunnable);
         sendThread.start();
 
-        List<MessageModel> readMessage = getReadMessage(friendAccount);
+        List<MessageModel> readMessage = getReadMessage(friendModel.getAccount());
         mergeMessage(readMessage,unReadMessage,null);
 
 //        List<String> messageList = new ArrayList<>();
@@ -98,7 +98,7 @@ public class ChattingViewModel extends BaseViewModel<AppCompatActivity> {
 //            messageModels.add(model);
 //        }
 
-        adapter = new ChattingListAdapter(messageModels,this);
+        adapter = new ChattingListAdapter(userModel,friendModel,messageModels,this);
         LinearLayoutManager manager = new LinearLayoutManager(getView());
         binding.recyclerView.setLayoutManager(manager);
         binding.recyclerView.setAdapter(adapter);
@@ -124,7 +124,7 @@ public class ChattingViewModel extends BaseViewModel<AppCompatActivity> {
 //            messages.add(message);
 //        }
 
-        String url = InternetAddress.GET_NEWEST_MESSAGE_URL + "?account=" + userModel.getAccount() + "&friendAccount=" + friendAccount;
+        String url = InternetAddress.GET_NEWEST_MESSAGE_URL + "?account=" + userModel.getAccount() + "&friendAccount=" + friendModel.getAccount();
         HttpUtil.httpRequestForGet(url, new HttpCallbackListener() {
             @Override
             public void onFinish(final String response) {
@@ -199,7 +199,7 @@ public class ChattingViewModel extends BaseViewModel<AppCompatActivity> {
         SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd hh:mm:ss");
         String time = format.format(date);
 
-        MessageModel model = buildMessage(MessageType.MESSAGE_RECEIVE.getCode(),time,message,userModel.getNickname(),userModel.getAccount(),"",friendAccount,userModel.getImageUrl());
+        MessageModel model = buildMessage(MessageType.MESSAGE_RECEIVE.getCode(),time,message,userModel.getNickname(),userModel.getAccount(),friendModel.getNickname(),friendModel.getAccount(),"");
 
         String messageData = gson.toJson(model);
         Message sendMessage = messageSendHandler.obtainMessage();
@@ -218,7 +218,7 @@ public class ChattingViewModel extends BaseViewModel<AppCompatActivity> {
         if(messageModels == null || messageModels.size()<=0)return;
         String path = FileUtil.getDiskPath(getView(),"ReadMessage");
         Gson gson = new Gson();
-        File file = new File(path, friendAccount);
+        File file = new File(path, friendModel.getAccount());
         if (!file.exists()){
             try {
                 file.createNewFile();
@@ -256,11 +256,11 @@ public class ChattingViewModel extends BaseViewModel<AppCompatActivity> {
         String[] accountAll;
         accountAll = getOldMessageAccounts();
         if (accountAll == null){
-            MemoryUtil.sharedPreferencesSaveString("OldMessageAccounts", friendAccount);
+            MemoryUtil.sharedPreferencesSaveString("OldMessageAccounts", friendModel.getAccount());
             return;
         }
         for (String account : accountAll) {
-            if (friendAccount.equals(account)) {
+            if (friendModel.getAccount().equals(account)) {
                 return;
             }
         }
@@ -269,7 +269,7 @@ public class ChattingViewModel extends BaseViewModel<AppCompatActivity> {
             builder.append(account);
             builder.append(",");
         }
-        builder.append(friendAccount);
+        builder.append(friendModel.getAccount());
         MemoryUtil.sharedPreferencesSaveString("OldMessageAccounts", builder.toString());
     }
 
@@ -372,9 +372,9 @@ public class ChattingViewModel extends BaseViewModel<AppCompatActivity> {
                         switch (MessageType.getByValue(messageModel.getType())){
                             case ANSWER:
                                 if (CommonConstant.IDENTITY_REQUEST.equals(messageModel.getMessage())){
-                                    sendMessage(MessageType.ANSWER,"client","server",userModel.getAccount() + "$" + friendAccount);
+                                    sendMessage(MessageType.ANSWER,"client","server",userModel.getAccount() + "$" + friendModel.getAccount());
                                 }else if (CommonConstant.ACCEPT.equals(messageModel.getMessage())){
-                                    sendMessage(MessageType.SOCKET_KEY,"client","server",userModel.getAccount() + "$" + friendAccount);
+                                    sendMessage(MessageType.SOCKET_KEY,"client","server",userModel.getAccount() + "$" + friendModel.getAccount());
                                     Message message = handler.obtainMessage();
                                     message.what = 0;
                                     message.sendToTarget();

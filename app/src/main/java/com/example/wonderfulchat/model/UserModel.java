@@ -1,6 +1,10 @@
 package com.example.wonderfulchat.model;
 
-public class UserModel {
+import org.litepal.crud.LitePalSupport;
+
+import java.io.Serializable;
+
+public class UserModel extends LitePalSupport implements Serializable {
 
     private String account;
     private String password;

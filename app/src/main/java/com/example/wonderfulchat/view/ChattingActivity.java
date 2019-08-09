@@ -11,6 +11,7 @@ import android.widget.TextView;
 import com.example.wonderfulchat.R;
 import com.example.wonderfulchat.databinding.ActivityChattingBinding;
 import com.example.wonderfulchat.model.MessageModel;
+import com.example.wonderfulchat.model.UserModel;
 import com.example.wonderfulchat.utils.UnitChangeUtil;
 import com.example.wonderfulchat.viewmodel.ChattingViewModel;
 import java.util.List;
@@ -30,16 +31,18 @@ public class ChattingActivity extends BaseActivity<ChattingViewModel> {
         getViewModel().setBinding(binding);
 
         Intent intent = getIntent();
-        String friendName = intent.getStringExtra("friendName");
-        String friendAccount = intent.getStringExtra("friendAccount");
+        UserModel friendModel = (UserModel) intent.getSerializableExtra("friendModel");
+        if (friendModel == null){
+            friendModel = new UserModel();
+        }
         List<MessageModel> messageModel = (List<MessageModel>) intent.getSerializableExtra("message");
 
-        initView(binding,friendName);
-        getViewModel().initView(messageModel,friendAccount);
+        initView(binding,friendModel);
+        getViewModel().initView(messageModel,friendModel);
 
     }
 
-    private void initView(ActivityChattingBinding binding,String friendName){
+    private void initView(ActivityChattingBinding binding,UserModel friendModel){
 
         RelativeLayout.LayoutParams layoutParams = new RelativeLayout.LayoutParams(UnitChangeUtil.dp2px(35), UnitChangeUtil.dp2px(35));
         layoutParams.addRule(RelativeLayout.CENTER_VERTICAL);
@@ -48,7 +51,7 @@ public class ChattingActivity extends BaseActivity<ChattingViewModel> {
         leftImage = binding.head.findViewById(R.id.left_image);
         rightImage = binding.head.findViewById(R.id.right_image);
 
-        midText.setText(friendName);
+        midText.setText(friendModel.getNickname());
         leftImage.setLayoutParams(layoutParams);
         leftImage.setBackgroundResource(R.mipmap.com_back_blue);
         rightImage.setVisibility(View.GONE);
