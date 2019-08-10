@@ -11,4 +11,10 @@ public class ToastUtil {
             Toast.makeText(MyApplication.getContext(), msg, Toast.LENGTH_SHORT).show();
         }
     }
+
+    public static void showLongToast(String msg){
+        if(!TextUtils.isEmpty(msg)) {
+            Toast.makeText(MyApplication.getContext(), msg, Toast.LENGTH_LONG).show();
+        }
+    }
 }

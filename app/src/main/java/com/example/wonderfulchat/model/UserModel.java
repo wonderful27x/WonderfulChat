@@ -13,6 +13,17 @@ public class UserModel extends LitePalSupport implements Serializable {
     private String imageUrl;
     private String remark;
 
+    public UserModel(){}
+
+    public UserModel(UserModel userModel){
+        this.account = userModel.getAccount();
+        this.password = userModel.getPassword();
+        this.nickname = userModel.getNickname();
+        this.lifeMotto = userModel.getLifeMotto();
+        this.imageUrl = userModel.getImageUrl();
+        this.remark = userModel.getRemark();
+    }
+
     public String getAccount() {
         return account;
     }

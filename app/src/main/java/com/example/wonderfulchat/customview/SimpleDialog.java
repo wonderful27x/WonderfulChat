@@ -15,7 +15,7 @@ import android.widget.ImageView;
 import android.widget.TextView;
 import com.example.wonderfulchat.R;
 
-public class CustomDialog extends Dialog {
+public class SimpleDialog extends Dialog {
 
     private ConfirmClickListener confirmClickListener;
     private TextChangeListener textChangeListener;
@@ -27,22 +27,22 @@ public class CustomDialog extends Dialog {
     private ImageView imageView2;
     private Button confirm;
 
-    public CustomDialog(Context context) {
+    public SimpleDialog(Context context) {
         super(context);
     }
 
-    public CustomDialog(Context context, int themeResId) {
+    public SimpleDialog(Context context, int themeResId) {
         super(context, themeResId);
     }
 
-    protected CustomDialog(Context context, boolean cancelable,DialogInterface.OnCancelListener cancelListener) {
+    protected SimpleDialog(Context context, boolean cancelable, DialogInterface.OnCancelListener cancelListener) {
         super(context, cancelable, cancelListener);
     }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.custom_dialog_layout);
+        setContentView(R.layout.simple_dialog_layout);
 
         //设置弹窗的宽度
         WindowManager manager = getWindow().getWindowManager();

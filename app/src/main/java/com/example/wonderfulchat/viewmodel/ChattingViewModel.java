@@ -162,6 +162,7 @@ public class ChattingViewModel extends BaseViewModel<AppCompatActivity> {
 
     //获取已读消息，因为传递进来的只是未读消息
     private List<MessageModel> getReadMessage(String account){
+        if (account == null)return null;
         List<MessageModel> readMessage;
         String path = FileUtil.getDiskPath(getView(),"ReadMessage");
         File file = new File(path,account);
@@ -215,6 +216,7 @@ public class ChattingViewModel extends BaseViewModel<AppCompatActivity> {
     }
 
     public void messageSave(){
+        if (friendModel == null || friendModel.getAccount() == null)return;
         if(messageModels == null || messageModels.size()<=0)return;
         String path = FileUtil.getDiskPath(getView(),"ReadMessage");
         Gson gson = new Gson();
@@ -253,6 +255,7 @@ public class ChattingViewModel extends BaseViewModel<AppCompatActivity> {
 
     //将此好友账号添加到记录账号里，否则消息列表在某些特殊情况下将无法展示已读消息
     public void saveMessageAccounts() {
+        if (friendModel == null)return;
         String[] accountAll;
         accountAll = getOldMessageAccounts();
         if (accountAll == null){
@@ -260,7 +263,7 @@ public class ChattingViewModel extends BaseViewModel<AppCompatActivity> {
             return;
         }
         for (String account : accountAll) {
-            if (friendModel.getAccount().equals(account)) {
+            if (account.equals(friendModel.getAccount())) {
                 return;
             }
         }
@@ -464,11 +467,11 @@ public class ChattingViewModel extends BaseViewModel<AppCompatActivity> {
                     binding.recyclerView.scrollToPosition(messageModels.size()-1);
                     break;
                 case 2:
-                    ToastUtil.showToast("未知的身份，请求被拒绝！");
+                    ToastUtil.showLongToast("未知的身份，请求被拒绝！");
                     LogUtil.d(TAG,CommonConstant.REFUSE);
                     break;
                 case 3:
-                    ToastUtil.showToast("对方未添加好友，请求被拒绝！");
+                    ToastUtil.showLongToast("对方未添加好友或已将你删除，请求被拒绝！");
                     LogUtil.d(TAG,CommonConstant.REFUSE_FRIEND);
                     break;
             }

@@ -20,20 +20,18 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.Window;
-import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.request.RequestOptions;
 import com.example.wonderfulchat.R;
-import com.example.wonderfulchat.customview.CustomDialog;
+import com.example.wonderfulchat.customview.SimpleDialog;
 import com.example.wonderfulchat.customview.DefuEditText;
 import com.example.wonderfulchat.databinding.ActivityWonderfulChatBinding;
 import com.example.wonderfulchat.interfaces.HttpCallbackListener;
 import com.example.wonderfulchat.model.HttpUserModel;
 import com.example.wonderfulchat.model.InternetAddress;
-import com.example.wonderfulchat.model.MessageEvent;
 import com.example.wonderfulchat.model.UserModel;
 import com.example.wonderfulchat.utils.HttpUtil;
 import com.example.wonderfulchat.utils.KeyboardUtil;
@@ -42,9 +40,7 @@ import com.example.wonderfulchat.utils.MemoryUtil;
 import com.example.wonderfulchat.utils.ToastUtil;
 import com.example.wonderfulchat.viewmodel.WonderfulChatViewModel;
 import com.google.gson.Gson;
-import org.greenrobot.eventbus.EventBus;
-import org.greenrobot.eventbus.Subscribe;
-import org.greenrobot.eventbus.ThreadMode;
+
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -200,8 +196,8 @@ public class WonderfulChatActivity extends BaseActivity <WonderfulChatViewModel>
                 getViewModel().logoutOrSwitch("switch",model.getAccount());
                 return true;
 //            case R.id.menu_register:
-//                CustomDialog dialog1 = new CustomDialog(this);
-//                dialog1.setConfirmClickListener(new CustomDialog.ConfirmClickListener() {
+//                SimpleDialog dialog1 = new SimpleDialog(this);
+//                dialog1.setConfirmClickListener(new SimpleDialog.ConfirmClickListener() {
 //                    @Override
 //                    public void parameterPass(String parameter1, String parameter2) {
 //                        LogUtil.d(TAG, "parameterPass: " + parameter1 + "-" + parameter2);
@@ -217,8 +213,8 @@ public class WonderfulChatActivity extends BaseActivity <WonderfulChatViewModel>
                 ToastUtil.showToast("待开发！");
                 return true;
             case R.id.menu_change_password:
-                CustomDialog dialog2 = new CustomDialog(this);
-                dialog2.setConfirmClickListener(new CustomDialog.ConfirmClickListener() {
+                SimpleDialog dialog2 = new SimpleDialog(this);
+                dialog2.setConfirmClickListener(new SimpleDialog.ConfirmClickListener() {
                     @Override
                     public void parameterPass(String parameter1, String parameter2) {
                         if (parameter2.length()<5){

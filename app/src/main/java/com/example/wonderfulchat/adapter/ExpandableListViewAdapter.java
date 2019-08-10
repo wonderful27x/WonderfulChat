@@ -87,7 +87,7 @@ public class ExpandableListViewAdapter extends BaseExpandableListAdapter {
     }
 
     @Override
-    public View getChildView(int i, int i1, boolean b, View view, ViewGroup viewGroup) {
+    public View getChildView(final int i, final int i1, boolean b, View view, ViewGroup viewGroup) {
         ChildLayoutBinding childLayoutBinding = null;
         if (view == null){
             childLayoutBinding = DataBindingUtil.inflate(LayoutInflater.from(viewGroup.getContext()),R.layout.child_layout,viewGroup,false);
@@ -116,6 +116,13 @@ public class ExpandableListViewAdapter extends BaseExpandableListAdapter {
         }
         childLayoutBinding.friendName.setText(content);
         childLayoutBinding.myWord.setText(userModel.getLifeMotto());
+
+        childLayoutBinding.headImage.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                viewModel.showFriendMessage(i,i1);
+            }
+        });
 
         return view;
     }

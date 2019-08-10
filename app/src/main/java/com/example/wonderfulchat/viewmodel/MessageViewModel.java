@@ -61,7 +61,7 @@ public class MessageViewModel extends BaseViewModel <Fragment> {
 //        saveMessage(unReadMessageList,"UnReadMessage");
 //        saveMessage(ReadMessageList,"ReadMessage");
 //        saveMessageAccounts();
-        adapter = new MessageListAdapter(layoutBinding.getWonderfulViewModel(),unReadMessageList,readMessageList);
+        adapter = new MessageListAdapter(this,unReadMessageList,readMessageList);
         LinearLayoutManager layoutManager = new LinearLayoutManager(getView().getActivity());
         layoutBinding.recyclerView.setLayoutManager(layoutManager);
         layoutBinding.recyclerView.setAdapter(adapter);
@@ -232,6 +232,7 @@ public class MessageViewModel extends BaseViewModel <Fragment> {
 
     //读取好友消息,根据类型可读取已读消息或未读消息
     private List<MessageModel> getMessageListFromPhone(String readState,String account){
+        if (account == null)return null;
         List<MessageModel> messageModels;
         String path = FileUtil.getDiskPath(getView().getActivity(),readState);
         File file = new File(path,account);
@@ -415,6 +416,7 @@ public class MessageViewModel extends BaseViewModel <Fragment> {
     }
 
     public void refresh(){
+        layoutBinding.refreshLayout.setRefreshing(true);
         getMessageFromNet();
 //        new Thread(new Runnable() {
 //            @Override
@@ -692,7 +694,7 @@ public class MessageViewModel extends BaseViewModel <Fragment> {
 
     private UserModel getUserModelFromDatabase(String account){
         List<UserModel> userModel = LitePal.where("account=?",account).find(UserModel.class);
-        if (userModel == null)return null;
+        if (userModel == null || userModel.size()<=0)return null;
         return userModel.get(0);
     }
 

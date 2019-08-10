@@ -165,7 +165,7 @@ public class MessageListAdapter extends RecyclerView.Adapter<MessageListAdapter.
 
     private UserModel getUserModelFromDatabase(String account){
         List<UserModel> userModel = LitePal.where("account=?",account).find(UserModel.class);
-        if (userModel == null)return null;
+        if (userModel == null || userModel.size()<=0)return null;
         return userModel.get(0);
     }
 }
