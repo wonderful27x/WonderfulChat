@@ -12,6 +12,7 @@ import com.bumptech.glide.Glide;
 import com.bumptech.glide.request.RequestOptions;
 import com.example.wonderfulchat.R;
 import com.example.wonderfulchat.databinding.MessageItemBinding;
+import com.example.wonderfulchat.model.FriendModel;
 import com.example.wonderfulchat.model.MessageModel;
 import com.example.wonderfulchat.model.MessageType;
 import com.example.wonderfulchat.model.UserModel;
@@ -88,9 +89,9 @@ public class MessageListAdapter extends RecyclerView.Adapter<MessageListAdapter.
         String name = "";
         String image = "";
         if (messageModel.getType() == MessageType.MESSAGE_RECEIVE.getCode()){
-            userModel = getUserModelFromDatabase(messageModel.getSenderAccount());
+            userModel = messageViewModel.getUserModelFromDatabase(messageModel.getSenderAccount());
         }else if (messageModel.getType() == MessageType.MESSAGE_SEND.getCode()){
-            userModel = getUserModelFromDatabase(messageModel.getReceiverAccount());
+            userModel = messageViewModel.getUserModelFromDatabase(messageModel.getReceiverAccount());
         }
         if (userModel != null){
             name = userModel.getNickname() == null ? "" : userModel.getNickname();
@@ -163,9 +164,14 @@ public class MessageListAdapter extends RecyclerView.Adapter<MessageListAdapter.
         this.itemClickListener = itemClickListener;
     }
 
-    private UserModel getUserModelFromDatabase(String account){
-        List<UserModel> userModel = LitePal.where("account=?",account).find(UserModel.class);
-        if (userModel == null || userModel.size()<=0)return null;
-        return userModel.get(0);
-    }
+//    private UserModel getUserModelFromDatabase(String account){
+//        List userModel;
+//        if (getHostState()){
+//            userModel = LitePal.where("account=?",account).find(UserModel.class);
+//        }else {
+//            userModel = LitePal.where("account=?",account).find(FriendModel.class);
+//        }
+//        if (userModel == null || userModel.size()<=0)return null;
+//        return (UserModel) userModel.get(0);
+//    }
 }

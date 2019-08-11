@@ -1,5 +1,6 @@
 package com.example.wonderfulchat.viewmodel;
 
+import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
@@ -10,6 +11,8 @@ import android.support.v7.widget.LinearLayoutManager;
 import com.example.wonderfulchat.adapter.MessageListAdapter;
 import com.example.wonderfulchat.databinding.MessageFragmentLayoutBinding;
 import com.example.wonderfulchat.interfaces.HttpCallbackListener;
+import com.example.wonderfulchat.model.CommonConstant;
+import com.example.wonderfulchat.model.FriendModel;
 import com.example.wonderfulchat.model.HttpMessageModel;
 import com.example.wonderfulchat.model.InternetAddress;
 import com.example.wonderfulchat.model.MessageModel;
@@ -21,6 +24,7 @@ import com.example.wonderfulchat.utils.LogUtil;
 import com.example.wonderfulchat.utils.MemoryUtil;
 import com.example.wonderfulchat.utils.ToastUtil;
 import com.example.wonderfulchat.view.ChattingActivity;
+import com.example.wonderfulchat.view.WonderfulChatActivity;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 
@@ -42,7 +46,12 @@ public class MessageViewModel extends BaseViewModel <Fragment> {
     private UserModel userModel;
 
     public void initView(){
-        String modelString = MemoryUtil.sharedPreferencesGetString("UserModel");
+        String modelString;
+        if (getHostState()){
+            modelString = MemoryUtil.sharedPreferencesGetString(CommonConstant.HOST_USER_MODEL);
+        }else {
+            modelString = MemoryUtil.sharedPreferencesGetString(CommonConstant.OTHER_USER_MODEL);
+        }
         Gson gson = new Gson();
         userModel = gson.fromJson(modelString, UserModel.class);
 
@@ -86,6 +95,10 @@ public class MessageViewModel extends BaseViewModel <Fragment> {
         });
 
 //        getMessageFromNet();
+    }
+
+    private boolean getHostState(){
+        return MemoryUtil.sharedPreferencesGetBoolean(CommonConstant.HOST_STATE);
     }
 
     //将消息存入文件系统，分为已读和未读两大文件，每个文件中每个好友账号都存入独立的消息列表Json数据
@@ -202,7 +215,12 @@ public class MessageViewModel extends BaseViewModel <Fragment> {
 
     //拿到有消息记录的所有账号
     private String[] getOldMessageAccounts(){
-        String s = MemoryUtil.sharedPreferencesGetString("OldMessageAccounts");
+        String s;
+        if (getHostState()){
+            s = MemoryUtil.sharedPreferencesGetString(CommonConstant.HOST_MESSAGE_ACCOUNT);
+        }else {
+            s = MemoryUtil.sharedPreferencesGetString(CommonConstant.OTHER_MESSAGE_ACCOUNT);
+        }
         if (s == null || s.equals("")){
             return null;
         }
@@ -227,7 +245,11 @@ public class MessageViewModel extends BaseViewModel <Fragment> {
             account.deleteCharAt(account.length()-1);
             accountAll = account.toString();
         }
-        MemoryUtil.sharedPreferencesSaveString("OldMessageAccounts",accountAll);
+        if (getHostState()){
+            MemoryUtil.sharedPreferencesSaveString(CommonConstant.HOST_MESSAGE_ACCOUNT,accountAll);
+        }else {
+            MemoryUtil.sharedPreferencesSaveString(CommonConstant.OTHER_MESSAGE_ACCOUNT,accountAll);
+        }
     }
 
     //读取好友消息,根据类型可读取已读消息或未读消息
@@ -273,15 +295,24 @@ public class MessageViewModel extends BaseViewModel <Fragment> {
     private void getMessageList(List<List<MessageModel>> unRead,List<List<MessageModel>> read){
         String [] messageAccounts = getOldMessageAccounts();
         if (messageAccounts == null)return;
+        String unreadState;
+        String readState;
+        if (getHostState()){
+            unreadState = CommonConstant.HOST_UNREAD_MESSAGE;
+            readState = CommonConstant.HOST_READ_MESSAGE;
+        }else {
+            unreadState = CommonConstant.OTHER_UNREAD_MESSAGE;
+            readState = CommonConstant.OTHER_READ_MESSAGE;
+        }
         for (String account:messageAccounts){
-            List<MessageModel> messageModels = getMessageListFromPhone("UnReadMessage",account);
+            List<MessageModel> messageModels = getMessageListFromPhone(unreadState,account);
             //从"UnReadMessage"文件中读到了说明是未读消息
             if (messageModels != null){
                 unRead.add(messageModels);
             }
             //否则从"ReadMessage"文件中读取
             else {
-                messageModels = getMessageListFromPhone("ReadMessage",account);
+                messageModels = getMessageListFromPhone(readState,account);
                 if (messageModels != null){
                     read.add(messageModels);
                 }
@@ -294,8 +325,14 @@ public class MessageViewModel extends BaseViewModel <Fragment> {
     private List<List<MessageModel>> getReadMessageList(List<String> accounts){
         if(accounts == null || accounts.size() <=0) return null;
         List<List<MessageModel>> messageList = new ArrayList<>();
+        String readState;
+        if (getHostState()){
+            readState = CommonConstant.HOST_READ_MESSAGE;
+        }else {
+            readState = CommonConstant.OTHER_READ_MESSAGE;
+        }
         for (String account:accounts){
-            List<MessageModel> readMessage = getMessageListFromPhone("ReadMessage",account);
+            List<MessageModel> readMessage = getMessageListFromPhone(readState,account);
             messageList.add(readMessage);
         }
         if (messageList.size() <=0){
@@ -416,6 +453,7 @@ public class MessageViewModel extends BaseViewModel <Fragment> {
     }
 
     public void refresh(){
+        LogUtil.d(TAG,"refresh");
         layoutBinding.refreshLayout.setRefreshing(true);
         getMessageFromNet();
 //        new Thread(new Runnable() {
@@ -473,6 +511,16 @@ public class MessageViewModel extends BaseViewModel <Fragment> {
 //        saveMessage(ReadMessageList,"ReadMessage");
 //        saveMessageAccounts();
 
+        String unreadSate;
+        String readSate;
+        if (getHostState()){
+            unreadSate = CommonConstant.HOST_UNREAD_MESSAGE;
+            readSate = CommonConstant.HOST_READ_MESSAGE;
+        }else {
+            unreadSate = CommonConstant.OTHER_UNREAD_MESSAGE;
+            readSate = CommonConstant.OTHER_READ_MESSAGE;
+        }
+
         unReadMessageList.clear();
         readMessageList.clear();
         List<List<MessageModel>> read = new ArrayList<>();
@@ -480,8 +528,8 @@ public class MessageViewModel extends BaseViewModel <Fragment> {
         mergeReadMessage(messageModels,read);
         mergeUnReadMessageList(messageModels);
         adapter.notifyData();
-        saveMessage(unReadMessageList,"UnReadMessage");
-        saveMessage(readMessageList,"ReadMessage");
+        saveMessage(unReadMessageList,unreadSate);
+        saveMessage(readMessageList,readSate);
         saveMessageAccounts();
     }
 
@@ -595,11 +643,21 @@ public class MessageViewModel extends BaseViewModel <Fragment> {
             account = accountFilter(messageModels.get(0));
         }
 
-        path = FileUtil.getDiskPath(getView().getActivity(),"UnReadMessage");
+        String unreadSate;
+        String readSate;
+        if (getHostState()){
+            unreadSate = CommonConstant.HOST_UNREAD_MESSAGE;
+            readSate = CommonConstant.HOST_READ_MESSAGE;
+        }else {
+            unreadSate = CommonConstant.OTHER_UNREAD_MESSAGE;
+            readSate = CommonConstant.OTHER_READ_MESSAGE;
+        }
+
+        path = FileUtil.getDiskPath(getView().getActivity(),unreadSate);
         File file = new File(path,account);
         FileUtil.fileDelete(file);
 
-        path = FileUtil.getDiskPath(getView().getActivity(),"ReadMessage");
+        path = FileUtil.getDiskPath(getView().getActivity(),readSate);
         file = new File(path,account);
         FileUtil.fileDelete(file);
 
@@ -612,11 +670,17 @@ public class MessageViewModel extends BaseViewModel <Fragment> {
     private void jumpToChatting(int position){
         List<MessageModel> messages;
         UserModel friendModel = null;
+        String unreadSate;
+        if (getHostState()){
+            unreadSate = CommonConstant.HOST_UNREAD_MESSAGE;
+        }else {
+            unreadSate = CommonConstant.OTHER_UNREAD_MESSAGE;
+        }
         if (position <= (unReadMessageList.size()-1)) {
             messages = unReadMessageList.get(position);
             String account = messages.get(0).getSenderAccount();
             friendModel = getUserModelFromDatabase(account);
-            clearUnreadMessage(messages.get(0).getSenderAccount(),"UnReadMessage");
+            clearUnreadMessage(messages.get(0).getSenderAccount(),unreadSate);
         }else {
             messages = readMessageList.get(position - unReadMessageList.size());
             if (messages.get(0).getType() == MessageType.MESSAGE_SEND.getCode()){
@@ -692,10 +756,15 @@ public class MessageViewModel extends BaseViewModel <Fragment> {
 ////        EventBus.getDefault().post(event);
 //    }
 
-    private UserModel getUserModelFromDatabase(String account){
-        List<UserModel> userModel = LitePal.where("account=?",account).find(UserModel.class);
+    public UserModel getUserModelFromDatabase(String account){
+        List userModel;
+        if (getHostState()){
+            userModel = LitePal.where("account=?",account).find(UserModel.class);
+        }else {
+            userModel = LitePal.where("account=?",account).find(FriendModel.class);
+        }
         if (userModel == null || userModel.size()<=0)return null;
-        return userModel.get(0);
+        return (UserModel) userModel.get(0);
     }
 
     public MessageFragmentLayoutBinding getLayoutBinding() {

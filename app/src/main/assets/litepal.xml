@@ -33,6 +33,7 @@
     -->
     <list>
         <mapping class="com.example.wonderfulchat.model.UserModel"/>
+        <mapping class="com.example.wonderfulchat.model.FriendModel"/>
     </list>
 
     <!--

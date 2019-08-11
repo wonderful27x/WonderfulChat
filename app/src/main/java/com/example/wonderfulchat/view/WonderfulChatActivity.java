@@ -30,6 +30,7 @@ import com.example.wonderfulchat.customview.SimpleDialog;
 import com.example.wonderfulchat.customview.DefuEditText;
 import com.example.wonderfulchat.databinding.ActivityWonderfulChatBinding;
 import com.example.wonderfulchat.interfaces.HttpCallbackListener;
+import com.example.wonderfulchat.model.CommonConstant;
 import com.example.wonderfulchat.model.HttpUserModel;
 import com.example.wonderfulchat.model.InternetAddress;
 import com.example.wonderfulchat.model.UserModel;
@@ -73,7 +74,6 @@ public class WonderfulChatActivity extends BaseActivity <WonderfulChatViewModel>
         getViewModel().initView();
 
     }
-
 
     private void initLeftDrawer(ActivityWonderfulChatBinding chatBinding){
 
@@ -145,7 +145,13 @@ public class WonderfulChatActivity extends BaseActivity <WonderfulChatViewModel>
     }
 
     private void initUserMessage(){
-        String userModel = MemoryUtil.sharedPreferencesGetString("UserModel");
+        String userModel;
+        if (getHostState()){
+            userModel = MemoryUtil.sharedPreferencesGetString(CommonConstant.HOST_USER_MODEL);
+        }else {
+            userModel = MemoryUtil.sharedPreferencesGetString(CommonConstant.OTHER_USER_MODEL);
+        }
+
         Gson gson = new Gson();
         model = gson.fromJson(userModel, UserModel.class);
         RequestOptions options = new RequestOptions()
@@ -236,6 +242,11 @@ public class WonderfulChatActivity extends BaseActivity <WonderfulChatViewModel>
                 return true;
             case R.id.menu_about_software:
                 getViewModel().statement();
+                return true;
+            case R.id.menu_set_host:
+                if (!getHostState()){
+                    getViewModel().setToHost();
+                }
                 return true;
         }
         return false;
@@ -413,6 +424,10 @@ public class WonderfulChatActivity extends BaseActivity <WonderfulChatViewModel>
         String jsonString = gson.toJson(loginModel);
         Log.d(TAG, "gsonToJson: " + jsonString);
 
+    }
+
+    private boolean getHostState(){
+        return MemoryUtil.sharedPreferencesGetBoolean(CommonConstant.HOST_STATE);
     }
 
 }

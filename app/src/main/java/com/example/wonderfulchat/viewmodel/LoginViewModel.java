@@ -11,6 +11,8 @@ import com.example.wonderfulchat.R;
 import com.example.wonderfulchat.customview.DefuEditText;
 import com.example.wonderfulchat.databinding.ActivityLoginBinding;
 import com.example.wonderfulchat.interfaces.HttpCallbackListener;
+import com.example.wonderfulchat.model.CommonConstant;
+import com.example.wonderfulchat.model.FriendModel;
 import com.example.wonderfulchat.model.HttpUserModel;
 import com.example.wonderfulchat.model.InternetAddress;
 import com.example.wonderfulchat.model.UserModel;
@@ -22,12 +24,14 @@ import com.example.wonderfulchat.utils.ToastUtil;
 import com.example.wonderfulchat.view.WonderfulChatActivity;
 import com.google.gson.Gson;
 import com.google.gson.JsonObject;
-
 import org.json.JSONException;
 import org.json.JSONObject;
+import org.litepal.LitePal;
 
+import java.io.File;
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
+import java.util.ArrayList;
 import java.util.List;
 
 public class LoginViewModel extends BaseViewModel<Activity> {
@@ -138,6 +142,7 @@ public class LoginViewModel extends BaseViewModel<Activity> {
     }
 
     private void getUserMessage(String jsonData){
+
         Gson gson = new Gson();
         HttpUserModel httpUserModel = gson.fromJson(jsonData, HttpUserModel.class);
         if(httpUserModel == null)return;
@@ -145,9 +150,10 @@ public class LoginViewModel extends BaseViewModel<Activity> {
             accountPassSave(isChecked.get());
 
             List<UserModel> userModels = httpUserModel.getContent();
-            String userModelString = gson.toJson(userModels.get(0));
-            MemoryUtil.sharedPreferencesSaveString("UserModel",userModelString);
-            saveToDatabase(userModels);
+            messageSave(userModels);
+//            String userModelString = gson.toJson(userModels.get(0));
+//            MemoryUtil.sharedPreferencesSaveString("UserModel",userModelString);
+//            saveToDatabase(userModels);
             Intent intent = new Intent(getView(), WonderfulChatActivity.class);
             getView().startActivity(intent);
             //getView().finish();
@@ -165,6 +171,51 @@ public class LoginViewModel extends BaseViewModel<Activity> {
 //        UserModel userModel = httpUserModel.getContent().get(0);
 //        String userModelString = gson.toJson(userModel);
 //        MemoryUtil.sharedPreferencesSaveString("UserModel",userModelString);
+    }
+
+    //消息存储，根据账号是否为HOST账号和是否和上一个登录的账号相同执行不同的消息存储策略
+    private void messageSave(List<UserModel> userModels){
+        Gson gson = new Gson();
+        String hostAccount = MemoryUtil.sharedPreferencesGetString(CommonConstant.HOST_ACCOUNT);
+        String lastAccount = MemoryUtil.sharedPreferencesGetString(CommonConstant.LAST_ACCOUNT);
+        if (hostAccount == null || hostAccount.isEmpty()){
+            MemoryUtil.sharedPreferencesSaveString(CommonConstant.HOST_ACCOUNT,userModels.get(0).getAccount());
+        }
+        MemoryUtil.sharedPreferencesSaveString(CommonConstant.LAST_ACCOUNT,userModels.get(0).getAccount());
+
+        //情况一：第一次使用此软件，没有任何记录，将账号设为HOST账号，数据存入HOST
+        if (hostAccount == null || hostAccount.isEmpty() || lastAccount == null || lastAccount.isEmpty()){
+            String userModelString = gson.toJson(userModels.get(0));
+            MemoryUtil.sharedPreferencesSaveString(CommonConstant.HOST_USER_MODEL,userModelString);
+            MemoryUtil.sharedPreferencesSaveBoolean(CommonConstant.HOST_STATE,true);
+            saveToDatabase(userModels,true);
+        //情况二：这次登录的账号和上次登录的一致，且是HOST账号，数据存入HOST
+        }else if (lastAccount.equals(userModels.get(0).getAccount()) && hostAccount.equals(userModels.get(0).getAccount())){
+            String userModelString = gson.toJson(userModels.get(0));
+            MemoryUtil.sharedPreferencesSaveString(CommonConstant.HOST_USER_MODEL,userModelString);
+            MemoryUtil.sharedPreferencesSaveBoolean(CommonConstant.HOST_STATE,true);
+            saveToDatabase(userModels,true);
+        //情况三：这次登录的账号和上次登录的一致，但不是HOST账号，这种情况属于有相同的非HOST账号连续登录，则直接将数据存入非HOST
+        }else if (lastAccount.equals(userModels.get(0).getAccount()) && !hostAccount.equals(userModels.get(0).getAccount())){
+            String userModelString = gson.toJson(userModels.get(0));
+            MemoryUtil.sharedPreferencesSaveString(CommonConstant.OTHER_USER_MODEL,userModelString);
+            MemoryUtil.sharedPreferencesSaveBoolean(CommonConstant.HOST_STATE,false);
+            saveToDatabase(userModels,false);
+        //情况四：这次登录的账号和上次登录的不一致，但是HOST账号，这种情况属从非HOST账号切回了HOST账号，则将数据存入HOST，并清除非HOST数据
+        }else if (!lastAccount.equals(userModels.get(0).getAccount()) && hostAccount.equals(userModels.get(0).getAccount())){
+            String userModelString = gson.toJson(userModels.get(0));
+            MemoryUtil.sharedPreferencesSaveString(CommonConstant.HOST_USER_MODEL,userModelString);
+            MemoryUtil.sharedPreferencesSaveBoolean(CommonConstant.HOST_STATE,true);
+            saveToDatabase(userModels,true);
+            clearAllOtherMessage();
+        //情况五：这次登录的账号和上次登录的不一致，且不是HOST账号，这种情况属于从HOST切到非HOST或从非HOST切到非HOST，则先清除非HOST数据，并将数据存入非HOST
+        }else {
+            clearAllOtherMessage();
+            String userModelString = gson.toJson(userModels.get(0));
+            MemoryUtil.sharedPreferencesSaveString(CommonConstant.OTHER_USER_MODEL,userModelString);
+            MemoryUtil.sharedPreferencesSaveBoolean(CommonConstant.HOST_STATE,false);
+            saveToDatabase(userModels,false);
+        }
     }
 
     //    private void getUserMessage(){
@@ -186,7 +237,17 @@ public class LoginViewModel extends BaseViewModel<Activity> {
 //    }
 
     //将数据存入数据库
-    private void saveToDatabase(List<UserModel> userModels){
+    private void saveToDatabase(List<UserModel> userModelList,boolean hostAccount){
+        List<UserModel> userModels = new ArrayList<>();
+        if (!hostAccount){
+            for (UserModel model:userModelList){
+                FriendModel friendModel = new FriendModel();
+                friendModel.changeToFriendModel(model);
+                userModels.add(friendModel);
+            }
+        }else {
+            userModels.addAll(userModelList);
+        }
         for (int i=1; i<userModels.size(); i++){
             UserModel userModel = userModels.get(i);
             int num = userModel.updateAll("account=?",userModel.getAccount());
@@ -194,6 +255,21 @@ public class LoginViewModel extends BaseViewModel<Activity> {
                 userModel.save();
             }
         }
+    }
+
+    private void clearAllOtherMessage(){
+        MemoryUtil.sharedPreferencesSaveString(CommonConstant.OTHER_USER_MODEL,"");
+        MemoryUtil.sharedPreferencesSaveString(CommonConstant.OTHER_MESSAGE_ACCOUNT,"");
+
+        String path = FileUtil.getDiskPath(getView(),CommonConstant.OTHER_READ_MESSAGE);
+        File file = new File(path);
+        FileUtil.dirDelete(file);
+
+        path = FileUtil.getDiskPath(getView(),CommonConstant.OTHER_UNREAD_MESSAGE);
+        file = new File(path);
+        FileUtil.dirDelete(file);
+
+        LitePal.deleteAll(FriendModel.class);
     }
 
     public void checkBoxCheckedChanged(CompoundButton compoundButton, boolean isChecked){

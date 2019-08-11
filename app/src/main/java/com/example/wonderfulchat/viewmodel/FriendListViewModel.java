@@ -14,6 +14,8 @@ import com.example.wonderfulchat.customview.SimpleDialog;
 import com.example.wonderfulchat.customview.UserMessageDialog;
 import com.example.wonderfulchat.databinding.FriendListFragmentLayoutBinding;
 import com.example.wonderfulchat.interfaces.HttpCallbackListener;
+import com.example.wonderfulchat.model.CommonConstant;
+import com.example.wonderfulchat.model.FriendModel;
 import com.example.wonderfulchat.model.GroupModel;
 import com.example.wonderfulchat.model.HttpUserModel;
 import com.example.wonderfulchat.model.InternetAddress;
@@ -50,7 +52,13 @@ public class FriendListViewModel extends BaseViewModel<Fragment> {
 //    private String friendAccount;
 
     public void initView(){
-        String userModel = MemoryUtil.sharedPreferencesGetString("UserModel");
+        String userModel;
+        if (getHostState()){
+            userModel = MemoryUtil.sharedPreferencesGetString(CommonConstant.HOST_USER_MODEL);
+        }else {
+            userModel = MemoryUtil.sharedPreferencesGetString(CommonConstant.OTHER_USER_MODEL);
+        }
+
         Gson gson = new Gson();
         user = gson.fromJson(userModel, UserModel.class);
 
@@ -104,10 +112,20 @@ public class FriendListViewModel extends BaseViewModel<Fragment> {
         getFriendList();
     }
 
+    private boolean getHostState(){
+        return MemoryUtil.sharedPreferencesGetBoolean(CommonConstant.HOST_STATE);
+    }
+
     private void jumpToChatting(int group,int child){
+        String unreadState;
+        if (getHostState()){
+            unreadState = CommonConstant.HOST_UNREAD_MESSAGE;
+        }else {
+            unreadState = CommonConstant.OTHER_UNREAD_MESSAGE;
+        }
         UserModel friendModel = groupModels.get(group).getChildModels().get(child);
-        List<MessageModel> unReadMessage = getMessageListFromPhone("UnReadMessage",friendModel.getAccount());
-        clearUnreadMessage(friendModel.getAccount(),"UnReadMessage");
+        List<MessageModel> unReadMessage = getMessageListFromPhone(unreadState,friendModel.getAccount());
+        clearUnreadMessage(friendModel.getAccount(),unreadState);
 
         Intent intent = new Intent(getView().getActivity(), ChattingActivity.class);
         intent.putExtra("friendModel",friendModel);
@@ -218,9 +236,30 @@ public class FriendListViewModel extends BaseViewModel<Fragment> {
 
     }
 
+//    //将数据存入数据库
+//    private void saveToDatabase(){
+//        for (UserModel userModel:userModels){
+//            int num = userModel.updateAll("account=?",userModel.getAccount());
+//            if (num<=0){
+//                userModel.save();
+//            }
+//        }
+//    }
+
     //将数据存入数据库
     private void saveToDatabase(){
-        for (UserModel userModel:userModels){
+        List<UserModel> userModels = new ArrayList<>();
+        if (!getHostState()){
+            for (UserModel model:userModels){
+                FriendModel friendModel = new FriendModel();
+                friendModel.changeToFriendModel(model);
+                userModels.add(friendModel);
+            }
+        }else {
+            userModels.addAll(userModels);
+        }
+        for (int i=0; i<userModels.size(); i++){
+            UserModel userModel = userModels.get(i);
             int num = userModel.updateAll("account=?",userModel.getAccount());
             if (num<=0){
                 userModel.save();
@@ -230,7 +269,14 @@ public class FriendListViewModel extends BaseViewModel<Fragment> {
 
     //将数据存入数据库
     private void saveToDatabase(UserModel userModel){
-        int num = userModel.updateAll("account=?",userModel.getAccount());
+        UserModel model;
+        if (getHostState()){
+            model = new UserModel(userModel);
+        }else {
+            model = new FriendModel();
+            ((FriendModel) model).changeToFriendModel(userModel);
+        }
+        int num = model.updateAll("account=?",userModel.getAccount());
         if (num<=0){
             userModel.save();
         }
@@ -479,17 +525,30 @@ public class FriendListViewModel extends BaseViewModel<Fragment> {
     }
 
     private void deleteFriendFromLocal(String friendAccount){
-        LitePal.deleteAll(UserModel.class,"account=?",friendAccount);
+        if (getHostState()){
+            LitePal.deleteAll(UserModel.class,"account=?",friendAccount);
+        }else {
+            LitePal.deleteAll(FriendModel.class,"account=?",friendAccount);
+        }
     }
 
     private void deleteFriendMessage(String account){
         if (account == null)return;
+        String unreadState;
+        String readState;
+        if (getHostState()){
+            unreadState = CommonConstant.HOST_UNREAD_MESSAGE;
+            readState = CommonConstant.HOST_READ_MESSAGE;
+        }else {
+            unreadState = CommonConstant.OTHER_UNREAD_MESSAGE;
+            readState = CommonConstant.OTHER_READ_MESSAGE;
+        }
         String path;
-        path = FileUtil.getDiskPath(getView().getActivity(),"UnReadMessage");
+        path = FileUtil.getDiskPath(getView().getActivity(),unreadState);
         File file = new File(path,account);
         FileUtil.fileDelete(file);
 
-        path = FileUtil.getDiskPath(getView().getActivity(),"ReadMessage");
+        path = FileUtil.getDiskPath(getView().getActivity(),readState);
         file = new File(path,account);
         FileUtil.fileDelete(file);
     }
@@ -511,12 +570,24 @@ public class FriendListViewModel extends BaseViewModel<Fragment> {
 
         if (builder.length()<=0)return;
 
-        MemoryUtil.sharedPreferencesSaveString("OldMessageAccounts",builder.toString());
+        String key;
+        if (getHostState()){
+            key = CommonConstant.HOST_MESSAGE_ACCOUNT;
+        }else {
+            key = CommonConstant.OTHER_MESSAGE_ACCOUNT;
+        }
+        MemoryUtil.sharedPreferencesSaveString(key,builder.toString());
     }
 
     //拿到有消息记录的所有账号
     private String[] getOldMessageAccounts(){
-        String s = MemoryUtil.sharedPreferencesGetString("OldMessageAccounts");
+        String key;
+        if (getHostState()){
+            key = CommonConstant.HOST_MESSAGE_ACCOUNT;
+        }else {
+            key = CommonConstant.OTHER_MESSAGE_ACCOUNT;
+        }
+        String s = MemoryUtil.sharedPreferencesGetString(key);
         if (s == null || s.equals("")){
             return null;
         }

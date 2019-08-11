@@ -5,7 +5,9 @@ import android.content.res.AssetManager;
 import android.os.Environment;
 import java.io.BufferedReader;
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
@@ -113,6 +115,61 @@ public class FileUtil {
     public static void fileDelete(File file){
         if (file.exists() && file.isFile()){
             file.delete();
+        }
+    }
+
+    public static void dirDelete(File fileDir) {
+        File[] files = fileDir.listFiles();
+        if(files != null) {
+            for(File file : files) {
+                if(file.isDirectory()) {
+                    dirDelete(file);
+                }else if(file.isFile()) {
+                    file.delete();
+                }
+            }
+        }
+        fileDir.delete();
+    }
+
+    public static void moveFile(Context context,String pathA,String pathB){
+        String finalPathA = getDiskPath(context,pathA);
+        String finalPathB = getDiskPath(context,pathB);
+        File dirA = new File(finalPathA);
+        File dirB = new File(finalPathB);
+        FileInputStream input = null;
+        FileOutputStream output = null;
+        File[] files = dirA.listFiles();
+        try {
+            for(File fileA:files){
+                String path = fileA.getAbsolutePath();
+                String fileName = path.substring(path.lastIndexOf(File.separator)+1);
+                File fileB = new File(dirB,fileName);
+                if(!fileB.exists()){
+                    fileB.createNewFile();
+                }
+
+                input = new FileInputStream(fileA);
+                output = new FileOutputStream(fileB);
+                byte[] buffer = new byte[1024];
+                int length;
+                while((length = input.read(buffer)) != -1){
+                    output.write(buffer,0,length);
+                }
+            }
+        } catch (IOException ex) {
+            ex.printStackTrace();
+        }finally{
+            try {
+                if(input != null){
+                    input.close();
+                }
+                if(output != null){
+                    output.close();
+                }
+            } catch (IOException ex) {
+                ex.printStackTrace();
+            }
         }
     }
 

@@ -65,7 +65,14 @@ public class ChattingViewModel extends BaseViewModel<AppCompatActivity> {
         gson = new Gson();
 
         binding.messageSend.setEnabled(false);
-        String userString = MemoryUtil.sharedPreferencesGetString("UserModel");
+
+        String userString;
+        if (getHostState()){
+            userString = MemoryUtil.sharedPreferencesGetString(CommonConstant.HOST_USER_MODEL);
+        }else {
+            userString = MemoryUtil.sharedPreferencesGetString(CommonConstant.OTHER_USER_MODEL);
+        }
+
         Gson gson = new Gson();
         userModel = gson.fromJson(userString,UserModel.class);
 
@@ -105,6 +112,10 @@ public class ChattingViewModel extends BaseViewModel<AppCompatActivity> {
         binding.recyclerView.scrollToPosition(messageModels.size()-1);
 
         getMessageFromNet();
+    }
+
+    private boolean getHostState(){
+        return MemoryUtil.sharedPreferencesGetBoolean(CommonConstant.HOST_STATE);
     }
 
     //进入是再请求一次网络，拿到最新消息
@@ -163,8 +174,14 @@ public class ChattingViewModel extends BaseViewModel<AppCompatActivity> {
     //获取已读消息，因为传递进来的只是未读消息
     private List<MessageModel> getReadMessage(String account){
         if (account == null)return null;
+        String name;
+        if (getHostState()){
+            name = CommonConstant.HOST_READ_MESSAGE;
+        }else {
+            name = CommonConstant.OTHER_READ_MESSAGE;
+        }
         List<MessageModel> readMessage;
-        String path = FileUtil.getDiskPath(getView(),"ReadMessage");
+        String path = FileUtil.getDiskPath(getView(),name);
         File file = new File(path,account);
         if (!file.exists()){
             return null;
@@ -218,7 +235,13 @@ public class ChattingViewModel extends BaseViewModel<AppCompatActivity> {
     public void messageSave(){
         if (friendModel == null || friendModel.getAccount() == null)return;
         if(messageModels == null || messageModels.size()<=0)return;
-        String path = FileUtil.getDiskPath(getView(),"ReadMessage");
+        String name;
+        if (getHostState()){
+            name = CommonConstant.HOST_READ_MESSAGE;
+        }else {
+            name = CommonConstant.OTHER_READ_MESSAGE;
+        }
+        String path = FileUtil.getDiskPath(getView(),name);
         Gson gson = new Gson();
         File file = new File(path, friendModel.getAccount());
         if (!file.exists()){
@@ -245,7 +268,12 @@ public class ChattingViewModel extends BaseViewModel<AppCompatActivity> {
 
     //拿到有消息记录的所有账号
     private String[] getOldMessageAccounts(){
-        String s = MemoryUtil.sharedPreferencesGetString("OldMessageAccounts");
+        String s;
+        if (getHostState()){
+            s = MemoryUtil.sharedPreferencesGetString(CommonConstant.HOST_MESSAGE_ACCOUNT);
+        }else {
+            s = MemoryUtil.sharedPreferencesGetString(CommonConstant.OTHER_MESSAGE_ACCOUNT);
+        }
         if (s.equals("")){
             return null;
         }
@@ -258,8 +286,14 @@ public class ChattingViewModel extends BaseViewModel<AppCompatActivity> {
         if (friendModel == null)return;
         String[] accountAll;
         accountAll = getOldMessageAccounts();
+        String key;
+        if (getHostState()){
+            key = CommonConstant.HOST_MESSAGE_ACCOUNT;
+        }else {
+            key = CommonConstant.OTHER_MESSAGE_ACCOUNT;
+        }
         if (accountAll == null){
-            MemoryUtil.sharedPreferencesSaveString("OldMessageAccounts", friendModel.getAccount());
+            MemoryUtil.sharedPreferencesSaveString(key, friendModel.getAccount());
             return;
         }
         for (String account : accountAll) {
@@ -273,7 +307,7 @@ public class ChattingViewModel extends BaseViewModel<AppCompatActivity> {
             builder.append(",");
         }
         builder.append(friendModel.getAccount());
-        MemoryUtil.sharedPreferencesSaveString("OldMessageAccounts", builder.toString());
+        MemoryUtil.sharedPreferencesSaveString(key, builder.toString());
     }
 
     public void setBinding(ActivityChattingBinding binding){

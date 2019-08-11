@@ -27,9 +27,13 @@ import com.example.wonderfulchat.adapter.ViewPagerAdapter;
 import com.example.wonderfulchat.customview.TabGroupView;
 import com.example.wonderfulchat.databinding.ActivityWonderfulChatBinding;
 import com.example.wonderfulchat.interfaces.HttpCallbackListener;
+import com.example.wonderfulchat.model.CommonConstant;
+import com.example.wonderfulchat.model.FriendModel;
 import com.example.wonderfulchat.model.InternetAddress;
+import com.example.wonderfulchat.model.MessageModel;
 import com.example.wonderfulchat.model.ParameterPass;
 import com.example.wonderfulchat.model.UserModel;
+import com.example.wonderfulchat.utils.FileUtil;
 import com.example.wonderfulchat.utils.HttpUtil;
 import com.example.wonderfulchat.utils.ImageCompressUtil;
 import com.example.wonderfulchat.utils.LogUtil;
@@ -40,9 +44,14 @@ import com.example.wonderfulchat.view.LoginActivity;
 import com.example.wonderfulchat.view.LuckyTurntableFragment;
 import com.example.wonderfulchat.view.MessageFragment;
 import com.google.gson.Gson;
+import com.google.gson.reflect.TypeToken;
+
+import org.litepal.LitePal;
 
 import java.io.ByteArrayOutputStream;
+import java.io.File;
 import java.io.IOException;
+import java.io.PipedReader;
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
 import java.util.ArrayList;
@@ -62,7 +71,12 @@ public class WonderfulChatViewModel extends BaseViewModel <AppCompatActivity> {
     public void initView(){
         ToastUtil.showToast("Welcome");
 
-        String model = MemoryUtil.sharedPreferencesGetString("UserModel");
+        String model;
+        if (getHostState()){
+            model = MemoryUtil.sharedPreferencesGetString(CommonConstant.HOST_USER_MODEL);
+        }else {
+            model = MemoryUtil.sharedPreferencesGetString(CommonConstant.OTHER_USER_MODEL);
+        }
         Gson gson = new Gson();
         userModel = gson.fromJson(model, UserModel.class);
 
@@ -110,6 +124,10 @@ public class WonderfulChatViewModel extends BaseViewModel <AppCompatActivity> {
         });
 
         //getUserMessage();
+    }
+
+    private boolean getHostState(){
+        return MemoryUtil.sharedPreferencesGetBoolean(CommonConstant.HOST_STATE);
     }
 
     @RequiresApi(api = Build.VERSION_CODES.KITKAT)
@@ -164,6 +182,75 @@ public class WonderfulChatViewModel extends BaseViewModel <AppCompatActivity> {
             }
         });
         dialog.show();
+    }
+
+    public void setToHost(){
+        //清空HOST
+        clearHost();
+        //将sharedPreferences移动到HOST
+        moveShare();
+        //将文件移动到HOST
+        moveFile();
+        //将数据库信息移动到HOST
+        moveDatabase();
+        //清空OTHER
+        clearOther();
+        //HOST状态设为true
+        MemoryUtil.sharedPreferencesSaveBoolean(CommonConstant.HOST_STATE,true);
+    }
+
+    private void clearHost(){
+        MemoryUtil.sharedPreferencesSaveString(CommonConstant.HOST_USER_MODEL,"");
+        MemoryUtil.sharedPreferencesSaveString(CommonConstant.HOST_MESSAGE_ACCOUNT,"");
+
+        String path = FileUtil.getDiskPath(getView(),CommonConstant.HOST_READ_MESSAGE);
+        File file = new File(path);
+        FileUtil.dirDelete(file);
+
+        path = FileUtil.getDiskPath(getView(),CommonConstant.HOST_UNREAD_MESSAGE);
+        file = new File(path);
+        FileUtil.dirDelete(file);
+
+        LitePal.deleteAll(UserModel.class);
+    }
+
+    private void clearOther(){
+        MemoryUtil.sharedPreferencesSaveString(CommonConstant.OTHER_USER_MODEL,"");
+        MemoryUtil.sharedPreferencesSaveString(CommonConstant.OTHER_MESSAGE_ACCOUNT,"");
+
+        String path = FileUtil.getDiskPath(getView(),CommonConstant.OTHER_READ_MESSAGE);
+        File file = new File(path);
+        FileUtil.dirDelete(file);
+
+        path = FileUtil.getDiskPath(getView(),CommonConstant.OTHER_UNREAD_MESSAGE);
+        file = new File(path);
+        FileUtil.dirDelete(file);
+
+        LitePal.deleteAll(FriendModel.class);
+
+    }
+
+    private void moveShare(){
+        String userModelJson = MemoryUtil.sharedPreferencesGetString(CommonConstant.OTHER_USER_MODEL);
+        String messageAccount = MemoryUtil.sharedPreferencesGetString(CommonConstant.OTHER_MESSAGE_ACCOUNT);
+        MemoryUtil.sharedPreferencesSaveString(CommonConstant.HOST_USER_MODEL,userModelJson);
+        MemoryUtil.sharedPreferencesSaveString(CommonConstant.HOST_MESSAGE_ACCOUNT,messageAccount);
+        Gson gson = new Gson();
+        UserModel userModel = gson.fromJson(userModelJson,UserModel.class);
+        MemoryUtil.sharedPreferencesSaveString(CommonConstant.HOST_ACCOUNT,userModel.getAccount());
+    }
+
+    private void moveFile(){
+        FileUtil.moveFile(getView(),CommonConstant.OTHER_UNREAD_MESSAGE,CommonConstant.HOST_UNREAD_MESSAGE);
+        FileUtil.moveFile(getView(),CommonConstant.OTHER_READ_MESSAGE,CommonConstant.HOST_READ_MESSAGE);
+    }
+
+    private void moveDatabase(){
+        List<FriendModel> modelList = LitePal.findAll(FriendModel.class);
+        for (FriendModel model:modelList){
+            UserModel userModel = new UserModel(model);
+            userModel.save();
+        }
     }
 
     public void logoutOrSwitch(final String type, String account){
@@ -271,7 +358,11 @@ public class WonderfulChatViewModel extends BaseViewModel <AppCompatActivity> {
                             }
                             Gson gson = new Gson();
                             String jsonData = gson.toJson(userModel);
-                            MemoryUtil.sharedPreferencesSaveString("UserModel",jsonData);
+                            if (getHostState()){
+                                MemoryUtil.sharedPreferencesSaveString(CommonConstant.HOST_USER_MODEL,jsonData);
+                            }else {
+                                MemoryUtil.sharedPreferencesSaveString(CommonConstant.OTHER_USER_MODEL,jsonData);
+                            }
                         }else {
                             textView.setText(oldContent);
                             ToastUtil.showToast("修改失败！");
@@ -399,7 +490,11 @@ public class WonderfulChatViewModel extends BaseViewModel <AppCompatActivity> {
                                         userModel.setImageUrl(imageUrl);
                                         Gson gson = new Gson();
                                         String jsonData = gson.toJson(userModel);
-                                        MemoryUtil.sharedPreferencesSaveString("UserModel",jsonData);
+                                        if (getHostState()){
+                                            MemoryUtil.sharedPreferencesSaveString(CommonConstant.HOST_USER_MODEL,jsonData);
+                                        }else {
+                                            MemoryUtil.sharedPreferencesSaveString(CommonConstant.OTHER_USER_MODEL,jsonData);
+                                        }
                                     }else{
                                         ToastUtil.showToast("上传失败！");
                                         LogUtil.e(TAG,responseData);
