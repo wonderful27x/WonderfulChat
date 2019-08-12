@@ -63,7 +63,7 @@ public class DefuTurntable extends RelativeLayout {
     private int lastX = 0;
     private int lastY = 0;
 
-    private List<UserModel> list;
+    private List<? extends UserModel> list;
     private int[] itemPosition;
     private int selectPosition;
     private Context context;
@@ -183,7 +183,16 @@ public class DefuTurntable extends RelativeLayout {
                     String [] text = new String[4];
                     for (int i=0; i<4; i++){
                         if (itemPosition[i] != -1){
-                            text[i] = list.get(itemPosition[i]).getRemark();
+                            String remark = list.get(itemPosition[i]).getRemark();
+                            String nickname = list.get(itemPosition[i]).getNickname();
+                            String account = list.get(itemPosition[i]).getAccount();
+                            if (remark != null){
+                                text[i] = remark;
+                            }else if (nickname != null){
+                                text[i] = nickname;
+                            }else {
+                                text[i] = account;
+                            }
                         }else {
                             text[i] = "";
                         }
@@ -211,6 +220,7 @@ public class DefuTurntable extends RelativeLayout {
                 longClickUp = false;
                 circleView.showBitmap(null,false);
                 circleView.showShadow(false);
+                circleView.showText("");
                 turntableView.showShadow(false);
 
                 turntableAnimator.setInterpolator(new AccelerateDecelerateInterpolator());
@@ -320,11 +330,11 @@ public class DefuTurntable extends RelativeLayout {
         return new String(text);
     }
 
-    public void setList(List<UserModel> list){
+    public void setList(List<? extends UserModel> list){
         this.list = list;
     }
 
-    private int[] getItemPosition(List<UserModel> list){
+    private int[] getItemPosition(List<? extends UserModel> list){
         int[] itemPosition = new int[]{-1,-1,-1,-1};
         if (list == null || list.size() == 0){
             return itemPosition;
@@ -352,10 +362,22 @@ public class DefuTurntable extends RelativeLayout {
     }
 
     private void setSelectContent(){
-        if (itemPosition == null)return;
-        int number = getRandomNumber(3);
+        if (itemPosition == null || list.size()<=0)return;
+        int number = getRandomNumber(list.size()-1);
         selectPosition = itemPosition[number];
-        circleView.showText(list.get(selectPosition).getRemark());
+        if (selectPosition <0)return;
+        String remark = list.get(selectPosition).getRemark();
+        String nickname = list.get(selectPosition).getNickname();
+        String account = list.get(selectPosition).getAccount();
+        String text;
+        if (remark != null){
+            text = remark;
+        }else if (nickname != null){
+            text = nickname;
+        }else {
+            text = account;
+        }
+        circleView.showText(text);
 
         Glide.with(context).load(list.get(selectPosition).getImageUrl()).into(new SimpleTarget<Drawable>() {
             @Override

@@ -49,6 +49,6 @@ public class LuckyTurntableFragment extends BaseFragment<LuckyTurntableViewModel
 
     @Override
     public void dataLoad() {
-
+        getViewModel().refresh();
     }
 }
