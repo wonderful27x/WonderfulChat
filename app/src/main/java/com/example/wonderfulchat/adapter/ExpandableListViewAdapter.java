@@ -105,11 +105,11 @@ public class ExpandableListViewAdapter extends BaseExpandableListAdapter {
                 .into(childLayoutBinding.headImage);
 
         String content;
-        if(userModel.getRemark() == null && userModel.getNickname() == null){
+        if((userModel.getRemark() == null || userModel.getRemark().isEmpty()) && (userModel.getNickname() == null || userModel.getNickname().isEmpty())){
             content = userModel.getAccount();
-        }else if(userModel.getRemark() != null && userModel.getNickname() == null){
+        }else if(userModel.getRemark() != null && !userModel.getRemark().isEmpty() && (userModel.getNickname() == null || userModel.getNickname().isEmpty())){
             content = userModel.getRemark();
-        }else if(userModel.getRemark() == null && userModel.getNickname() != null){
+        }else if((userModel.getRemark() == null || userModel.getRemark().isEmpty()) && userModel.getNickname() != null && !userModel.getNickname().isEmpty()){
             content = userModel.getNickname();
         }else {
             content = userModel.getRemark() + "～" + userModel.getNickname();

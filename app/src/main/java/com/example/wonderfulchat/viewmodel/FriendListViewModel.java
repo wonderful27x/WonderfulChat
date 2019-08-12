@@ -52,15 +52,7 @@ public class FriendListViewModel extends BaseViewModel<Fragment> {
 //    private String friendAccount;
 
     public void initView(){
-        String userModel;
-        if (getHostState()){
-            userModel = MemoryUtil.sharedPreferencesGetString(CommonConstant.HOST_USER_MODEL);
-        }else {
-            userModel = MemoryUtil.sharedPreferencesGetString(CommonConstant.OTHER_USER_MODEL);
-        }
-
-        Gson gson = new Gson();
-        user = gson.fromJson(userModel, UserModel.class);
+        user = getUserModel();
 
         groupModels = new ArrayList<>();
         userModels = new ArrayList<>();
@@ -110,6 +102,24 @@ public class FriendListViewModel extends BaseViewModel<Fragment> {
         });
 
         getFriendList();
+    }
+
+    private UserModel getUserModel(){
+        String userModelJson;
+        UserModel userModel;
+        if (getHostState()){
+            userModelJson = MemoryUtil.sharedPreferencesGetString(CommonConstant.HOST_USER_MODEL);
+        }else {
+            userModelJson = MemoryUtil.sharedPreferencesGetString(CommonConstant.OTHER_USER_MODEL);
+        }
+        Gson gson = new Gson();
+        userModel = gson.fromJson(userModelJson, UserModel.class);
+
+        return userModel;
+    }
+
+    public void refreshUserModel(){
+        user = getUserModel();
     }
 
     private boolean getHostState(){
@@ -497,10 +507,10 @@ public class FriendListViewModel extends BaseViewModel<Fragment> {
                     public void run() {
                         if ("success".equals(response)){
                             ToastUtil.showToast("删除成功！");
-                            deleteFriendFromLocal(userModel.getAccount());
                             userModels.remove(childPosition);
                             groupModels.get(0).setNumber(userModels.size());
                             adapter.notifyDataSetChanged();
+                            deleteFriendFromLocal(userModel.getAccount());
                             deleteFriendMessage(userModel.getAccount());
                             deleteMessageAccount(userModel.getAccount());
                         }else{

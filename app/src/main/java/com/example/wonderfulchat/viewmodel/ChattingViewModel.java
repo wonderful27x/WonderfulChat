@@ -349,6 +349,8 @@ public class ChattingViewModel extends BaseViewModel<AppCompatActivity> {
             writer.flush();
         } catch (IOException ex) {
             Logger.getLogger(ChattingViewModel.class.getName()).log(Level.SEVERE, null, ex);
+        }catch (NullPointerException ex){
+            Logger.getLogger(ChattingViewModel.class.getName()).log(Level.SEVERE, null, ex);
         }
 
         return messageModel;
@@ -384,6 +386,8 @@ public class ChattingViewModel extends BaseViewModel<AppCompatActivity> {
             writer.write(message + "\n");
             writer.flush();
         } catch (IOException ex) {
+            Logger.getLogger(ChattingViewModel.class.getName()).log(Level.SEVERE, null, ex);
+        }catch (NullPointerException ex){
             Logger.getLogger(ChattingViewModel.class.getName()).log(Level.SEVERE, null, ex);
         }
     }

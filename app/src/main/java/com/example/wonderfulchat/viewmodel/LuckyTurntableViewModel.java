@@ -45,7 +45,7 @@ public class LuckyTurntableViewModel extends BaseViewModel<Fragment> {
 
     public void refresh(){
         friendList = getFriendList();
-        layoutBinding.luckTurntable.setList(friendList);
+        layoutBinding.luckTurntable.reset(friendList);
     }
 
     private void jumpToChatting(int position){

@@ -6,6 +6,10 @@
             android:id="@+id/menu_switchAccount"
             android:icon="@mipmap/switch_account"
             android:title="切换账号"/>
+        <item
+            android:id="@+id/menu_set_host"
+            android:icon="@mipmap/about"
+            android:title="设为Host"/>
         <!--<item-->
             <!--android:id="@+id/menu_register"-->
             <!--android:icon="@mipmap/register"-->
@@ -23,21 +27,17 @@
             android:icon="@mipmap/change_pass"
             android:title="修改密码"/>
         <item
-            android:id="@+id/menu_logout"
-            android:icon="@mipmap/logout"
-            android:title="退出登录"/>
-        <item
             android:id="@+id/menu_backup"
             android:icon="@mipmap/back"
             android:title="返回"/>
         <item
+            android:id="@+id/menu_logout"
+            android:icon="@mipmap/logout"
+            android:title="退出登录"/>
+        <item
             android:id="@+id/menu_about_software"
             android:icon="@mipmap/about"
             android:title="关于软件"/>
-        <item
-            android:id="@+id/menu_set_host"
-            android:icon="@mipmap/about"
-            android:title="设为host"/>
 
     </group>
 

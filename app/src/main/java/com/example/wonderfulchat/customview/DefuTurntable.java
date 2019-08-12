@@ -362,7 +362,10 @@ public class DefuTurntable extends RelativeLayout {
     }
 
     private void setSelectContent(){
-        if (itemPosition == null || list.size()<=0)return;
+        if (itemPosition == null || list.size()<=0){
+            selectPosition = -1;
+            return;
+        }
         int number = getRandomNumber(list.size()-1);
         selectPosition = itemPosition[number];
         if (selectPosition <0)return;
@@ -420,6 +423,11 @@ public class DefuTurntable extends RelativeLayout {
         } else {
             return null;
         }
+    }
+
+    public void reset(List<? extends UserModel> list){
+        this.list = list;
+        selectPosition = -1;
     }
 
 }

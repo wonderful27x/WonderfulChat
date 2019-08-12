@@ -112,12 +112,11 @@ public class MessageFragment extends BaseFragment<MessageViewModel> {
     @Override
     public void dataLoad() {
         getViewModel().refresh();
-//        if (firstLoad){
-//            firstLoad = false;
-//            getViewModel().initView();
-//        }else {
-//            getViewModel().refresh();
-//        }
+        if (firstLoad){
+            firstLoad = false;
+        }else {
+            getViewModel().refreshUserModel();
+        }
         LogUtil.d(TAG,"dataLoad");
     }
 }

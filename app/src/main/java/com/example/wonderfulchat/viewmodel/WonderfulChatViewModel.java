@@ -184,7 +184,7 @@ public class WonderfulChatViewModel extends BaseViewModel <AppCompatActivity> {
         dialog.show();
     }
 
-    public void setToHost(){
+    public void messageMoveToHost(){
         //清空HOST
         clearHost();
         //将sharedPreferences移动到HOST
@@ -441,21 +441,21 @@ public class WonderfulChatViewModel extends BaseViewModel <AppCompatActivity> {
                 Bitmap bitmap = null;
                 bitmap = ImageCompressUtil.decodeBitmapFromFile(url,imageView.getWidth(),imageView.getHeight());
                 ByteArrayOutputStream stream = new ByteArrayOutputStream();
-                bitmap.compress(Bitmap.CompressFormat.JPEG, 50, stream);
+                if (bitmap != null){
+                    bitmap.compress(Bitmap.CompressFormat.JPEG, 50, stream);
+                }
                 byte[] byteArr = stream.toByteArray();
                 String bitmapString = Base64.encodeToString(byteArr, 0);
 
-                String imageUrlLastState;
-                if (userModel.getImageUrl() != null && userModel.getImageUrl().length()>=6){
-                    imageUrlLastState = userModel.getImageUrl().substring(userModel.getImageUrl().length()-6,userModel.getImageUrl().length()-4);
-                }else {
-                    imageUrlLastState = "$0";
+                String imageName = userModel.getImageUrl();
+                if (imageName != null && imageName.length()>0){
+                    imageName = imageName.substring(imageName.lastIndexOf("/") + 1);
                 }
 
                 HashMap<String,String> map = new HashMap<>();
                 map.put("account",userModel.getAccount());
+                map.put("imageName",imageName);
                 map.put("imageString",bitmapString);
-                map.put("imageUrlLastState",imageUrlLastState);
                 parameterPass.setType(HttpUtil.POST_FORM);
                 parameterPass.setMap(map);
 
@@ -472,6 +472,7 @@ public class WonderfulChatViewModel extends BaseViewModel <AppCompatActivity> {
                             public void run() {
                                 Glide.with(getView()).load(R.mipmap.default_head_image).into(imageView);
                                 ToastUtil.showToast("上传失败！");
+//                                ToastUtil.showToast(e.getMessage());
                                 LogUtil.e(TAG,e.getMessage());
                             }
                         });
@@ -484,7 +485,7 @@ public class WonderfulChatViewModel extends BaseViewModel <AppCompatActivity> {
                             public void run() {
                                 try {
                                     String responseData = response.body().string();
-                                    if(responseData.substring(0,7).equals("success")){
+                                    if(responseData.contains("$") && responseData.substring(0,responseData.indexOf("$")).equals("success")){
                                         ToastUtil.showToast("上传成功！");
                                         String imageUrl = responseData.substring(7);
                                         userModel.setImageUrl(imageUrl);
@@ -496,7 +497,9 @@ public class WonderfulChatViewModel extends BaseViewModel <AppCompatActivity> {
                                             MemoryUtil.sharedPreferencesSaveString(CommonConstant.OTHER_USER_MODEL,jsonData);
                                         }
                                     }else{
+                                        Glide.with(getView()).load(R.mipmap.default_head_image).into(imageView);
                                         ToastUtil.showToast("上传失败！");
+//                                        ToastUtil.showToast(responseData);
                                         LogUtil.e(TAG,responseData);
                                     }
                                 } catch (IOException e) {
@@ -510,6 +513,88 @@ public class WonderfulChatViewModel extends BaseViewModel <AppCompatActivity> {
             }
         }.execute();
     }
+
+//    @SuppressLint("StaticFieldLeak")
+//    public void uploadHeadImage(final String url, final ImageView imageView){
+//        Glide.with(getView()).load(url).into(imageView);
+//
+//        final ParameterPass parameterPass = new ParameterPass();
+//        new AsyncTask<Void,Void,Void>(){
+//
+//            @Override
+//            protected Void doInBackground(Void... voids) {
+//                Bitmap bitmap = null;
+//                bitmap = ImageCompressUtil.decodeBitmapFromFile(url,imageView.getWidth(),imageView.getHeight());
+//                ByteArrayOutputStream stream = new ByteArrayOutputStream();
+//                bitmap.compress(Bitmap.CompressFormat.JPEG, 50, stream);
+//                byte[] byteArr = stream.toByteArray();
+//                String bitmapString = Base64.encodeToString(byteArr, 0);
+//
+//                String imageUrlLastState;
+//                if (userModel.getImageUrl() != null && userModel.getImageUrl().length()>=6){
+//                    imageUrlLastState = userModel.getImageUrl().substring(userModel.getImageUrl().length()-6,userModel.getImageUrl().length()-4);
+//                }else {
+//                    imageUrlLastState = "$0";
+//                }
+//
+//                HashMap<String,String> map = new HashMap<>();
+//                map.put("account",userModel.getAccount());
+//                map.put("imageString",bitmapString);
+//                map.put("imageUrlLastState",imageUrlLastState);
+//                parameterPass.setType(HttpUtil.POST_FORM);
+//                parameterPass.setMap(map);
+//
+//                return null;
+//            }
+//
+//            @Override
+//            protected void onPostExecute(Void aVoid) {
+//                HttpUtil.sendOkHttpRequest(InternetAddress.UPLOAD_IMAGE_URL, parameterPass, new Callback() {
+//                    @Override
+//                    public void onFailure(Call call, final IOException e) {
+//                        getView().runOnUiThread(new Runnable() {
+//                            @Override
+//                            public void run() {
+//                                Glide.with(getView()).load(R.mipmap.default_head_image).into(imageView);
+//                                ToastUtil.showToast("上传失败！");
+//                                LogUtil.e(TAG,e.getMessage());
+//                            }
+//                        });
+//                    }
+//
+//                    @Override
+//                    public void onResponse(Call call, final Response response) throws IOException {
+//                        getView().runOnUiThread(new Runnable() {
+//                            @Override
+//                            public void run() {
+//                                try {
+//                                    String responseData = response.body().string();
+//                                    if(responseData.substring(0,7).equals("success")){
+//                                        ToastUtil.showToast("上传成功！");
+//                                        String imageUrl = responseData.substring(7);
+//                                        userModel.setImageUrl(imageUrl);
+//                                        Gson gson = new Gson();
+//                                        String jsonData = gson.toJson(userModel);
+//                                        if (getHostState()){
+//                                            MemoryUtil.sharedPreferencesSaveString(CommonConstant.HOST_USER_MODEL,jsonData);
+//                                        }else {
+//                                            MemoryUtil.sharedPreferencesSaveString(CommonConstant.OTHER_USER_MODEL,jsonData);
+//                                        }
+//                                    }else{
+//                                        ToastUtil.showToast("上传失败！");
+//                                        LogUtil.e(TAG,responseData);
+//                                    }
+//                                } catch (IOException e) {
+//                                    e.printStackTrace();
+//                                }
+//
+//                            }
+//                        });
+//                    }
+//                });
+//            }
+//        }.execute();
+//    }
 
     public ActivityWonderfulChatBinding getChatBinding() {
         return chatBinding;

@@ -25,6 +25,7 @@ public class FriendListFragment extends BaseFragment<FriendListViewModel> {
     private ImageView leftImage;
     private ImageView rightImage;
     private TextView midText;
+    private boolean firstLoad = true;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
@@ -74,7 +75,12 @@ public class FriendListFragment extends BaseFragment<FriendListViewModel> {
 
     @Override
     public void dataLoad() {
-
+        if (firstLoad){
+            firstLoad = false;
+        }else {
+            getViewModel().refreshUserModel();
+        }
+//        getViewModel().refreshUserModel();
     }
 
 }

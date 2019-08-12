@@ -111,19 +111,19 @@ public class HttpUtil {
     public static void sendOkHttpRequest(String address, ParameterPass pass,okhttp3.Callback callback){
         OkHttpClient client = new OkHttpClient();
         Request request = null;
-        if(pass.getType().equals(GET)){
+        if(GET.equals(pass.getType())){
             request = new Request.Builder()
                     .url(address)
                     .get()
                     .build();
-        }else if(pass.getType().equals(POST_FORM)){
+        }else if(POST_FORM.equals(pass.getType())){
             RequestBody requestBody = stringToBody(pass.getMap());
 
             request = new Request.Builder()
                     .url(address)
                     .post(requestBody)
                     .build();
-        }else if(pass.getType().equals(POST_JSON)){
+        }else if(POST_JSON.equals(pass.getType())){
             RequestBody requestBody = FormBody.create(MediaType.parse("application/json; charset=utf-8")
                     , pass.getString());
             request = new Request.Builder()
@@ -131,6 +131,7 @@ public class HttpUtil {
                     .post(requestBody)
                     .build();
         }
+        if (request == null)return;
         client.newCall(request).enqueue(callback);
     }
 
@@ -146,7 +147,12 @@ public class HttpUtil {
     private static RequestBody stringToBody(HashMap<String ,String> map){
         FormBody.Builder builder = new FormBody.Builder();
         for (String key:map.keySet()){
-            builder.add(key,map.get(key));
+            String value = map.get(key);
+            if (value != null){
+                builder.add(key,value);
+            }else {
+                builder.add(key,"");
+            }
         }
         return builder.build();
     }

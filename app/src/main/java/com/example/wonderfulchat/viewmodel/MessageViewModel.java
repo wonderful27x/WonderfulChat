@@ -46,14 +46,15 @@ public class MessageViewModel extends BaseViewModel <Fragment> {
     private UserModel userModel;
 
     public void initView(){
-        String modelString;
-        if (getHostState()){
-            modelString = MemoryUtil.sharedPreferencesGetString(CommonConstant.HOST_USER_MODEL);
-        }else {
-            modelString = MemoryUtil.sharedPreferencesGetString(CommonConstant.OTHER_USER_MODEL);
-        }
-        Gson gson = new Gson();
-        userModel = gson.fromJson(modelString, UserModel.class);
+        userModel = getUserModel();
+//        String modelString;
+//        if (getHostState()){
+//            modelString = MemoryUtil.sharedPreferencesGetString(CommonConstant.HOST_USER_MODEL);
+//        }else {
+//            modelString = MemoryUtil.sharedPreferencesGetString(CommonConstant.OTHER_USER_MODEL);
+//        }
+//        Gson gson = new Gson();
+//        userModel = gson.fromJson(modelString, UserModel.class);
 
         unReadMessageList = new ArrayList<>();
         readMessageList = new ArrayList<>();
@@ -95,6 +96,20 @@ public class MessageViewModel extends BaseViewModel <Fragment> {
         });
 
 //        getMessageFromNet();
+    }
+
+    private UserModel getUserModel(){
+        String userModelJson;
+        UserModel userModel;
+        if (getHostState()){
+            userModelJson = MemoryUtil.sharedPreferencesGetString(CommonConstant.HOST_USER_MODEL);
+        }else {
+            userModelJson = MemoryUtil.sharedPreferencesGetString(CommonConstant.OTHER_USER_MODEL);
+        }
+        Gson gson = new Gson();
+        userModel = gson.fromJson(userModelJson, UserModel.class);
+
+        return userModel;
     }
 
     private boolean getHostState(){
@@ -450,6 +465,10 @@ public class MessageViewModel extends BaseViewModel <Fragment> {
                 i--;
             }
         }
+    }
+
+    public void refreshUserModel(){
+        userModel = getUserModel();
     }
 
     public void refresh(){

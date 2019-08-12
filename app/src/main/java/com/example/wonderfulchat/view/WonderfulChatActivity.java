@@ -146,9 +146,12 @@ public class WonderfulChatActivity extends BaseActivity <WonderfulChatViewModel>
 
     private void initUserMessage(){
         String userModel;
+        boolean host;
         if (getHostState()){
+            host = true;
             userModel = MemoryUtil.sharedPreferencesGetString(CommonConstant.HOST_USER_MODEL);
         }else {
+            host = false;
             userModel = MemoryUtil.sharedPreferencesGetString(CommonConstant.OTHER_USER_MODEL);
         }
 
@@ -180,6 +183,14 @@ public class WonderfulChatActivity extends BaseActivity <WonderfulChatViewModel>
         Menu menu = chatBinding.wonderfulMenu.getMenu();
         MenuItem menuItem = menu.getItem(0);
         menuItem.setTitle("切换账号  (" + model.getAccount() + ")");
+
+        MenuItem menuHost = menu.getItem(1);
+        if (host){
+            menuHost.setTitle("设为Host √");
+        }else {
+            menuHost.setTitle("设为Host");
+        }
+
     }
 
 //    @Subscribe(threadMode = ThreadMode.MAIN)
@@ -244,9 +255,7 @@ public class WonderfulChatActivity extends BaseActivity <WonderfulChatViewModel>
                 getViewModel().statement();
                 return true;
             case R.id.menu_set_host:
-                if (!getHostState()){
-                    getViewModel().setToHost();
-                }
+                setToHost(menuItem);
                 return true;
         }
         return false;
@@ -277,6 +286,29 @@ public class WonderfulChatActivity extends BaseActivity <WonderfulChatViewModel>
                 KeyboardUtil.showSoftKeyboard(this,lifeMottoEdit);
                 break;
         }
+    }
+
+    private void setToHost(final MenuItem menuItem){
+        AlertDialog.Builder dialog = new AlertDialog.Builder(this);
+        dialog.setTitle("温馨提示：");
+        dialog.setMessage("将此账号设为Host,可以获得数据持久化，但上一个Host账号将被覆盖！");
+        dialog.setCancelable(true);
+        dialog.setPositiveButton("确定", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                if (!getHostState()) {
+                    getViewModel().messageMoveToHost();
+                    menuItem.setTitle("设为Host √");
+                }
+            }
+        });
+        dialog.setNegativeButton("取消", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialogInterface, int i) {
+
+            }
+        });
+        dialog.show();
     }
 
     private void setHeadImage(){
