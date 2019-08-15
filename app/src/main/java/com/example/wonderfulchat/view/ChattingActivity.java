@@ -67,6 +67,7 @@ public class ChattingActivity extends BaseActivity<ChattingViewModel> {
                 } catch (InterruptedException e) {
                     e.printStackTrace();
                 }finally {
+                    getViewModel().threadKill();
                     finish();
                 }
             }

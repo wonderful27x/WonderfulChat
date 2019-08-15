@@ -57,6 +57,9 @@ public class ChattingViewModel extends BaseViewModel<AppCompatActivity> {
     private Gson gson;
     private Handler handler;
     private Handler messageSendHandler;
+    private Thread receiveThread;
+    private Thread sendThread;
+    private Thread messageThread;
 
     public void initView(List<MessageModel> unReadMessage,UserModel friendModel){
         this.friendModel = friendModel;
@@ -81,11 +84,11 @@ public class ChattingViewModel extends BaseViewModel<AppCompatActivity> {
         handler = new Handler(looper,callback);
 
         SocketRunnable runnable = new SocketRunnable();
-        Thread receiveThread = new Thread(runnable);
+        receiveThread = new Thread(runnable);
         receiveThread.start();
 
         MessageSendRunnable messageSendRunnable = new MessageSendRunnable();
-        Thread sendThread = new Thread(messageSendRunnable);
+        sendThread = new Thread(messageSendRunnable);
         sendThread.start();
 
         List<MessageModel> readMessage = getReadMessage(friendModel.getAccount());
@@ -136,9 +139,10 @@ public class ChattingViewModel extends BaseViewModel<AppCompatActivity> {
 //        }
 
         String url = InternetAddress.GET_NEWEST_MESSAGE_URL + "?account=" + userModel.getAccount() + "&friendAccount=" + friendModel.getAccount();
-        HttpUtil.httpRequestForGet(url, new HttpCallbackListener() {
+        messageThread = HttpUtil.httpRequestForGet(url, new HttpCallbackListener() {
             @Override
             public void onFinish(final String response) {
+                if (getView() == null)return;
                 getView().runOnUiThread(new Runnable() {
                     @Override
                     public void run() {
@@ -161,6 +165,7 @@ public class ChattingViewModel extends BaseViewModel<AppCompatActivity> {
 
             @Override
             public void onError(final Exception e) {
+                if (getView() == null)return;
                 getView().runOnUiThread(new Runnable() {
                     @Override
                     public void run() {
@@ -514,6 +519,27 @@ public class ChattingViewModel extends BaseViewModel<AppCompatActivity> {
                     break;
             }
             return true;
+        }
+    }
+
+    //强行杀掉线程，释放资源,这种方法已过时，并且会抛出异常，但我仍然觉得这是一种好方法
+    public void threadKill(){
+        try{
+            if (receiveThread != null){
+                receiveThread.stop();
+            }
+            if (sendThread != null){
+                sendThread.start();
+            }
+            if (messageThread != null){
+                messageThread.stop();
+            }
+        }catch (UnsupportedOperationException e){
+            e.printStackTrace();
+        }finally {
+            receiveThread = null;
+            sendThread = null;
+            messageThread = null;
         }
     }
 

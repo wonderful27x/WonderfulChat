@@ -23,8 +23,8 @@ public class HttpUtil {
     public static final String POST_FORM = "postForm";
     public static final String POST_JSON = "postJson";
 
-    public static void httpRequestForPost(final String address,final String postParameters,final HttpCallbackListener listener){
-        new Thread(new Runnable() {
+    public static Thread httpRequestForPost(final String address,final String postParameters,final HttpCallbackListener listener){
+        Thread thread = new Thread(new Runnable() {
             @Override
             public void run() {
                 HttpURLConnection connection = null;
@@ -66,11 +66,14 @@ public class HttpUtil {
                     }
                 }
             }
-        }).start();
+        });
+        thread.start();
+
+        return thread;
     }
 
-    public static void httpRequestForGet(final String address, final HttpCallbackListener listener){
-        new Thread(new Runnable() {
+    public static Thread httpRequestForGet(final String address, final HttpCallbackListener listener){
+        Thread thread = new Thread(new Runnable() {
             @Override
             public void run() {
                 HttpURLConnection connection = null;
@@ -105,7 +108,10 @@ public class HttpUtil {
                     }
                 }
             }
-        }).start();
+        });
+        thread.start();
+
+        return thread;
     }
 
     public static void sendOkHttpRequest(String address, ParameterPass pass,okhttp3.Callback callback){

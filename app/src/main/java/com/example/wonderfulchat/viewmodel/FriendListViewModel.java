@@ -201,7 +201,7 @@ public class FriendListViewModel extends BaseViewModel<Fragment> {
 //    }
 
     private void getFriendList(){
-
+        layoutBinding.refreshLayout.setRefreshing(true);
         String url = InternetAddress.FRIEND_LIST_URL + "?account=" + user.getAccount();
         HttpUtil.httpRequestForGet(url, new HttpCallbackListener() {
             @Override
@@ -367,7 +367,7 @@ public class FriendListViewModel extends BaseViewModel<Fragment> {
     }
 
     private void refresh(){
-        layoutBinding.refreshLayout.setRefreshing(true);
+        //layoutBinding.refreshLayout.setRefreshing(true);
         getFriendList();
     }
 

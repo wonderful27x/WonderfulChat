@@ -16,6 +16,7 @@ public abstract class BaseViewModel <T>{
     }
 
     public T getView(){
+        if (weakView == null)return null;
         return weakView.get();
     }
 
