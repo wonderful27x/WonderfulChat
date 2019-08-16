@@ -18,16 +18,25 @@ public class LuckyTurntableFragment extends BaseFragment<LuckyTurntableViewModel
     private ImageView leftImage;
     private ImageView rightImage;
     private TextView midText;
+    private View rootView;
 
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
-        LuckyTurntableFragmentLayoutBinding binding = DataBindingUtil.inflate(inflater, R.layout.lucky_turntable_fragment_layout,container,false);
-        binding.setWonderfulViewModel(getViewModel());
-        getViewModel().setBinding(binding);
-        initView(binding);
-        getViewModel().initView();
-        return binding.getRoot();
+        if (rootView == null){
+            LuckyTurntableFragmentLayoutBinding binding = DataBindingUtil.inflate(inflater, R.layout.lucky_turntable_fragment_layout,container,false);
+            binding.setWonderfulViewModel(getViewModel());
+            getViewModel().setBinding(binding);
+            initView(binding);
+            getViewModel().initView();
+            rootView = binding.getRoot();
+        }else {
+            ViewGroup parent = (ViewGroup) rootView.getParent();
+            if (parent != null){
+                parent.removeView(rootView);
+            }
+        }
+        return rootView;
     }
 
     private void initView(LuckyTurntableFragmentLayoutBinding binding){

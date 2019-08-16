@@ -32,6 +32,7 @@ public class MessageFragment extends BaseFragment<MessageViewModel> {
     private ImageView rightImage;
     private TextView midText;
     private boolean firstLoad = true;
+    private View rootView;
 
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
@@ -41,14 +42,23 @@ public class MessageFragment extends BaseFragment<MessageViewModel> {
 
     @Override
     public View onCreateView(LayoutInflater inflater,ViewGroup container,Bundle savedInstanceState) {
-        MessageFragmentLayoutBinding binding = DataBindingUtil.inflate(inflater, R.layout.message_fragment_layout, container, false);
-        binding.setWonderfulViewModel(getViewModel());
-        getViewModel().setLayoutBinding(binding);
+        if (rootView == null){
+            MessageFragmentLayoutBinding binding = DataBindingUtil.inflate(inflater, R.layout.message_fragment_layout, container, false);
+            binding.setWonderfulViewModel(getViewModel());
+            getViewModel().setLayoutBinding(binding);
 
-        initView(binding);
-        getViewModel().initView();
+            initView(binding);
+            getViewModel().initView();
 
-        return binding.getRoot();
+            rootView = binding.getRoot();
+        }else {
+            ViewGroup parent = (ViewGroup) rootView.getParent();
+            if (parent != null){
+                parent.removeView(rootView);
+            }
+        }
+        
+        return rootView;
     }
 
     private void initView(MessageFragmentLayoutBinding binding){

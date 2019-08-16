@@ -26,16 +26,26 @@ public class FriendListFragment extends BaseFragment<FriendListViewModel> {
     private ImageView rightImage;
     private TextView midText;
     private boolean firstLoad = true;
+    private View rootView;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-        FriendListFragmentLayoutBinding binding = DataBindingUtil.inflate(inflater, R.layout.friend_list_fragment_layout, container, false);
-        binding.setWonderfulViewModel(getViewModel());
+        if (rootView == null){
+            FriendListFragmentLayoutBinding binding = DataBindingUtil.inflate(inflater, R.layout.friend_list_fragment_layout, container, false);
+            binding.setWonderfulViewModel(getViewModel());
 //        EventBus.getDefault().register(this);
-        getViewModel().setLayoutBinding(binding);
-        initView(binding);
-        getViewModel().initView();
-        return binding.getRoot();
+            getViewModel().setLayoutBinding(binding);
+            initView(binding);
+            getViewModel().initView();
+            rootView = binding.getRoot();
+        }else {
+            ViewGroup parent = (ViewGroup) rootView.getParent();
+            if (parent != null){
+                parent.removeView(rootView);
+            }
+        }
+
+        return rootView;
     }
 
     private void initView(FriendListFragmentLayoutBinding binding){
