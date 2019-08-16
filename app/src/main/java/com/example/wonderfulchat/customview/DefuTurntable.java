@@ -366,7 +366,12 @@ public class DefuTurntable extends RelativeLayout {
             selectPosition = -1;
             return;
         }
-        int number = getRandomNumber(list.size()-1);
+        int number;
+        if(list.size() <= 4){
+            number = getRandomNumber(list.size()-1);
+        }else {
+            number = getRandomNumber(3);
+        }
         selectPosition = itemPosition[number];
         if (selectPosition <0)return;
         String remark = list.get(selectPosition).getRemark();
