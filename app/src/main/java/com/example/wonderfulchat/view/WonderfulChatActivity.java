@@ -60,6 +60,8 @@ public class WonderfulChatActivity extends BaseActivity <WonderfulChatViewModel>
     private Uri imageUri;
     private String takePhotoPath;
     private UserModel model;
+    private long lastBackPressedTime = 0;
+    private static final int BACK_PRESSED_INTERVAL = 2000;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -462,4 +464,13 @@ public class WonderfulChatActivity extends BaseActivity <WonderfulChatViewModel>
         return MemoryUtil.sharedPreferencesGetBoolean(CommonConstant.HOST_STATE);
     }
 
+    @Override
+    public void onBackPressed() {
+        if (System.currentTimeMillis() - lastBackPressedTime > BACK_PRESSED_INTERVAL) {
+            lastBackPressedTime = System.currentTimeMillis();
+            ToastUtil.showToast("再次点击退出程序！");
+        }else {
+            finish();
+        }
+    }
 }

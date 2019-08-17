@@ -12,6 +12,7 @@ import com.example.wonderfulchat.R;
 import com.example.wonderfulchat.databinding.ActivityChattingBinding;
 import com.example.wonderfulchat.model.MessageModel;
 import com.example.wonderfulchat.model.UserModel;
+import com.example.wonderfulchat.utils.ToastUtil;
 import com.example.wonderfulchat.utils.UnitChangeUtil;
 import com.example.wonderfulchat.viewmodel.ChattingViewModel;
 import java.util.List;
