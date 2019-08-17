@@ -487,7 +487,7 @@ public class WonderfulChatViewModel extends BaseViewModel <AppCompatActivity> {
                                     String responseData = response.body().string();
                                     if(responseData.contains("$") && responseData.substring(0,responseData.indexOf("$")).equals("success")){
                                         ToastUtil.showToast("上传成功！");
-                                        String imageUrl = responseData.substring(7);
+                                        String imageUrl = responseData.substring(8);
                                         userModel.setImageUrl(imageUrl);
                                         Gson gson = new Gson();
                                         String jsonData = gson.toJson(userModel);

@@ -11,6 +11,8 @@ import android.util.Log;
 import android.view.MotionEvent;
 import android.view.View;
 
+import com.example.wonderfulchat.utils.LogUtil;
+
 public class TurntableView extends View {
 
     private int circleX;
@@ -79,7 +81,7 @@ public class TurntableView extends View {
                     if (clickListener != null){
                         clickListener.onClick();
                     }
-                    Log.d("TurntableView", "onClick: ");
+                    LogUtil.d("TurntableView", "onClick: ");
                 }
             }
         });

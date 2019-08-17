@@ -29,6 +29,7 @@ import com.bumptech.glide.request.target.SimpleTarget;
 import com.bumptech.glide.request.transition.Transition;
 import com.example.wonderfulchat.R;
 import com.example.wonderfulchat.model.UserModel;
+import com.example.wonderfulchat.utils.LogUtil;
 import com.example.wonderfulchat.view.MyApplication;
 
 import java.util.List;
@@ -170,15 +171,15 @@ public class DefuTurntable extends RelativeLayout {
             @Override
             public void onAnimationUpdate(ValueAnimator valueAnimator) {
                 int time  = (int)valueAnimator.getCurrentPlayTime();
-                Log.d("DefuTurnTable", "currentPlayTime: "+time);
+                LogUtil.d("DefuTurnTable", "currentPlayTime: "+time);
                 if (time >= 20000){
                     rotateFinish = true;
                 }
                 if (longClickUp)return;
                 time = time % 500;
-                Log.d("DefuTurnTable", "onAnimationUpdate: "+time);
+                LogUtil.d("DefuTurnTable", "onAnimationUpdate: "+time);
                 if(time>0 && time<10){
-                    Log.d("DefuTurnTable", "onAnimationUpdate: ");
+                    LogUtil.d("DefuTurnTable", "onAnimationUpdate: ");
                     itemPosition = getItemPosition(list);
                     String [] text = new String[4];
                     for (int i=0; i<4; i++){
@@ -205,7 +206,7 @@ public class DefuTurntable extends RelativeLayout {
         circleView.setCircleClickListener(new CircleView.CircleClickListener() {
             @Override
             public void onClick() {
-                Log.d("DefuTurnTable", "onClick: ");
+                LogUtil.d("DefuTurnTable", "onClick: ");
                 if (selectPosition != -1){
                     if (circleClickListener != null){
                         circleClickListener.circleClick(selectPosition);
@@ -215,7 +216,7 @@ public class DefuTurntable extends RelativeLayout {
 
             @Override
             public void onLongClick() {
-                Log.d("DefuTurnTable", "onLongClick: ");
+                LogUtil.d("DefuTurnTable", "onLongClick: ");
                 rotateFinish = false;
                 longClickUp = false;
                 circleView.showBitmap(null,false);
@@ -236,7 +237,7 @@ public class DefuTurntable extends RelativeLayout {
             @RequiresApi(api = Build.VERSION_CODES.KITKAT)
             @Override
             public void onLongClickFinish() {
-                Log.d("DefuTurnTable", "onLongClickFinish: ");
+                LogUtil.d("DefuTurnTable", "onLongClickFinish: ");
                 if (rotateFinish)return;
                 turntableAnimator.cancel();
                 turntableAnimator.setInterpolator(new DecelerateInterpolator());

@@ -1,8 +1,8 @@
 package com.example.wonderfulchat.model;
 
 public class InternetAddress {
-    public static final String HOST_IP = "172.16.169.86";
-    public static final String HOST = "http://172.16.169.86:8080";
+    public static final String HOST_IP = "192.168.31.32";
+    public static final String HOST = "http://192.168.31.32:8080";
     public static final String REGISTER_URL = HOST + "/wonderfulChat/register";
     public static final String LOGIN_URL = HOST + "/wonderfulChat/login";
     public static final String LOGOUT_URL = HOST + "/wonderfulChat/logout";

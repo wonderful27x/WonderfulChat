@@ -51,7 +51,15 @@ public class ChattingActivity extends BaseActivity<ChattingViewModel> {
         leftImage = binding.head.findViewById(R.id.left_image);
         rightImage = binding.head.findViewById(R.id.right_image);
 
-        midText.setText(friendModel.getNickname());
+        String name;
+        if (friendModel.getRemark() != null){
+            name = friendModel.getRemark();
+        }else if (friendModel.getNickname() != null){
+            name = friendModel.getNickname();
+        }else {
+            name = friendModel.getAccount();
+        }
+        midText.setText(name);
         leftImage.setLayoutParams(layoutParams);
         leftImage.setBackgroundResource(R.mipmap.com_back_blue);
         rightImage.setVisibility(View.GONE);

@@ -258,18 +258,18 @@ public class FriendListViewModel extends BaseViewModel<Fragment> {
 
     //将数据存入数据库
     private void saveToDatabase(){
-        List<UserModel> userModels = new ArrayList<>();
+        List<UserModel> userList = new ArrayList<>();
         if (!getHostState()){
             for (UserModel model:userModels){
                 FriendModel friendModel = new FriendModel();
                 friendModel.changeToFriendModel(model);
-                userModels.add(friendModel);
+                userList.add(friendModel);
             }
         }else {
-            userModels.addAll(userModels);
+            userList.addAll(userModels);
         }
-        for (int i=0; i<userModels.size(); i++){
-            UserModel userModel = userModels.get(i);
+        for (int i=0; i<userList.size(); i++){
+            UserModel userModel = userList.get(i);
             int num = userModel.updateAll("account=?",userModel.getAccount());
             if (num<=0){
                 userModel.save();

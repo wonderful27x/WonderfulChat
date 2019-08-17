@@ -14,6 +14,8 @@ import android.util.Log;
 import android.view.MotionEvent;
 import android.view.View;
 
+import com.example.wonderfulchat.utils.LogUtil;
+
 public class CircleView extends View {
 
     private int circleX;
@@ -80,7 +82,7 @@ public class CircleView extends View {
                     if (circleClickListener != null){
                         circleClickListener.onLongClick();
                     }
-                    Log.d("CircleView", "onLongClick: ");
+                    LogUtil.d("CircleView", "onLongClick: ");
                 }
                 return true;
             }
@@ -94,7 +96,7 @@ public class CircleView extends View {
                     if (circleClickListener != null){
                         circleClickListener.onClick();
                     }
-                    Log.d("CircleView", "onClick: ");
+                    LogUtil.d("CircleView", "onClick: ");
                 }
             }
         });
