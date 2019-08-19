@@ -69,10 +69,10 @@ public class MessageFragment extends BaseFragment<MessageViewModel> {
 
         midText.setText("消息");
 
-        RelativeLayout.LayoutParams layoutParams = new RelativeLayout.LayoutParams(UnitChangeUtil.dp2px(20), UnitChangeUtil.dp2px(20));
+        RelativeLayout.LayoutParams layoutParams = new RelativeLayout.LayoutParams(UnitChangeUtil.dp2px(25), UnitChangeUtil.dp2px(25));
         layoutParams.addRule(RelativeLayout.CENTER_VERTICAL);
         leftImage.setLayoutParams(layoutParams);
-        leftImage.setImageResource(R.mipmap.little_hand);
+        leftImage.setImageResource(R.mipmap.elephant);
         rightImage.setVisibility(View.INVISIBLE);
 
         leftImage.setOnClickListener(new View.OnClickListener() {

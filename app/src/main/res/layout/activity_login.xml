@@ -7,22 +7,24 @@
             type="com.example.wonderfulchat.viewmodel.LoginViewModel"/>
     </data>
 
-    <LinearLayout
+    <RelativeLayout
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:orientation="vertical"
-        android:gravity="center_horizontal">
+        android:layout_height="match_parent">
 
         <ImageView
             android:layout_width="300dp"
             android:layout_height="150dp"
+            android:layout_above="@id/account"
+            android:layout_centerHorizontal="true"
             android:background="@color/gray"
             android:layout_marginTop="40dp"/>
 
         <com.example.wonderfulchat.customview.DefuEditText
             android:id="@+id/account"
             android:layout_width="300dp"
-            android:layout_height="35dp"
+            android:layout_height="40dp"
+            android:layout_above="@id/passLayout"
+            android:layout_centerHorizontal="true"
             android:background="@drawable/rect_blank_gray"
             android:layout_marginTop="20dp"
             android:paddingLeft="10dp"
@@ -35,9 +37,11 @@
             app:rightClear="true" />
 
         <LinearLayout
+            android:id="@+id/passLayout"
             android:layout_width="300dp"
-            android:layout_height="35dp"
+            android:layout_height="40dp"
             android:orientation="horizontal"
+            android:layout_centerInParent="true"
             android:background="@drawable/rect_blank_gray"
             android:layout_marginTop="20dp"
             android:paddingRight="10dp">
@@ -66,21 +70,32 @@
                 android:onClick="@{loginViewModel.passwordShow}"/>
         </LinearLayout>
 
-        <CheckBox
-            android:id="@+id/pass_remember"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_gravity="right"
-            android:gravity="center_vertical"
-            android:layout_marginTop="20dp"
-            android:layout_marginRight="57dp"
-            android:text="记住账号密码"
-            android:onCheckedChanged="@{loginViewModel.checkBoxCheckedChanged}"
-            android:checked="@{loginViewModel.ischecked}"/>
+        <LinearLayout
+            android:id="@+id/passRememberLayout"
+            android:layout_width="300dp"
+            android:layout_height="45dp"
+            android:orientation="horizontal"
+            android:layout_below="@id/passLayout"
+            android:layout_centerHorizontal="true"
+            android:gravity="right"
+            android:layout_marginTop="20dp">
+
+            <CheckBox
+                android:id="@+id/pass_remember"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center_vertical"
+                android:gravity="center_vertical"
+                android:text="记住账号密码"
+                android:onCheckedChanged="@{loginViewModel.checkBoxCheckedChanged}"
+                android:checked="@{loginViewModel.ischecked}"/>
+        </LinearLayout>
 
         <LinearLayout
             android:layout_width="300dp"
             android:layout_height="45dp"
+            android:layout_below="@id/passRememberLayout"
+            android:layout_centerHorizontal="true"
             android:layout_marginTop="20dp">
 
             <Button
@@ -106,6 +121,107 @@
 
         </LinearLayout>
 
-    </LinearLayout>
+    </RelativeLayout>
+
+    <!--<LinearLayout-->
+        <!--android:layout_width="match_parent"-->
+        <!--android:layout_height="match_parent"-->
+        <!--android:orientation="vertical"-->
+        <!--android:gravity="center_horizontal">-->
+
+        <!--<ImageView-->
+            <!--android:layout_width="300dp"-->
+            <!--android:layout_height="150dp"-->
+            <!--android:background="@color/gray"-->
+            <!--android:layout_marginTop="40dp"/>-->
+
+        <!--<com.example.wonderfulchat.customview.DefuEditText-->
+            <!--android:id="@+id/account"-->
+            <!--android:layout_width="300dp"-->
+            <!--android:layout_height="45dp"-->
+            <!--android:background="@drawable/rect_blank_gray"-->
+            <!--android:layout_marginTop="20dp"-->
+            <!--android:paddingLeft="10dp"-->
+            <!--android:paddingRight="10dp"-->
+            <!--android:drawableRight="@mipmap/icon_cross"-->
+            <!--android:drawableLeft="@mipmap/user_img"-->
+            <!--android:drawablePadding="5dp"-->
+            <!--android:digits="@string/alphabet_and_number"-->
+            <!--android:text="@{loginViewModel.account}"-->
+            <!--app:rightClear="true" />-->
+
+        <!--<LinearLayout-->
+            <!--android:layout_width="300dp"-->
+            <!--android:layout_height="45dp"-->
+            <!--android:orientation="horizontal"-->
+            <!--android:background="@drawable/rect_blank_gray"-->
+            <!--android:layout_marginTop="20dp"-->
+            <!--android:paddingRight="10dp">-->
+
+            <!--<com.example.wonderfulchat.customview.DefuEditText-->
+                <!--android:id="@+id/password"-->
+                <!--android:layout_width="0dp"-->
+                <!--android:layout_height="match_parent"-->
+                <!--android:layout_weight="1"-->
+                <!--android:background="@null"-->
+                <!--android:paddingLeft="10dp"-->
+                <!--android:paddingRight="10dp"-->
+                <!--android:drawableRight="@mipmap/icon_cross"-->
+                <!--android:drawableLeft="@mipmap/pwd_img"-->
+                <!--android:drawablePadding="5dp"-->
+                <!--android:text="@{loginViewModel.password}"-->
+                <!--android:inputType="@{loginViewModel.showHide}"-->
+                <!--app:rightClear="true" />-->
+
+            <!--<ImageView-->
+                <!--android:id="@+id/pass_show"-->
+                <!--android:layout_width="wrap_content"-->
+                <!--android:layout_height="wrap_content"-->
+                <!--android:layout_gravity="center"-->
+                <!--android:src="@mipmap/icon_eye_close"-->
+                <!--android:onClick="@{loginViewModel.passwordShow}"/>-->
+        <!--</LinearLayout>-->
+
+        <!--<CheckBox-->
+            <!--android:id="@+id/pass_remember"-->
+            <!--android:layout_width="wrap_content"-->
+            <!--android:layout_height="wrap_content"-->
+            <!--android:layout_gravity="right"-->
+            <!--android:gravity="center_vertical"-->
+            <!--android:layout_marginTop="20dp"-->
+            <!--android:layout_marginRight="57dp"-->
+            <!--android:text="记住账号密码"-->
+            <!--android:onCheckedChanged="@{loginViewModel.checkBoxCheckedChanged}"-->
+            <!--android:checked="@{loginViewModel.ischecked}"/>-->
+
+        <!--<LinearLayout-->
+            <!--android:layout_width="300dp"-->
+            <!--android:layout_height="45dp"-->
+            <!--android:layout_marginTop="20dp">-->
+
+            <!--<Button-->
+                <!--android:id="@+id/login"-->
+                <!--android:layout_width="0dp"-->
+                <!--android:layout_height="match_parent"-->
+                <!--android:layout_weight="1"-->
+                <!--android:background="@color/blue"-->
+                <!--android:textColor="@color/white"-->
+                <!--android:text="登录"-->
+                <!--android:onClick="@{loginViewModel.login}"/>-->
+
+            <!--<Button-->
+                <!--android:id="@+id/register"-->
+                <!--android:layout_width="wrap_content"-->
+                <!--android:layout_height="match_parent"-->
+                <!--android:background="@color/blue"-->
+                <!--android:layout_marginLeft="1dp"-->
+                <!--android:textColor="@color/white"-->
+                <!--android:text="注册"-->
+                <!--android:onClick="@{loginViewModel.registerClick}"-->
+                <!--android:onLongClick="@{loginViewModel.register}"/>-->
+
+        <!--</LinearLayout>-->
+
+    <!--</LinearLayout>-->
 
 </layout>
