@@ -8,7 +8,8 @@ import com.example.wonderfulchat.view.MessageFragment;
 
 import java.util.List;
 
-public class ViewPagerAdapter extends FragmentPagerAdapter {
+public class
+ViewPagerAdapter extends FragmentPagerAdapter {
 
     private List<Fragment> fragments;
 

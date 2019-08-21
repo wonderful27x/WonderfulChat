@@ -9,6 +9,7 @@ import android.widget.CompoundButton;
 import android.widget.ImageView;
 import com.example.wonderfulchat.R;
 import com.example.wonderfulchat.customview.DefuEditText;
+import com.example.wonderfulchat.customview.LoadingDialog;
 import com.example.wonderfulchat.databinding.ActivityLoginBinding;
 import com.example.wonderfulchat.interfaces.HttpCallbackListener;
 import com.example.wonderfulchat.model.CommonConstant;
@@ -38,6 +39,8 @@ public class LoginViewModel extends BaseViewModel<Activity> {
 
     private static final String TAG = "LoginViewModel";
     private ActivityLoginBinding loginBinding;
+    private LoadingDialog dialog;
+    private boolean clickAble = true;
 
     private ObservableField<Boolean> isChecked = new ObservableField<>(false);
     private ObservableField<String> account = new ObservableField<>();
@@ -45,6 +48,13 @@ public class LoginViewModel extends BaseViewModel<Activity> {
     private ObservableField<Integer> showHide = new ObservableField<>(InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_VARIATION_PASSWORD);
 
     public void login(View view){
+        if (clickAble){
+            clickAble = false;
+        }else {
+            return;
+        }
+        dialog = new LoadingDialog(getView());
+        dialog.dialogShow();
         String postParameters = null;
         try {
             postParameters = "account=" + URLEncoder.encode(account.get(), "UTF-8");
@@ -79,6 +89,8 @@ public class LoginViewModel extends BaseViewModel<Activity> {
                 getView().runOnUiThread(new Runnable() {
                     @Override
                     public void run() {
+                        clickAble = true;
+                        dialog.dialogDismiss();
                         ToastUtil.showToast("登录失败！");
                         LogUtil.e(TAG,"登录失败: "+e.getMessage());
                     }
@@ -145,7 +157,11 @@ public class LoginViewModel extends BaseViewModel<Activity> {
 
         Gson gson = new Gson();
         HttpUserModel httpUserModel = gson.fromJson(jsonData, HttpUserModel.class);
-        if(httpUserModel == null)return;
+        if(httpUserModel == null){
+            clickAble = true;
+            dialog.dialogDismiss();
+            return;
+        }
         if ("success".equals(httpUserModel.getResult())){
             accountPassSave(isChecked.get());
 
@@ -156,13 +172,22 @@ public class LoginViewModel extends BaseViewModel<Activity> {
 //            saveToDatabase(userModels);
             Intent intent = new Intent(getView(), WonderfulChatActivity.class);
             getView().startActivity(intent);
+            clickAble = true;
+            dialog.dialogDismiss();
             //getView().finish();
         }else if("fail".equals(httpUserModel.getResult())){
+            clickAble = true;
+            dialog.dialogDismiss();
             ToastUtil.showToast(httpUserModel.getMessage());
             LogUtil.d(TAG,httpUserModel.getMessage());
         }else if("error".equals(httpUserModel.getResult())){
+            clickAble = true;
+            dialog.dialogDismiss();
             ToastUtil.showToast("登录失败！");
             LogUtil.d(TAG,httpUserModel.getMessage());
+        }else {
+            clickAble = true;
+            dialog.dialogDismiss();
         }
 
 //        String httpUserModelString = FileUtil.getJson(getView(), "HttpUserModel");
