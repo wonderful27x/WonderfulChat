@@ -286,9 +286,9 @@ public class FriendListViewModel extends BaseViewModel<Fragment> {
             model = new FriendModel();
             ((FriendModel) model).changeToFriendModel(userModel);
         }
-        int num = model.updateAll("account=?",userModel.getAccount());
+        int num = model.updateAll("account=?",model.getAccount());
         if (num<=0){
-            userModel.save();
+            model.save();
         }
     }
 
@@ -476,6 +476,7 @@ public class FriendListViewModel extends BaseViewModel<Fragment> {
                             userModels.set(childPosition,model);
                             groupModels.get(0).setNumber(userModels.size());
                             adapter.notifyDataSetChanged();
+                            saveToDatabase(model);
                         }else{
                             ToastUtil.showToast("修改失败！");
                             LogUtil.d(TAG,response);

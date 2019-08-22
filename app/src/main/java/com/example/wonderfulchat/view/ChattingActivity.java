@@ -53,9 +53,9 @@ public class ChattingActivity extends BaseActivity<ChattingViewModel> {
         rightImage = binding.head.findViewById(R.id.right_image);
 
         String name;
-        if (friendModel.getRemark() != null){
+        if (friendModel.getRemark() != null && !friendModel.getRemark().isEmpty()){
             name = friendModel.getRemark();
-        }else if (friendModel.getNickname() != null){
+        }else if (friendModel.getNickname() != null && !friendModel.getNickname().isEmpty()){
             name = friendModel.getNickname();
         }else {
             name = friendModel.getAccount();

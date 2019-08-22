@@ -187,9 +187,9 @@ public class DefuTurntable extends RelativeLayout {
                             String remark = list.get(itemPosition[i]).getRemark();
                             String nickname = list.get(itemPosition[i]).getNickname();
                             String account = list.get(itemPosition[i]).getAccount();
-                            if (remark != null){
+                            if (remark != null && !remark.isEmpty()){
                                 text[i] = remark;
-                            }else if (nickname != null){
+                            }else if (nickname != null && !nickname.isEmpty()){
                                 text[i] = nickname;
                             }else {
                                 text[i] = account;
@@ -379,9 +379,9 @@ public class DefuTurntable extends RelativeLayout {
         String nickname = list.get(selectPosition).getNickname();
         String account = list.get(selectPosition).getAccount();
         String text;
-        if (remark != null){
+        if (remark != null && !remark.isEmpty()){
             text = remark;
-        }else if (nickname != null){
+        }else if (nickname != null && !nickname.isEmpty()){
             text = nickname;
         }else {
             text = account;
