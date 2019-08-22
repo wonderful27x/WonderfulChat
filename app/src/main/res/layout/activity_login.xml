@@ -17,6 +17,7 @@
             android:layout_above="@id/account"
             android:layout_centerHorizontal="true"
             android:background="@color/gray"
+            android:src="@mipmap/dragon_white"
             android:layout_marginTop="40dp"/>
 
         <com.example.wonderfulchat.customview.DefuEditText

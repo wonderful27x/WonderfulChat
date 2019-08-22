@@ -26,5 +26,7 @@ public class CommonConstant {
    public static final String HOST_UNREAD_MESSAGE = "HostUnreadMessage";
    public static final String OTHER_UNREAD_MESSAGE = "OtherUnreadMessage";
    public static final String HOST_STATE = "HostState";
+   public static final String FIRST_STARTUP = "FirstStartup";
+   public static final String STATEMENT = "Statement";
 
 }

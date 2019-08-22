@@ -31,4 +31,9 @@ public class MemoryUtil {
         SharedPreferences preferences = MyApplication.getContext().getSharedPreferences(FILE_NAME, Context.MODE_PRIVATE);
         return preferences.getBoolean(key,false);
     }
+
+    public static boolean sharedPreferencesGetBoolean(String key,boolean defaultType){
+        SharedPreferences preferences = MyApplication.getContext().getSharedPreferences(FILE_NAME, Context.MODE_PRIVATE);
+        return preferences.getBoolean(key,defaultType);
+    }
 }

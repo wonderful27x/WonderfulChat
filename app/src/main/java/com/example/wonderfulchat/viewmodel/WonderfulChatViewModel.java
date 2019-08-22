@@ -396,7 +396,7 @@ public class WonderfulChatViewModel extends BaseViewModel <AppCompatActivity> {
 
     public void firstStatement(){
 
-        boolean statement = MemoryUtil.sharedPreferencesGetBoolean("Statement");
+        boolean statement = MemoryUtil.sharedPreferencesGetBoolean(CommonConstant.STATEMENT);
         if (statement)return;
 
         AlertDialog.Builder dialog = new AlertDialog.Builder(getView());
@@ -406,13 +406,13 @@ public class WonderfulChatViewModel extends BaseViewModel <AppCompatActivity> {
         dialog.setPositiveButton("我同意", new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialog, int which) {
-                MemoryUtil.sharedPreferencesSaveBoolean("Statement",true);
+                MemoryUtil.sharedPreferencesSaveBoolean(CommonConstant.STATEMENT,true);
             }
         });
         dialog.setNegativeButton("我不同意", new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialogInterface, int i) {
-                ToastUtil.showToast("对不起，非爱国人士不能使用此软件！");
+                ToastUtil.showToast("对不起，你没有资格使用此软件！");
                 getView().finish();
             }
         });

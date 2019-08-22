@@ -22,8 +22,9 @@
         <com.example.wonderfulchat.customview.TabGroupView
             android:id="@+id/tab_group_view"
             android:layout_width="match_parent"
-            android:layout_height="55dp"
-            android:background="@color/colorAccent">
+            android:layout_height="60dp"
+            android:paddingTop="5dp"
+            android:paddingBottom="5dp">
 
             <com.example.wonderfulchat.customview.TabView
                 android:layout_width="0dp"
@@ -31,8 +32,12 @@
                 android:layout_weight="1"
                 app:bottomTitle ="消息"
                 app:topTitle ="消息"
-                app:bottomDrawable="@mipmap/ic_file_music"
-                app:topDrawable="@mipmap/ic_file_txt"/>
+                app:bottomTitleSize = "4.5sp"
+                app:topTitleSize = "4.5sp"
+                app:bottomTitleColor = "@color/gray"
+                app:topTitleColor = "@color/blue"
+                app:bottomDrawable="@mipmap/message_gray"
+                app:topDrawable="@mipmap/message_blue"/>
 
             <com.example.wonderfulchat.customview.TabView
                 android:layout_width="0dp"
@@ -40,8 +45,12 @@
                 android:layout_weight="1"
                 app:bottomTitle ="幸运转盘"
                 app:topTitle ="幸运转盘"
-                app:bottomDrawable="@mipmap/ic_file_music"
-                app:topDrawable="@mipmap/ic_file_txt"/>
+                app:bottomTitleSize = "4.5sp"
+                app:topTitleSize = "4.5sp"
+                app:bottomTitleColor = "@color/gray"
+                app:topTitleColor = "@color/purple"
+                app:bottomDrawable="@mipmap/turntable_gray"
+                app:topDrawable="@mipmap/turntable_purple"/>
 
             <com.example.wonderfulchat.customview.TabView
                 android:layout_width="0dp"
@@ -49,8 +58,12 @@
                 android:layout_weight="1"
                 app:bottomTitle ="好友列表"
                 app:topTitle ="好友列表"
-                app:bottomDrawable="@mipmap/ic_file_music"
-                app:topDrawable="@mipmap/ic_file_txt"/>
+                app:bottomTitleSize = "4.5sp"
+                app:topTitleSize = "4.5sp"
+                app:bottomTitleColor = "@color/gray"
+                app:topTitleColor = "@color/blue"
+                app:bottomDrawable="@mipmap/friends_gray"
+                app:topDrawable="@mipmap/friends_blue"/>
 
         </com.example.wonderfulchat.customview.TabGroupView>
 

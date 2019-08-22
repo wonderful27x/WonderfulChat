@@ -58,6 +58,7 @@ public class FriendListFragment extends BaseFragment<FriendListViewModel> {
 
         RelativeLayout.LayoutParams layoutParams = new RelativeLayout.LayoutParams(UnitChangeUtil.dp2px(20), UnitChangeUtil.dp2px(20));
         layoutParams.addRule(RelativeLayout.CENTER_VERTICAL);
+        layoutParams.setMargins(UnitChangeUtil.dp2px(5),0,0,0);
         rightImage.setLayoutParams(layoutParams);
         rightImage.setImageResource(R.mipmap.friend_add);
         leftImage.setVisibility(View.INVISIBLE);
