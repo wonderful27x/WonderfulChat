@@ -104,8 +104,8 @@
                 android:layout_width="0dp"
                 android:layout_height="match_parent"
                 android:layout_weight="1"
-                android:background="@color/blue"
-                android:textColor="@color/white"
+                android:background="@drawable/button_selector"
+                android:textColor="@drawable/color_white_blue_selector"
                 android:text="登录"
                 android:onClick="@{loginViewModel.login}"/>
 
@@ -113,9 +113,9 @@
                 android:id="@+id/register"
                 android:layout_width="wrap_content"
                 android:layout_height="match_parent"
-                android:background="@color/blue"
+                android:background="@drawable/button_selector"
+                android:textColor="@drawable/color_white_blue_selector"
                 android:layout_marginLeft="1dp"
-                android:textColor="@color/white"
                 android:text="注册"
                 android:onClick="@{loginViewModel.registerClick}"
                 android:onLongClick="@{loginViewModel.register}"/>

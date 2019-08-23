@@ -1,6 +1,8 @@
 package com.example.wonderfulchat.view;
 
 import android.databinding.DataBindingUtil;
+import android.graphics.drawable.Drawable;
+import android.graphics.drawable.StateListDrawable;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -60,7 +62,7 @@ public class FriendListFragment extends BaseFragment<FriendListViewModel> {
         layoutParams.addRule(RelativeLayout.CENTER_VERTICAL);
         layoutParams.setMargins(UnitChangeUtil.dp2px(5),0,0,0);
         rightImage.setLayoutParams(layoutParams);
-        rightImage.setImageResource(R.mipmap.friend_add);
+        setImageSelector(rightImage);
         leftImage.setVisibility(View.INVISIBLE);
 
         rightImage.setOnClickListener(new View.OnClickListener() {
@@ -78,6 +80,19 @@ public class FriendListFragment extends BaseFragment<FriendListViewModel> {
 //            getViewModel().jumpToChatting(messageList);
 //        }
 //    }
+
+    //设置状态选择器
+    private void setImageSelector(ImageView imageView){
+        imageView.setClickable(true);
+        StateListDrawable drawable = new StateListDrawable();
+        Drawable drawableSelect = getResources().getDrawable(R.mipmap.friend_add_blue);
+        Drawable drawableNormal = getResources().getDrawable(R.mipmap.friend_add);
+        //选中
+        drawable.addState(new int[]{android.R.attr.state_pressed},drawableSelect);
+        //未选中
+        drawable.addState(new int[]{},drawableNormal);
+        imageView.setBackgroundDrawable(drawable);
+    }
 
     @Override
     public FriendListViewModel bindViewModel() {

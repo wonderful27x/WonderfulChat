@@ -34,7 +34,8 @@
             android:layout_height="wrap_content"
             android:layout_weight="3"
             android:focusable="false"
-            android:paddingRight="10dp"/>
+            android:paddingRight="10dp"
+            android:textSize="16sp"/>
 
     </LinearLayout>
 
@@ -58,7 +59,8 @@
             android:layout_height="wrap_content"
             android:layout_weight="3"
             android:focusable="false"
-            android:paddingRight="10dp"/>
+            android:paddingRight="10dp"
+            android:textSize="16sp"/>
 
     </LinearLayout>
 
@@ -83,7 +85,8 @@
             android:layout_weight="3"
             android:paddingRight="10dp"
             android:drawableRight="@mipmap/icon_cross"
-            app:rightClear="true"/>
+            app:rightClear="true"
+            android:textSize="16sp"/>
 
     </LinearLayout>
 
@@ -107,7 +110,8 @@
             android:layout_height="wrap_content"
             android:layout_weight="3"
             android:focusable="false"
-            android:paddingRight="10dp"/>
+            android:paddingRight="10dp"
+            android:textSize="16sp"/>
 
     </LinearLayout>
 
@@ -123,7 +127,8 @@
             android:layout_height="wrap_content"
             android:layout_weight="1"
             android:gravity="center"
-            android:textSize="18sp"
+            android:textColor="@drawable/color_black_white_selector"
+            android:textSize="16sp"
             android:text="保存"/>
 
         <Button
@@ -132,7 +137,8 @@
             android:layout_height="wrap_content"
             android:layout_weight="1"
             android:gravity="center"
-            android:textSize="18sp"
+            android:textColor="@drawable/color_black_white_selector"
+            android:textSize="16sp"
             android:text="删除好友"/>
 
     </LinearLayout>

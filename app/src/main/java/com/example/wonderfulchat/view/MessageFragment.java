@@ -1,6 +1,9 @@
 package com.example.wonderfulchat.view;
 
 import android.databinding.DataBindingUtil;
+import android.graphics.drawable.Drawable;
+import android.graphics.drawable.StateListDrawable;
+import android.os.Build;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.view.LayoutInflater;
@@ -72,7 +75,7 @@ public class MessageFragment extends BaseFragment<MessageViewModel> {
         RelativeLayout.LayoutParams layoutParams = new RelativeLayout.LayoutParams(UnitChangeUtil.dp2px(25), UnitChangeUtil.dp2px(25));
         layoutParams.addRule(RelativeLayout.CENTER_VERTICAL);
         leftImage.setLayoutParams(layoutParams);
-        leftImage.setImageResource(R.mipmap.elephant);
+        setImageSelector(leftImage);
         rightImage.setVisibility(View.INVISIBLE);
 
         leftImage.setOnClickListener(new View.OnClickListener() {
@@ -81,6 +84,19 @@ public class MessageFragment extends BaseFragment<MessageViewModel> {
                 listener.leftImageClick();
             }
         });
+    }
+
+    //设置状态选择器
+    private void setImageSelector(ImageView imageView){
+        imageView.setClickable(true);
+        StateListDrawable drawable = new StateListDrawable();
+        Drawable drawableSelect = getResources().getDrawable(R.mipmap.elephant_blue);
+        Drawable drawableNormal = getResources().getDrawable(R.mipmap.elephant);
+        //选中
+        drawable.addState(new int[]{android.R.attr.state_pressed},drawableSelect);
+        //未选中
+        drawable.addState(new int[]{},drawableNormal);
+        imageView.setBackgroundDrawable(drawable);
     }
 
     @Override

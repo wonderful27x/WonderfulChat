@@ -29,6 +29,7 @@
             android:windowSoftInputMode="adjustResize"/>
         <activity
             android:name=".view.SplashActivity"
+            android:theme="@style/SplashActivityTheme"
             android:launchMode="singleTask">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
