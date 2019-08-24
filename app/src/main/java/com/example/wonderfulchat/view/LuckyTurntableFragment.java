@@ -45,7 +45,7 @@ public class LuckyTurntableFragment extends BaseFragment<LuckyTurntableViewModel
         leftImage = binding.head.findViewById(R.id.left_image);
         rightImage = binding.head.findViewById(R.id.right_image);
 
-        midText.setText("缘分也是一种的恩赐");
+        midText.setText("缘分也是一种恩赐");
         leftImage.setVisibility(View.GONE);
         rightImage.setVisibility(View.GONE);
 

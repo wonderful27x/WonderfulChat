@@ -23,7 +23,7 @@
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="1"
-            android:textCursorDrawable="@drawable/underline_white"
+            android:textCursorDrawable="@drawable/white_line"
             android:theme="@style/UnderlineWhiteTheme"
             android:textColor="@color/white"
             android:textSize="18sp"/>
@@ -56,7 +56,7 @@
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="1"
-            android:textCursorDrawable="@drawable/underline_white"
+            android:textCursorDrawable="@drawable/white_line"
             android:theme="@style/UnderlineWhiteTheme"
             android:textColor="@color/white"
             android:textSize="18sp"/>

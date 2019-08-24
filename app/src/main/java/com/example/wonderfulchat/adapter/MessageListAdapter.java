@@ -94,8 +94,14 @@ public class MessageListAdapter extends RecyclerView.Adapter<MessageListAdapter.
             userModel = messageViewModel.getUserModelFromDatabase(messageModel.getReceiverAccount());
         }
         if (userModel != null){
-            name = userModel.getNickname() == null ? "" : userModel.getNickname();
             image = userModel.getImageUrl() == null ? "" : userModel.getImageUrl();
+            if (userModel.getRemark() != null && !userModel.getRemark().isEmpty()){
+                name = userModel.getRemark();
+            }else if (userModel.getNickname() != null && !userModel.getNickname().isEmpty()){
+                name = userModel.getNickname();
+            }else {
+                name = userModel.getAccount();
+            }
         }
 
 //        //这里逻辑不好，应该从数据库取出friend的信息

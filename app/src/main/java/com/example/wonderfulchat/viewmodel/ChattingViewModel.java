@@ -1,5 +1,11 @@
 package com.example.wonderfulchat.viewmodel;
 
+import android.content.res.ColorStateList;
+import android.content.res.Resources;
+import android.graphics.Color;
+import android.graphics.drawable.Drawable;
+import android.graphics.drawable.StateListDrawable;
+import android.os.Build;
 import android.os.Handler;
 import android.os.Looper;
 import android.os.Message;
@@ -7,7 +13,10 @@ import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.view.View;
+import android.widget.Button;
+import android.widget.ImageView;
 
+import com.bumptech.glide.load.engine.Resource;
 import com.example.wonderfulchat.R;
 import com.example.wonderfulchat.adapter.ChattingListAdapter;
 import com.example.wonderfulchat.databinding.ActivityChattingBinding;
@@ -71,6 +80,7 @@ public class ChattingViewModel extends BaseViewModel<AppCompatActivity> {
         gson = new Gson();
 
         binding.messageSend.setEnabled(false);
+        binding.messageSend.setTextColor(ContextCompat.getColor(getView(),R.color.gray));
 
         String userString;
         if (getHostState()){
@@ -505,6 +515,7 @@ public class ChattingViewModel extends BaseViewModel<AppCompatActivity> {
         public boolean handleMessage(Message message) {
             switch (message.what){
                 case 0:
+                    setButtonSelector(binding.messageSend);
                     binding.messageSend.setEnabled(true);
                     break;
                 case 1:
@@ -513,18 +524,26 @@ public class ChattingViewModel extends BaseViewModel<AppCompatActivity> {
                     binding.recyclerView.scrollToPosition(messageModels.size()-1);
                     break;
                 case 2:
-                    binding.messageSend.setTextColor(ContextCompat.getColor(getView(),R.color.gray));
                     ToastUtil.showLongToast("未知的身份，请求被拒绝！");
                     LogUtil.d(TAG,CommonConstant.REFUSE);
                     break;
                 case 3:
-                    binding.messageSend.setTextColor(ContextCompat.getColor(getView(),R.color.gray));
                     ToastUtil.showLongToast("对方未添加好友或已将你删除，请求被拒绝！");
                     LogUtil.d(TAG,CommonConstant.REFUSE_FRIEND);
                     break;
             }
             return true;
         }
+    }
+
+    //设置状态选择器
+    public void setButtonSelector(Button button){
+        int[] colors = {Color.parseColor("#FFFFFF"), Color.parseColor("#000000")};
+        int[][] states = new int[2][];
+        states[0] = new int[]{android.R.attr.state_pressed};
+        states[1] = new int[]{};
+        ColorStateList colorStateList = new ColorStateList(states,colors);
+        button.setTextColor(colorStateList);
     }
 
     //强行杀掉线程，释放资源,这种方法已过时，并且会抛出异常，但我仍然觉得这是一种好方法
