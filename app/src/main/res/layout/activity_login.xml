@@ -17,7 +17,7 @@
             android:layout_above="@id/account"
             android:layout_centerHorizontal="true"
             android:background="@color/gray"
-            android:src="@mipmap/dragon_white"
+            android:src="@drawable/dragon_white"
             android:layout_marginTop="40dp"/>
 
         <com.example.wonderfulchat.customview.DefuEditText
@@ -30,8 +30,8 @@
             android:layout_marginTop="20dp"
             android:paddingLeft="10dp"
             android:paddingRight="10dp"
-            android:drawableRight="@mipmap/icon_cross"
-            android:drawableLeft="@mipmap/user_img"
+            android:drawableRight="@drawable/icon_cross"
+            android:drawableLeft="@drawable/user_img"
             android:drawablePadding="5dp"
             android:digits="@string/alphabet_and_number"
             android:text="@{loginViewModel.account}"
@@ -55,8 +55,8 @@
                 android:background="@null"
                 android:paddingLeft="10dp"
                 android:paddingRight="10dp"
-                android:drawableRight="@mipmap/icon_cross"
-                android:drawableLeft="@mipmap/pwd_img"
+                android:drawableRight="@drawable/icon_cross"
+                android:drawableLeft="@drawable/pwd_img"
                 android:drawablePadding="5dp"
                 android:text="@{loginViewModel.password}"
                 android:inputType="@{loginViewModel.showHide}"
@@ -67,7 +67,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_gravity="center"
-                android:src="@mipmap/icon_eye_close"
+                android:src="@drawable/icon_eye_close"
                 android:onClick="@{loginViewModel.passwordShow}"/>
         </LinearLayout>
 
@@ -144,8 +144,8 @@
             <!--android:layout_marginTop="20dp"-->
             <!--android:paddingLeft="10dp"-->
             <!--android:paddingRight="10dp"-->
-            <!--android:drawableRight="@mipmap/icon_cross"-->
-            <!--android:drawableLeft="@mipmap/user_img"-->
+            <!--android:drawableRight="@drawable/icon_cross"-->
+            <!--android:drawableLeft="@drawable/user_img"-->
             <!--android:drawablePadding="5dp"-->
             <!--android:digits="@string/alphabet_and_number"-->
             <!--android:text="@{loginViewModel.account}"-->
@@ -167,8 +167,8 @@
                 <!--android:background="@null"-->
                 <!--android:paddingLeft="10dp"-->
                 <!--android:paddingRight="10dp"-->
-                <!--android:drawableRight="@mipmap/icon_cross"-->
-                <!--android:drawableLeft="@mipmap/pwd_img"-->
+                <!--android:drawableRight="@drawable/icon_cross"-->
+                <!--android:drawableLeft="@drawable/pwd_img"-->
                 <!--android:drawablePadding="5dp"-->
                 <!--android:text="@{loginViewModel.password}"-->
                 <!--android:inputType="@{loginViewModel.showHide}"-->
@@ -179,7 +179,7 @@
                 <!--android:layout_width="wrap_content"-->
                 <!--android:layout_height="wrap_content"-->
                 <!--android:layout_gravity="center"-->
-                <!--android:src="@mipmap/icon_eye_close"-->
+                <!--android:src="@drawable/icon_eye_close"-->
                 <!--android:onClick="@{loginViewModel.passwordShow}"/>-->
         <!--</LinearLayout>-->
 

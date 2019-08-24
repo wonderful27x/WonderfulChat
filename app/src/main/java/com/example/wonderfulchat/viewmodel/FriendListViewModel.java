@@ -10,6 +10,7 @@ import android.widget.TextView;
 
 import com.example.wonderfulchat.R;
 import com.example.wonderfulchat.adapter.ExpandableListViewAdapter;
+import com.example.wonderfulchat.customview.LoadingDialog;
 import com.example.wonderfulchat.customview.SimpleDialog;
 import com.example.wonderfulchat.customview.UserMessageDialog;
 import com.example.wonderfulchat.databinding.FriendListFragmentLayoutBinding;
@@ -48,10 +49,13 @@ public class FriendListViewModel extends BaseViewModel<Fragment> {
     private UserModel friend;
     private boolean friendExist = false;
     private int childPosition;
+    private LoadingDialog loadingDialog;
 //    private String friendName;
 //    private String friendAccount;
 
     public void initView(){
+        loadingDialog = new LoadingDialog(getView().getActivity());
+
         user = getUserModel();
 
         groupModels = new ArrayList<>();
@@ -312,7 +316,7 @@ public class FriendListViewModel extends BaseViewModel<Fragment> {
             @Override
             public void textChanged(String text) {
                 friendExist = false;
-                dialog.setImage(R.mipmap.check_false,-1);
+                dialog.setImage(R.drawable.check_false,-1);
                 dialog.setConfirmText("搜索");
             }
         });
@@ -332,7 +336,7 @@ public class FriendListViewModel extends BaseViewModel<Fragment> {
 //        userModel.setImageUrl("http://192.168.191.5:8080/file/girl.jpg");
 //        userModel.setLifeMotto("季后赛股票害怕么");
 //        List<UserModel> userModels = groupModels.get(0).getChildModels();
-
+        loadingDialog.dialogShow();
         String url = InternetAddress.ADD_FRIEND_URL + "?account=" + user.getAccount() + "&friendAccount=" + friendAccount;
         HttpUtil.httpRequestForGet(url, new HttpCallbackListener() {
             @Override
@@ -340,6 +344,7 @@ public class FriendListViewModel extends BaseViewModel<Fragment> {
                 getView().getActivity().runOnUiThread(new Runnable() {
                     @Override
                     public void run() {
+                        loadingDialog.dialogDismiss();
                         if (response.equals("success")){
                             userModels.add(userModels.size(),friend);
                             groupModels.get(0).setNumber(userModels.size());
@@ -358,6 +363,7 @@ public class FriendListViewModel extends BaseViewModel<Fragment> {
                 getView().getActivity().runOnUiThread(new Runnable() {
                     @Override
                     public void run() {
+                        loadingDialog.dialogDismiss();
                         ToastUtil.showToast("添加失败！");
                         LogUtil.e(TAG,"添加失败：" + e.getMessage());
                     }
@@ -393,6 +399,7 @@ public class FriendListViewModel extends BaseViewModel<Fragment> {
 //    }
 
     private void findFriend(final SimpleDialog dialog, String account){
+        loadingDialog.dialogShow();
         String url = InternetAddress.FIND_FRIEND_URL + "?account=" + account;
         HttpUtil.httpRequestForGet(url, new HttpCallbackListener() {
             @Override
@@ -400,6 +407,7 @@ public class FriendListViewModel extends BaseViewModel<Fragment> {
                 getView().getActivity().runOnUiThread(new Runnable() {
                     @Override
                     public void run() {
+                        loadingDialog.dialogDismiss();
                         Gson gson = new Gson();
                         HttpUserModel httpUserModel = gson.fromJson(response, HttpUserModel.class);
                         if (httpUserModel == null)return;
@@ -408,20 +416,20 @@ public class FriendListViewModel extends BaseViewModel<Fragment> {
                                 friend = httpUserModel.getContent().get(0);
                                 friendExist = true;
                                 dialog.imageHideShow(true,false);
-                                dialog.setImage(R.mipmap.check_ok,-1);
+                                dialog.setImage(R.drawable.check_ok,-1);
                                 dialog.setConfirmText("添加");
                             }else {
                                 dialog.imageHideShow(true,false);
-                                dialog.setImage(R.mipmap.check_false,-1);
+                                dialog.setImage(R.drawable.check_false,-1);
                                 ToastUtil.showToast("未找到，请检查账号是否正确！");
                             }
                         }else if("fail".equals(httpUserModel.getResult())){
                             dialog.imageHideShow(true,false);
-                            dialog.setImage(R.mipmap.check_false,-1);
+                            dialog.setImage(R.drawable.check_false,-1);
                             ToastUtil.showToast(httpUserModel.getMessage());
                         }else if("error".equals(httpUserModel.getResult())){
                             dialog.imageHideShow(true,false);
-                            dialog.setImage(R.mipmap.check_false,-1);
+                            dialog.setImage(R.drawable.check_false,-1);
                             LogUtil.e(TAG,httpUserModel.getMessage());
                         }
                     }
@@ -433,6 +441,7 @@ public class FriendListViewModel extends BaseViewModel<Fragment> {
                 getView().getActivity().runOnUiThread(new Runnable() {
                     @Override
                     public void run() {
+                        loadingDialog.dialogDismiss();
                         ToastUtil.showToast("搜索失败！");
                         LogUtil.e(TAG,"搜索失败：" + e.getMessage());
                     }
@@ -464,6 +473,7 @@ public class FriendListViewModel extends BaseViewModel<Fragment> {
     }
 
     private void changeRemark(String account, final UserModel model){
+        loadingDialog.dialogShow();
         String url = InternetAddress.CHANGE_REMARK_URL + "?account=" + account + "&friendAccount=" + model.getAccount() + "&content=" + model.getRemark();
         HttpUtil.httpRequestForGet(url, new HttpCallbackListener() {
             @Override
@@ -471,6 +481,7 @@ public class FriendListViewModel extends BaseViewModel<Fragment> {
                 getView().getActivity().runOnUiThread(new Runnable() {
                     @Override
                     public void run() {
+                        loadingDialog.dialogDismiss();
                         if ("success".equals(response)){
                             ToastUtil.showToast("修改成功！");
                             userModels.set(childPosition,model);
@@ -490,6 +501,7 @@ public class FriendListViewModel extends BaseViewModel<Fragment> {
                 getView().getActivity().runOnUiThread(new Runnable() {
                     @Override
                     public void run() {
+                        loadingDialog.dialogDismiss();
                         ToastUtil.showToast("修改失败！");
                         LogUtil.e(TAG,"修改失败：" + e.getMessage());
                     }
@@ -499,6 +511,7 @@ public class FriendListViewModel extends BaseViewModel<Fragment> {
     }
 
     private void deleteFriendFromService(final String account, final UserModel userModel){
+        loadingDialog.dialogShow();
         String url = InternetAddress.DELETE_FRIEND_URL + "?account=" + account + "&friendAccount=" + userModel.getAccount();
         HttpUtil.httpRequestForGet(url, new HttpCallbackListener() {
             @Override
@@ -506,6 +519,7 @@ public class FriendListViewModel extends BaseViewModel<Fragment> {
                 getView().getActivity().runOnUiThread(new Runnable() {
                     @Override
                     public void run() {
+                        loadingDialog.dialogDismiss();
                         if ("success".equals(response)){
                             ToastUtil.showToast("删除成功！");
                             userModels.remove(childPosition);
@@ -527,6 +541,7 @@ public class FriendListViewModel extends BaseViewModel<Fragment> {
                 getView().getActivity().runOnUiThread(new Runnable() {
                     @Override
                     public void run() {
+                        loadingDialog.dialogDismiss();
                         ToastUtil.showToast("删除失败！");
                         LogUtil.e(TAG,"删除失败：" + e.getMessage());
                     }

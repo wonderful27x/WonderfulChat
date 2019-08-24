@@ -39,7 +39,7 @@ public class LoginViewModel extends BaseViewModel<Activity> {
 
     private static final String TAG = "LoginViewModel";
     private ActivityLoginBinding loginBinding;
-    private LoadingDialog dialog;
+    private LoadingDialog loadingDialog;
     private boolean clickAble = true;
 
     private ObservableField<Boolean> isChecked = new ObservableField<>(false);
@@ -47,14 +47,40 @@ public class LoginViewModel extends BaseViewModel<Activity> {
     private ObservableField<String> password = new ObservableField<>();
     private ObservableField<Integer> showHide = new ObservableField<>(InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_VARIATION_PASSWORD);
 
+    public void init(){
+        loadingDialog = new LoadingDialog(getView());
+        loginBinding.account.setDefuTextWatcher(new DefuEditText.DefuTextWatcher() {
+            @Override
+            public void onTextChanged(String text) {
+                account.set(text);
+                loginBinding.account.setSelection(text.length());
+                LogUtil.d(TAG,"account change!");
+            }
+        });
+        loginBinding.password.setDefuTextWatcher(new DefuEditText.DefuTextWatcher() {
+            @Override
+            public void onTextChanged(String text) {
+                password.set(text);
+                LogUtil.d(TAG,"password change!");
+            }
+        });
+
+        String account = MemoryUtil.sharedPreferencesGetString("account");
+        String password = MemoryUtil.sharedPreferencesGetString("password");
+        boolean isChecked = MemoryUtil.sharedPreferencesGetBoolean("checkBox");
+        setAccount(account);
+        setPassword(password);
+        setIschecked(isChecked);
+
+    }
+
     public void login(View view){
         if (clickAble){
             clickAble = false;
         }else {
             return;
         }
-        dialog = new LoadingDialog(getView());
-        dialog.dialogShow();
+        loadingDialog.dialogShow();
         String postParameters = null;
         try {
             postParameters = "account=" + URLEncoder.encode(account.get(), "UTF-8");
@@ -69,6 +95,8 @@ public class LoginViewModel extends BaseViewModel<Activity> {
                 getView().runOnUiThread(new Runnable() {
                     @Override
                     public void run() {
+                        clickAble = true;
+                        loadingDialog.dialogDismiss();
                         getUserMessage(response);
 //                        if(response.equals("登录成功")){
 //                            accountPassSave(isChecked.get());
@@ -90,7 +118,7 @@ public class LoginViewModel extends BaseViewModel<Activity> {
                     @Override
                     public void run() {
                         clickAble = true;
-                        dialog.dialogDismiss();
+                        loadingDialog.dialogDismiss();
                         ToastUtil.showToast("登录失败！");
                         LogUtil.e(TAG,"登录失败: "+e.getMessage());
                     }
@@ -122,12 +150,14 @@ public class LoginViewModel extends BaseViewModel<Activity> {
             e.printStackTrace();
         }
 
+        loadingDialog.dialogShow();
         HttpUtil.httpRequestForPost(InternetAddress.REGISTER_URL, postParameters, new HttpCallbackListener() {
             @Override
             public void onFinish(final String response) {
                 getView().runOnUiThread(new Runnable() {
                     @Override
                     public void run() {
+                        loadingDialog.dialogDismiss();
                         if(response.equals("注册成功！")){
                             ToastUtil.showToast("注册成功，请直接登录");
                         }else {
@@ -143,6 +173,7 @@ public class LoginViewModel extends BaseViewModel<Activity> {
                 getView().runOnUiThread(new Runnable() {
                     @Override
                     public void run() {
+                        loadingDialog.dialogDismiss();
                         ToastUtil.showToast("注册失败！");
                         LogUtil.e(TAG,"注册失败: "+e.getMessage());
                     }
@@ -158,8 +189,6 @@ public class LoginViewModel extends BaseViewModel<Activity> {
         Gson gson = new Gson();
         HttpUserModel httpUserModel = gson.fromJson(jsonData, HttpUserModel.class);
         if(httpUserModel == null){
-            clickAble = true;
-            dialog.dialogDismiss();
             return;
         }
         if ("success".equals(httpUserModel.getResult())){
@@ -172,22 +201,13 @@ public class LoginViewModel extends BaseViewModel<Activity> {
 //            saveToDatabase(userModels);
             Intent intent = new Intent(getView(), WonderfulChatActivity.class);
             getView().startActivity(intent);
-            clickAble = true;
-            dialog.dialogDismiss();
-            //getView().finish();
+            getView().finish();
         }else if("fail".equals(httpUserModel.getResult())){
-            clickAble = true;
-            dialog.dialogDismiss();
             ToastUtil.showToast(httpUserModel.getMessage());
             LogUtil.d(TAG,httpUserModel.getMessage());
         }else if("error".equals(httpUserModel.getResult())){
-            clickAble = true;
-            dialog.dialogDismiss();
             ToastUtil.showToast("登录失败！");
             LogUtil.d(TAG,httpUserModel.getMessage());
-        }else {
-            clickAble = true;
-            dialog.dialogDismiss();
         }
 
 //        String httpUserModelString = FileUtil.getJson(getView(), "HttpUserModel");
@@ -306,37 +326,11 @@ public class LoginViewModel extends BaseViewModel<Activity> {
         ImageView imageView = (ImageView) view;
         if(showHide.get() == InputType.TYPE_TEXT_VARIATION_VISIBLE_PASSWORD){
             showHide.set(InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_VARIATION_PASSWORD);
-            imageView.setImageResource(R.mipmap.icon_eye_close);
+            imageView.setImageResource(R.drawable.icon_eye_close);
         }else {
             showHide.set(InputType.TYPE_TEXT_VARIATION_VISIBLE_PASSWORD);
-            imageView.setImageResource(R.mipmap.icon_eye_open);
+            imageView.setImageResource(R.drawable.icon_eye_open);
         }
-    }
-
-    public void init(){
-        loginBinding.account.setDefuTextWatcher(new DefuEditText.DefuTextWatcher() {
-            @Override
-            public void onTextChanged(String text) {
-                account.set(text);
-                loginBinding.account.setSelection(text.length());
-                LogUtil.d(TAG,"account change!");
-            }
-        });
-        loginBinding.password.setDefuTextWatcher(new DefuEditText.DefuTextWatcher() {
-            @Override
-            public void onTextChanged(String text) {
-                password.set(text);
-                LogUtil.d(TAG,"password change!");
-            }
-        });
-
-        String account = MemoryUtil.sharedPreferencesGetString("account");
-        String password = MemoryUtil.sharedPreferencesGetString("password");
-        boolean isChecked = MemoryUtil.sharedPreferencesGetBoolean("checkBox");
-        setAccount(account);
-        setPassword(password);
-        setIschecked(isChecked);
-
     }
 
     public ObservableField<Integer> getShowHide() {

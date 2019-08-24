@@ -3,14 +3,20 @@
     <!-- Base application theme. -->
     <style name="AppTheme" parent="Theme.AppCompat.Light.NoActionBar">
         <!-- Customize your theme here. -->
-        <item name="colorPrimary">@color/blue</item>
-        <item name="colorPrimaryDark">@color/blue</item>
-        <item name="colorAccent">@color/white</item>
+        <item name="colorPrimary">@color/colorPrimary</item>
+        <item name="colorPrimaryDark">@color/colorPrimaryDark</item>
+        <item name="colorAccent">@color/colorAccent</item>
     </style>
 
     <!--全屏-->
     <style name="SplashActivityTheme" parent="AppTheme">
         <item name="android:windowFullscreen">true</item>
+    </style>
+
+    <!--下划线颜色-->
+    <style name="UnderlineWhiteTheme" parent="Theme.AppCompat.Light">
+        <item name="colorControlNormal">@null</item>
+        <item name="colorControlActivated">@color/white</item>
     </style>
 
     <style name="AppTheme.NoActionBar">

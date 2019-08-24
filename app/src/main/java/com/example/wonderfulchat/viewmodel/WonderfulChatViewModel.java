@@ -24,6 +24,7 @@ import android.widget.TextView;
 import com.bumptech.glide.Glide;
 import com.example.wonderfulchat.R;
 import com.example.wonderfulchat.adapter.ViewPagerAdapter;
+import com.example.wonderfulchat.customview.LoadingDialog;
 import com.example.wonderfulchat.customview.TabGroupView;
 import com.example.wonderfulchat.databinding.ActivityWonderfulChatBinding;
 import com.example.wonderfulchat.interfaces.HttpCallbackListener;
@@ -67,10 +68,12 @@ public class WonderfulChatViewModel extends BaseViewModel <AppCompatActivity> {
     private static final String TAG = "WonderfulChatViewModel";
     private ActivityWonderfulChatBinding chatBinding;
     private UserModel userModel;
+    private LoadingDialog loadingDialog;
 
     public void initView(){
         ToastUtil.showToast("Welcome");
 
+        loadingDialog = new LoadingDialog(getView());
         String model;
         if (getHostState()){
             model = MemoryUtil.sharedPreferencesGetString(CommonConstant.HOST_USER_MODEL);
@@ -184,6 +187,20 @@ public class WonderfulChatViewModel extends BaseViewModel <AppCompatActivity> {
         dialog.show();
     }
 
+    public void shoAuthor(){
+        AlertDialog.Builder dialog = new AlertDialog.Builder(getView());
+        dialog.setTitle("Author：德芙");
+        dialog.setMessage("对于此软件有任何疑问请发送邮件至wonderful27x@126.com");
+        dialog.setCancelable(false);
+        dialog.setPositiveButton("OK", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+
+            }
+        });
+        dialog.show();
+    }
+
     public void messageMoveToHost(){
         //清空HOST
         clearHost();
@@ -254,6 +271,7 @@ public class WonderfulChatViewModel extends BaseViewModel <AppCompatActivity> {
     }
 
     public void logoutOrSwitch(final String type, String account){
+        loadingDialog.dialogShow();
         String url = InternetAddress.LOGOUT_URL + "?account=" + account;
         HttpUtil.httpRequestForGet(url, new HttpCallbackListener() {
             @Override
@@ -261,6 +279,7 @@ public class WonderfulChatViewModel extends BaseViewModel <AppCompatActivity> {
                 getView().runOnUiThread(new Runnable() {
                     @Override
                     public void run() {
+                        loadingDialog.dialogDismiss();
                         if (response.equals("success")){
                             if (type.equals("switch")){
                                 Intent intent = new Intent(getView(),LoginActivity.class);
@@ -284,6 +303,7 @@ public class WonderfulChatViewModel extends BaseViewModel <AppCompatActivity> {
                 getView().runOnUiThread(new Runnable() {
                     @Override
                     public void run() {
+                        loadingDialog.dialogDismiss();
                         if (type.equals("logout")){
                             ToastUtil.showToast("退出异常！");
                         }else {
@@ -297,6 +317,7 @@ public class WonderfulChatViewModel extends BaseViewModel <AppCompatActivity> {
     }
 
     public void changePassword(String account,String oldPass,String newPass){
+        loadingDialog.dialogShow();
         String postParameters = null;
         try {
             postParameters = "account=" + URLEncoder.encode(account, "UTF-8");
@@ -311,6 +332,7 @@ public class WonderfulChatViewModel extends BaseViewModel <AppCompatActivity> {
                 getView().runOnUiThread(new Runnable() {
                     @Override
                     public void run() {
+                        loadingDialog.dialogDismiss();
                         if (response.equals("修改密码成功！")){
                             clearPass();
                             Intent intent = new Intent(getView(),LoginActivity.class);
@@ -328,6 +350,7 @@ public class WonderfulChatViewModel extends BaseViewModel <AppCompatActivity> {
                 getView().runOnUiThread(new Runnable() {
                     @Override
                     public void run() {
+                        loadingDialog.dialogDismiss();
                         ToastUtil.showToast("修改密码失败！");
                         LogUtil.e(TAG,"修改密码失败: "+e.getMessage());
                     }
@@ -431,6 +454,8 @@ public class WonderfulChatViewModel extends BaseViewModel <AppCompatActivity> {
 
     @SuppressLint("StaticFieldLeak")
     public void uploadHeadImage(final String url, final ImageView imageView){
+        loadingDialog.dialogShow();
+
         Glide.with(getView()).load(url).into(imageView);
 
         final ParameterPass parameterPass = new ParameterPass();
@@ -470,7 +495,8 @@ public class WonderfulChatViewModel extends BaseViewModel <AppCompatActivity> {
                         getView().runOnUiThread(new Runnable() {
                             @Override
                             public void run() {
-                                Glide.with(getView()).load(R.mipmap.default_head_image).into(imageView);
+                                loadingDialog.dialogDismiss();
+                                Glide.with(getView()).load(R.drawable.default_head_image).into(imageView);
                                 ToastUtil.showToast("上传失败！");
 //                                ToastUtil.showToast(e.getMessage());
                                 LogUtil.e(TAG,e.getMessage());
@@ -483,6 +509,7 @@ public class WonderfulChatViewModel extends BaseViewModel <AppCompatActivity> {
                         getView().runOnUiThread(new Runnable() {
                             @Override
                             public void run() {
+                                loadingDialog.dialogDismiss();
                                 try {
                                     String responseData = response.body().string();
                                     if(responseData.contains("$") && responseData.substring(0,responseData.indexOf("$")).equals("success")){
@@ -497,7 +524,7 @@ public class WonderfulChatViewModel extends BaseViewModel <AppCompatActivity> {
                                             MemoryUtil.sharedPreferencesSaveString(CommonConstant.OTHER_USER_MODEL,jsonData);
                                         }
                                     }else{
-                                        Glide.with(getView()).load(R.mipmap.default_head_image).into(imageView);
+                                        Glide.with(getView()).load(R.drawable.default_head_image).into(imageView);
                                         ToastUtil.showToast("上传失败！");
 //                                        ToastUtil.showToast(responseData);
                                         LogUtil.e(TAG,responseData);
@@ -555,7 +582,7 @@ public class WonderfulChatViewModel extends BaseViewModel <AppCompatActivity> {
 //                        getView().runOnUiThread(new Runnable() {
 //                            @Override
 //                            public void run() {
-//                                Glide.with(getView()).load(R.mipmap.default_head_image).into(imageView);
+//                                Glide.with(getView()).load(R.drawable.default_head_image).into(imageView);
 //                                ToastUtil.showToast("上传失败！");
 //                                LogUtil.e(TAG,e.getMessage());
 //                            }

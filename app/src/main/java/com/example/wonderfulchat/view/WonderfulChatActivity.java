@@ -62,6 +62,7 @@ public class WonderfulChatActivity extends BaseActivity <WonderfulChatViewModel>
     private UserModel model;
     private long lastBackPressedTime = 0;
     private static final int BACK_PRESSED_INTERVAL = 2000;
+    public static boolean isLogin;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -74,6 +75,8 @@ public class WonderfulChatActivity extends BaseActivity <WonderfulChatViewModel>
 //        EventBus.getDefault().register(this);
         initLeftDrawer(chatBinding);
         getViewModel().initView();
+
+        isLogin = true;
 
     }
 
@@ -160,9 +163,9 @@ public class WonderfulChatActivity extends BaseActivity <WonderfulChatViewModel>
         Gson gson = new Gson();
         model = gson.fromJson(userModel, UserModel.class);
         RequestOptions options = new RequestOptions()
-                .placeholder(R.mipmap.default_head_image)
-                .fallback(R.mipmap.default_head_image)
-                .error(R.mipmap.default_head_image);
+                .placeholder(R.drawable.default_head_image)
+                .fallback(R.drawable.default_head_image)
+                .error(R.drawable.default_head_image);
         Glide.with(this)
                 .load(model.getImageUrl())
                 .apply(options)
@@ -258,6 +261,9 @@ public class WonderfulChatActivity extends BaseActivity <WonderfulChatViewModel>
                 return true;
             case R.id.menu_set_host:
                 setToHost(menuItem);
+                return true;
+            case R.id.menu_author:
+                getViewModel().shoAuthor();
                 return true;
         }
         return false;
@@ -400,6 +406,7 @@ public class WonderfulChatActivity extends BaseActivity <WonderfulChatViewModel>
 
     @Override
     protected void onDestroy() {
+        isLogin = false;
 //        EventBus.getDefault().unregister(this);
         logoutBeforeDestroy();
         LogUtil.d(TAG,"destroy");

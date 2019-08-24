@@ -29,9 +29,9 @@ public class ExpandableListViewAdapter extends BaseExpandableListAdapter {
         this.viewModel = viewModel;
 
         options = new RequestOptions()
-                .placeholder(R.mipmap.default_head_image)
-                .fallback(R.mipmap.default_head_image)
-                .error(R.mipmap.default_head_image);
+                .placeholder(R.drawable.default_head_image)
+                .fallback(R.drawable.default_head_image)
+                .error(R.drawable.default_head_image);
     }
 
     @Override

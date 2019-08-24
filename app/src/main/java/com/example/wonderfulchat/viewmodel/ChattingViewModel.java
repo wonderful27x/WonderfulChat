@@ -3,9 +3,12 @@ package com.example.wonderfulchat.viewmodel;
 import android.os.Handler;
 import android.os.Looper;
 import android.os.Message;
+import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.view.View;
+
+import com.example.wonderfulchat.R;
 import com.example.wonderfulchat.adapter.ChattingListAdapter;
 import com.example.wonderfulchat.databinding.ActivityChattingBinding;
 import com.example.wonderfulchat.interfaces.HttpCallbackListener;
@@ -510,10 +513,12 @@ public class ChattingViewModel extends BaseViewModel<AppCompatActivity> {
                     binding.recyclerView.scrollToPosition(messageModels.size()-1);
                     break;
                 case 2:
+                    binding.messageSend.setTextColor(ContextCompat.getColor(getView(),R.color.gray));
                     ToastUtil.showLongToast("未知的身份，请求被拒绝！");
                     LogUtil.d(TAG,CommonConstant.REFUSE);
                     break;
                 case 3:
+                    binding.messageSend.setTextColor(ContextCompat.getColor(getView(),R.color.gray));
                     ToastUtil.showLongToast("对方未添加好友或已将你删除，请求被拒绝！");
                     LogUtil.d(TAG,CommonConstant.REFUSE_FRIEND);
                     break;

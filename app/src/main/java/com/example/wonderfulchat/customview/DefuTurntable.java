@@ -30,6 +30,7 @@ import com.bumptech.glide.request.transition.Transition;
 import com.example.wonderfulchat.R;
 import com.example.wonderfulchat.model.UserModel;
 import com.example.wonderfulchat.utils.LogUtil;
+import com.example.wonderfulchat.utils.ToastUtil;
 import com.example.wonderfulchat.view.MyApplication;
 
 import java.util.List;
@@ -211,6 +212,8 @@ public class DefuTurntable extends RelativeLayout {
                     if (circleClickListener != null){
                         circleClickListener.circleClick(selectPosition);
                     }
+                }else {
+                    ToastUtil.showToast("请长按旋转转盘！");
                 }
             }
 

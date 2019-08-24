@@ -19,14 +19,15 @@
             android:layout_width="50dp"
             android:layout_height="match_parent"
             android:layout_marginRight="10dp"
-            android:src="@mipmap/default_head_image"/>
+            android:src="@drawable/default_head_image"/>
 
         <LinearLayout
             android:id="@+id/top_layout"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_toRightOf="@id/head_image"
-            android:gravity="center_vertical">
+            android:gravity="center_vertical"
+            android:layout_marginTop="5dp">
 
             <TextView
                 android:id="@+id/userName"
@@ -41,6 +42,8 @@
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
                 android:gravity="right"
+                android:textSize="12sp"
+                android:textColor="@color/gray"
                 android:text="时间"/>
 
         </LinearLayout>
@@ -50,7 +53,8 @@
             android:layout_height="wrap_content"
             android:layout_toRightOf="@id/head_image"
             android:layout_alignParentBottom="true"
-            android:gravity="center_vertical">
+            android:gravity="center_vertical"
+            android:layout_marginBottom="5dp">
 
             <TextView
                 android:id="@+id/message"
@@ -59,6 +63,8 @@
                 android:layout_weight="1"
                 android:singleLine="true"
                 android:ellipsize="end"
+                android:textSize="12sp"
+                android:textColor="@color/gray"
                 android:text="消息"/>
 
             <TextView

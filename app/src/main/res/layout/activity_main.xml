@@ -11,8 +11,8 @@
         android:id="@+id/edit"
         android:layout_width="200dp"
         android:layout_height="100dp"
-        android:drawableLeft="@mipmap/icon_cross"
-        android:drawableRight="@mipmap/icon_cross"
+        android:drawableLeft="@drawable/icon_cross"
+        android:drawableRight="@drawable/icon_cross"
         android:background="@color/colorAccent"
         android:padding="20dp"
         app:drawableLeftWith="40dp"
@@ -40,8 +40,8 @@
             android:layout_weight="1"
             app:bottomTitle ="首页"
             app:topTitle ="首页"
-            app:bottomDrawable="@mipmap/ic_file_music"
-            app:topDrawable="@mipmap/ic_file_txt"/>
+            app:bottomDrawable="@drawable/ic_file_music"
+            app:topDrawable="@drawable/ic_file_txt"/>
 
         <com.example.wonderfulchat.customview.TabView
             android:layout_width="0dp"
@@ -49,8 +49,8 @@
             android:layout_weight="1"
             app:bottomTitle ="消息"
             app:topTitle ="消息"
-            app:bottomDrawable="@mipmap/ic_file_music"
-            app:topDrawable="@mipmap/ic_file_txt"/>
+            app:bottomDrawable="@drawable/ic_file_music"
+            app:topDrawable="@drawable/ic_file_txt"/>
 
         <com.example.wonderfulchat.customview.TabView
             android:layout_width="0dp"
@@ -58,8 +58,8 @@
             android:layout_weight="1"
             app:bottomTitle ="好友列表"
             app:topTitle ="好友列表"
-            app:bottomDrawable="@mipmap/ic_file_music"
-            app:topDrawable="@mipmap/ic_file_txt"/>
+            app:bottomDrawable="@drawable/ic_file_music"
+            app:topDrawable="@drawable/ic_file_txt"/>
 
     </com.example.wonderfulchat.customview.TabGroupView>
 

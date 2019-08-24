@@ -17,10 +17,10 @@
             android:id="@+id/head"
             layout="@layout/common_head_layout"/>
 
-        <View
-            android:layout_width="match_parent"
-            android:layout_height="1dp"
-            android:background="@color/gray"/>
+        <!--<View-->
+            <!--android:layout_width="match_parent"-->
+            <!--android:layout_height="1dp"-->
+            <!--android:background="@color/gray"/>-->
 
         <android.support.v7.widget.RecyclerView
             android:id="@+id/recycler_view"
@@ -43,13 +43,14 @@
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
-                android:drawableRight="@mipmap/icon_cross"
+                android:drawableRight="@drawable/icon_cross"
                 app:rightClear = "true"/>
 
             <Button
                 android:id="@+id/message_send"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                android:textColor="@drawable/color_black_white_selector"
                 android:text="发送"
                 android:onClick="@{wonderfulViewModel.sendMessage}"/>
 

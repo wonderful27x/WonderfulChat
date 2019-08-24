@@ -19,7 +19,7 @@
             android:id="@+id/head_image"
             android:layout_width="70dp"
             android:layout_height="70dp"
-            android:src="@mipmap/default_head_image"/>
+            android:src="@drawable/default_head_image"/>
 
         <RelativeLayout
             android:layout_width="match_parent"
@@ -39,8 +39,8 @@
                 android:layout_height="wrap_content"
                 android:layout_centerInParent="true"
                 android:background="@null"
-                android:drawableLeft="@mipmap/write_gray"
-                android:drawableRight="@mipmap/check_ok"
+                android:drawableLeft="@drawable/write_gray"
+                android:drawableRight="@drawable/check_ok"
                 android:drawablePadding="5dp"
                 android:textSize="16sp"
                 android:visibility="gone"/>
@@ -64,8 +64,8 @@
                 android:layout_height="wrap_content"
                 android:layout_centerInParent="true"
                 android:background="@null"
-                android:drawableLeft="@mipmap/write_gray"
-                android:drawableRight="@mipmap/check_ok"
+                android:drawableLeft="@drawable/write_gray"
+                android:drawableRight="@drawable/check_ok"
                 android:drawablePadding="5dp"
                 android:singleLine="true"
                 android:textSize="16sp"

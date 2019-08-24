@@ -2,7 +2,11 @@ package com.example.wonderfulchat.view;
 
 import android.content.Intent;
 import android.databinding.DataBindingUtil;
+import android.graphics.drawable.Drawable;
+import android.graphics.drawable.StateListDrawable;
+import android.os.Build;
 import android.os.Bundle;
+import android.support.v4.content.ContextCompat;
 import android.view.View;
 import android.view.Window;
 import android.widget.ImageView;
@@ -45,7 +49,7 @@ public class ChattingActivity extends BaseActivity<ChattingViewModel> {
 
     private void initView(ActivityChattingBinding binding,UserModel friendModel){
 
-        RelativeLayout.LayoutParams layoutParams = new RelativeLayout.LayoutParams(UnitChangeUtil.dp2px(35), UnitChangeUtil.dp2px(35));
+        RelativeLayout.LayoutParams layoutParams = new RelativeLayout.LayoutParams(UnitChangeUtil.dp2px(30), UnitChangeUtil.dp2px(30));
         layoutParams.addRule(RelativeLayout.CENTER_VERTICAL);
 
         midText = binding.head.findViewById(R.id.mid_text);
@@ -62,7 +66,7 @@ public class ChattingActivity extends BaseActivity<ChattingViewModel> {
         }
         midText.setText(name);
         leftImage.setLayoutParams(layoutParams);
-        leftImage.setBackgroundResource(R.mipmap.com_back_blue);
+        setImageSelector(leftImage);
         rightImage.setVisibility(View.GONE);
 
         leftImage.setOnClickListener(new View.OnClickListener() {
@@ -72,7 +76,7 @@ public class ChattingActivity extends BaseActivity<ChattingViewModel> {
                 getViewModel().messageSave();
                 getViewModel().saveMessageAccounts();
                 try {
-                    Thread.sleep(500);
+                    Thread.sleep(200);
                 } catch (InterruptedException e) {
                     e.printStackTrace();
                 }finally {
@@ -83,6 +87,24 @@ public class ChattingActivity extends BaseActivity<ChattingViewModel> {
         });
     }
 
+    //设置状态选择器
+    private void setImageSelector(ImageView imageView){
+        imageView.setClickable(true);
+        StateListDrawable drawable = new StateListDrawable();
+        Drawable drawableSelect = ContextCompat.getDrawable(this,R.drawable.com_back_gray);
+        Drawable drawableNormal = ContextCompat.getDrawable(this,R.drawable.com_back_white);
+        //选中
+        drawable.addState(new int[]{android.R.attr.state_pressed},drawableSelect);
+        //未选中
+        drawable.addState(new int[]{},drawableNormal);
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN) {
+            imageView.setBackground(drawable);
+        }else {
+            imageView.setBackgroundDrawable(drawable);
+        }
+    }
+
+
     @Override
     public void onBackPressed() {
         getViewModel().exit();
@@ -90,7 +112,7 @@ public class ChattingActivity extends BaseActivity<ChattingViewModel> {
         getViewModel().saveMessageAccounts();
 //        getViewModel().clearUnreadMessage();
         try {
-            Thread.sleep(500);
+            Thread.sleep(200);
         } catch (InterruptedException e) {
             e.printStackTrace();
         }finally {

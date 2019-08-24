@@ -24,7 +24,7 @@
                 android:id="@+id/friend_image"
                 android:layout_width="45dp"
                 android:layout_height="45dp"
-                android:src="@mipmap/default_head_image"/>
+                android:src="@drawable/default_head_image"/>
 
             <TextView
                 android:id="@+id/receive_message"
@@ -56,7 +56,7 @@
                 android:id="@+id/my_image"
                 android:layout_width="45dp"
                 android:layout_height="45dp"
-                android:src="@mipmap/default_head_image"/>
+                android:src="@drawable/default_head_image"/>
 
         </LinearLayout>
 

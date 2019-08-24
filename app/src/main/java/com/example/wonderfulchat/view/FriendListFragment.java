@@ -3,7 +3,9 @@ package com.example.wonderfulchat.view;
 import android.databinding.DataBindingUtil;
 import android.graphics.drawable.Drawable;
 import android.graphics.drawable.StateListDrawable;
+import android.os.Build;
 import android.os.Bundle;
+import android.support.v4.content.ContextCompat;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -85,13 +87,17 @@ public class FriendListFragment extends BaseFragment<FriendListViewModel> {
     private void setImageSelector(ImageView imageView){
         imageView.setClickable(true);
         StateListDrawable drawable = new StateListDrawable();
-        Drawable drawableSelect = getResources().getDrawable(R.mipmap.friend_add_blue);
-        Drawable drawableNormal = getResources().getDrawable(R.mipmap.friend_add);
+        Drawable drawableSelect = ContextCompat.getDrawable(getActivity(),R.drawable.friend_add_black);
+        Drawable drawableNormal = ContextCompat.getDrawable(getActivity(),R.drawable.friend_add_white);
         //选中
         drawable.addState(new int[]{android.R.attr.state_pressed},drawableSelect);
         //未选中
         drawable.addState(new int[]{},drawableNormal);
-        imageView.setBackgroundDrawable(drawable);
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN) {
+            imageView.setBackground(drawable);
+        }else {
+            imageView.setBackgroundDrawable(drawable);
+        }
     }
 
     @Override
