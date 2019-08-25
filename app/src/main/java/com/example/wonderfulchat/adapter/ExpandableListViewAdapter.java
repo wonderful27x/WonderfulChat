@@ -117,6 +117,13 @@ public class ExpandableListViewAdapter extends BaseExpandableListAdapter {
         childLayoutBinding.friendName.setText(content);
         childLayoutBinding.myWord.setText(userModel.getLifeMotto());
 
+        childLayoutBinding.childLayout.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                viewModel.jumpToChatting(i,i1);
+            }
+        });
+
         childLayoutBinding.headImage.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {

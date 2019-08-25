@@ -4,12 +4,15 @@ import android.content.Intent;
 import android.os.Parcelable;
 import android.support.v4.app.Fragment;
 import android.support.v4.widget.SwipeRefreshLayout;
+import android.support.v7.widget.LinearLayoutManager;
 import android.view.View;
 import android.widget.ExpandableListView;
 import android.widget.TextView;
 
 import com.example.wonderfulchat.R;
 import com.example.wonderfulchat.adapter.ExpandableListViewAdapter;
+import com.example.wonderfulchat.adapter.FriendRequestAdapter;
+import com.example.wonderfulchat.customview.FriendRequestDialog;
 import com.example.wonderfulchat.customview.LoadingDialog;
 import com.example.wonderfulchat.customview.SimpleDialog;
 import com.example.wonderfulchat.customview.UserMessageDialog;
@@ -17,6 +20,7 @@ import com.example.wonderfulchat.databinding.FriendListFragmentLayoutBinding;
 import com.example.wonderfulchat.interfaces.HttpCallbackListener;
 import com.example.wonderfulchat.model.CommonConstant;
 import com.example.wonderfulchat.model.FriendModel;
+import com.example.wonderfulchat.model.FriendRequestModel;
 import com.example.wonderfulchat.model.GroupModel;
 import com.example.wonderfulchat.model.HttpUserModel;
 import com.example.wonderfulchat.model.InternetAddress;
@@ -43,8 +47,10 @@ public class FriendListViewModel extends BaseViewModel<Fragment> {
 
     private FriendListFragmentLayoutBinding layoutBinding;
     private ExpandableListViewAdapter adapter;
+    private FriendRequestAdapter friendRequestAdapter;
     private List<GroupModel> groupModels;
     private List<UserModel> userModels;
+    private List<FriendRequestModel> friendRequestModels;
     private UserModel user;
     private UserModel friend;
     private boolean friendExist = false;
@@ -60,6 +66,14 @@ public class FriendListViewModel extends BaseViewModel<Fragment> {
 
         groupModels = new ArrayList<>();
         userModels = new ArrayList<>();
+        friendRequestModels = new ArrayList<>();
+
+        for (int i=0; i<5; i++){
+            FriendRequestModel model = new FriendRequestModel();
+            model.setAccount("abcdefg");
+            model.setRequestTime("2019-08-25 16:26:33");
+            friendRequestModels.add(model);
+        }
 
         GroupModel groupModel = new GroupModel();
         groupModel.setTitle("我的亲密好友");
@@ -76,61 +90,89 @@ public class FriendListViewModel extends BaseViewModel<Fragment> {
 
         adapter = new ExpandableListViewAdapter(this,groupModels);
         layoutBinding.friendList.setAdapter(adapter);
+
+        friendRequestAdapter = new FriendRequestAdapter(this,friendRequestModels);
+        LinearLayoutManager layoutManager = new LinearLayoutManager(getView().getActivity());
+        layoutBinding.friendRequest.setLayoutManager(layoutManager);
+        layoutBinding.friendRequest.setAdapter(friendRequestAdapter);
+
         layoutBinding.refreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
             @Override
             public void onRefresh() {
                 refresh();
             }
         });
-        layoutBinding.friendList.setOnChildClickListener(new ExpandableListView.OnChildClickListener() {
-            @Override
-            public boolean onChildClick(ExpandableListView expandableListView, View view, int i, int i1, long l) {
-//                Intent intent = new Intent(getView().getActivity(), ChattingActivity.class);
-//                intent.putExtra("friendName",groupModels.get(i).getChildModels().get(i1).getRemark());
-//                intent.putExtra("friendAccount",groupModels.get(i).getChildModels().get(i1).getAccount());
-//                getView().getActivity().startActivity(intent);
-
-//                friendName = groupModels.get(i).getChildModels().get(i1).getRemark();
-//                friendAccount = groupModels.get(i).getChildModels().get(i1).getAccount();
-//                MessageEvent event = new MessageEvent();
-//                UserModel user = new UserModel();
-//                user.setNickname(friendName);
-//                user.setAccount(friendAccount);
-//                event.setType("startChatting");
-//                event.setUserModel(user);
-//                EventBus.getDefault().post(event);
-
-                jumpToChatting(i,i1);
-                return true;
-            }
-        });
+//        layoutBinding.friendList.setOnChildClickListener(new ExpandableListView.OnChildClickListener() {
+//            @Override
+//            public boolean onChildClick(ExpandableListView expandableListView, View view, int i, int i1, long l) {
+////                Intent intent = new Intent(getView().getActivity(), ChattingActivity.class);
+////                intent.putExtra("friendName",groupModels.get(i).getChildModels().get(i1).getRemark());
+////                intent.putExtra("friendAccount",groupModels.get(i).getChildModels().get(i1).getAccount());
+////                getView().getActivity().startActivity(intent);
+//
+////                friendName = groupModels.get(i).getChildModels().get(i1).getRemark();
+////                friendAccount = groupModels.get(i).getChildModels().get(i1).getAccount();
+////                MessageEvent event = new MessageEvent();
+////                UserModel user = new UserModel();
+////                user.setNickname(friendName);
+////                user.setAccount(friendAccount);
+////                event.setType("startChatting");
+////                event.setUserModel(user);
+////                EventBus.getDefault().post(event);
+//
+//                jumpToChatting(i,i1);
+//                return true;
+//            }
+//        });
 
         getFriendList();
     }
 
-    private UserModel getUserModel(){
-        String userModelJson;
-        UserModel userModel;
-        if (getHostState()){
-            userModelJson = MemoryUtil.sharedPreferencesGetString(CommonConstant.HOST_USER_MODEL);
-        }else {
-            userModelJson = MemoryUtil.sharedPreferencesGetString(CommonConstant.OTHER_USER_MODEL);
-        }
-        Gson gson = new Gson();
-        userModel = gson.fromJson(userModelJson, UserModel.class);
+    public void showFriendRequestMessage(int position){
+        UserModel userModel = new UserModel(friendRequestModels.get(position));
+        FriendRequestDialog friendRequestDialog = new FriendRequestDialog(getView().getActivity(),userModel,position);
+        friendRequestDialog.setDialogClickListener(new FriendRequestDialog.DialogClickListener() {
+            @Override
+            public void agreeClick(UserModel model, int position) {
+                friendRequestModels.remove(position);
+                friendRequestAdapter.notifyDataSetChanged();
+                ToastUtil.showToast("同意");
+            }
 
-        return userModel;
+            @Override
+            public void refuseClick(UserModel model, int position) {
+                friendRequestModels.remove(position);
+                friendRequestAdapter.notifyDataSetChanged();
+                ToastUtil.showToast("残忍拒绝");
+            }
+        });
+        friendRequestDialog.show();
+        LogUtil.d(TAG,"friendRequestItem click");
     }
 
-    public void refreshUserModel(){
-        user = getUserModel();
+    public void showFriendMessage(int group,int child){
+        childPosition = child;
+        UserMessageDialog dialog = new UserMessageDialog(getView().getActivity(),groupModels.get(group).getChildModels().get(child));
+        dialog.setDialogClickListener(new UserMessageDialog.DialogClickListener() {
+            @Override
+            public void save(UserModel model) {
+                changeRemark(user.getAccount(),model);
+            }
+
+            @Override
+            public void deleteClick(UserModel model) {
+                ToastUtil.showLongToast("确认要删除好友吗，请长按删除！");
+            }
+
+            @Override
+            public void deleteLongClick(UserModel model) {
+                deleteFriendFromService(user.getAccount(),model);
+            }
+        });
+        dialog.show();
     }
 
-    private boolean getHostState(){
-        return MemoryUtil.sharedPreferencesGetBoolean(CommonConstant.HOST_STATE);
-    }
-
-    private void jumpToChatting(int group,int child){
+    public void jumpToChatting(int group,int child){
         String unreadState;
         if (getHostState()){
             unreadState = CommonConstant.HOST_UNREAD_MESSAGE;
@@ -157,6 +199,28 @@ public class FriendListViewModel extends BaseViewModel<Fragment> {
 //        intent.putParcelableArrayListExtra("message", (ArrayList<? extends Parcelable>) unReadMessage);
 //        getView().getActivity().startActivity(intent);
 
+    }
+
+    private UserModel getUserModel(){
+        String userModelJson;
+        UserModel userModel;
+        if (getHostState()){
+            userModelJson = MemoryUtil.sharedPreferencesGetString(CommonConstant.HOST_USER_MODEL);
+        }else {
+            userModelJson = MemoryUtil.sharedPreferencesGetString(CommonConstant.OTHER_USER_MODEL);
+        }
+        Gson gson = new Gson();
+        userModel = gson.fromJson(userModelJson, UserModel.class);
+
+        return userModel;
+    }
+
+    public void refreshUserModel(){
+        user = getUserModel();
+    }
+
+    private boolean getHostState(){
+        return MemoryUtil.sharedPreferencesGetBoolean(CommonConstant.HOST_STATE);
     }
 
     //清空好友消息,点击跳转后信息即为已读，则将未读消息清空
@@ -448,28 +512,6 @@ public class FriendListViewModel extends BaseViewModel<Fragment> {
                 });
             }
         });
-    }
-
-    public void showFriendMessage(int group,int child){
-        childPosition = child;
-        UserMessageDialog dialog = new UserMessageDialog(getView().getActivity(),user,groupModels.get(group).getChildModels().get(child));
-        dialog.setDialogClickListener(new UserMessageDialog.DialogClickListener() {
-            @Override
-            public void save(UserModel model) {
-                changeRemark(user.getAccount(),model);
-            }
-
-            @Override
-            public void deleteClick(UserModel model) {
-                ToastUtil.showLongToast("确认要删除好友吗，请长按删除！");
-            }
-
-            @Override
-            public void deleteLongClick(UserModel model) {
-                deleteFriendFromService(user.getAccount(),model);
-            }
-        });
-        dialog.show();
     }
 
     private void changeRemark(String account, final UserModel model){

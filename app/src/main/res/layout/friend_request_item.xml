@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <data>
+        <variable
+            name="wonderfulViewModel"
+            type="com.example.wonderfulchat.viewmodel.FriendListViewModel" />
+    </data>
+
+    <RelativeLayout
+        android:id="@+id/friend_request_layout"
+        android:layout_width="match_parent"
+        android:layout_height="70dp"
+        android:padding="10dp"
+        android:gravity="center_vertical">
+
+        <de.hdodenhof.circleimageview.CircleImageView
+            android:id="@+id/head_image"
+            android:layout_width="50dp"
+            android:layout_height="match_parent"
+            android:layout_marginRight="10dp"
+            android:src="@drawable/default_head_image"/>
+
+        <TextView
+            android:id="@+id/request_friend"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_toRightOf="@id/head_image"
+            android:layout_marginTop="5dp"
+            android:singleLine="true"
+            android:ellipsize="end"
+            android:text="xxx向您发起了好友申请"/>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_toRightOf="@id/head_image"
+            android:layout_alignParentBottom="true"
+            android:gravity="center_vertical"
+            android:layout_marginBottom="5dp">
+
+            <TextView
+                android:id="@+id/request_time"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textSize="12sp"
+                android:textColor="@color/gray"
+                android:text="时间"/>
+
+            <ImageView
+                android:layout_width="8dp"
+                android:layout_height="8dp"
+                android:background="@drawable/ovl_solid_green"
+                android:gravity="center"
+                android:layout_marginLeft="8dp"/>
+
+        </LinearLayout>
+
+    </RelativeLayout>
+
+</layout>

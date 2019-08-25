@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <color name="colorPrimary">#EE6AA7</color>
+    <color name="pink">#EE6AA7</color>
     <color name="colorPrimaryDark">#3295FA</color>
     <color name="colorAccent">#D81B60</color>
     <color name="gray">#AAAAAA</color>
@@ -9,6 +10,8 @@
     <color name="deepWhite">#F4F4F4</color>
     <color name="black">#000000</color>
     <color name="purple">#BA55D3</color>
+    <color name="read">#FE00</color>
+    <color name="green">#00FF00</color>
     <color name="lightBlack">#383838</color>
 </resources>
 
