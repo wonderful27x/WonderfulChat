@@ -170,19 +170,19 @@ public class WonderfulChatActivity extends BaseActivity <WonderfulChatViewModel>
                 .load(model.getImageUrl())
                 .apply(options)
                 .into(headImage);
-        if (model.getNickname() != null && !model.getNickname().equals("")){
+        if (model.getNickname() != null && !model.getNickname().isEmpty()){
             userName.setText(model.getNickname());
             userNameEdit.setText(model.getNickname());
         }else{
-            userName.setText("未设置昵称");
-            userNameEdit.setText("未设置昵称");
+            userName.setText("点击设置昵称");
+            userNameEdit.setText("点击设置昵称");
         }
-        if (model.getLifeMotto() != null && !model.getLifeMotto().equals("")){
+        if (model.getLifeMotto() != null && !model.getLifeMotto().isEmpty()){
             lifeMotto.setText(model.getLifeMotto());
             lifeMottoEdit.setText(model.getLifeMotto());
         }else{
-            lifeMotto.setText("为国家繁荣富强而努力奋斗！");
-            lifeMottoEdit.setText("为国家繁荣富强而努力奋斗！");
+            lifeMotto.setText("点击设置座右铭");
+            lifeMottoEdit.setText("点击设置座右铭");
         }
 
         Menu menu = chatBinding.wonderfulMenu.getMenu();

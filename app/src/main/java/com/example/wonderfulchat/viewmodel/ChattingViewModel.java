@@ -65,7 +65,7 @@ public class ChattingViewModel extends BaseViewModel<AppCompatActivity> {
     private BufferedReader reader = null;
     private BufferedWriter writer = null;
     private AtomicInteger startTimes;
-    private boolean socketRun = true;
+    private boolean socketRun;
     private Gson gson;
     private Handler handler;
     private Handler messageSendHandler;
@@ -75,9 +75,11 @@ public class ChattingViewModel extends BaseViewModel<AppCompatActivity> {
 
     public void initView(List<MessageModel> unReadMessage,UserModel friendModel){
         this.friendModel = friendModel;
+
         messageModels = new ArrayList<>();
-        startTimes = new AtomicInteger(3);
         gson = new Gson();
+        startTimes = new AtomicInteger(3);//三次重连机会（中途断开无效）
+        socketRun = true;
 
         binding.messageSend.setEnabled(false);
         binding.messageSend.setTextColor(ContextCompat.getColor(getView(),R.color.gray));
@@ -232,7 +234,7 @@ public class ChattingViewModel extends BaseViewModel<AppCompatActivity> {
 //        model.setMessage(message);
 
         Date date = new Date();
-        SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd hh:mm:ss");
+        SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
         String time = format.format(date);
 
         MessageModel model = buildMessage(MessageType.MESSAGE_RECEIVE.getCode(),time,message,userModel.getNickname(),userModel.getAccount(),friendModel.getNickname(),friendModel.getAccount(),"");
@@ -336,7 +338,7 @@ public class ChattingViewModel extends BaseViewModel<AppCompatActivity> {
         socketRun = false;
         String message = "Bye !";
         Date date = new Date();
-        SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd hh:mm:ss");
+        SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
         String time = format.format(date);
 
         MessageModel model = buildMessage(MessageType.SOCKET_CLOSE.getCode(),time,message,"client","client","server","server","");

@@ -31,7 +31,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_centerInParent="true"
-                android:text="你的名字"/>
+                android:text="点击设置昵称"/>
 
             <com.example.wonderfulchat.customview.DefuEditText
                 android:id="@+id/user_name_edit"
@@ -55,8 +55,10 @@
                 android:id="@+id/life_motto"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_centerInParent="true"
-                android:text="为国家繁荣富强而努力奋斗"/>
+                android:layout_alignParentTop="true"
+                android:layout_centerHorizontal="true"
+                android:layout_marginTop="0dp"
+                android:text="点击设置座右铭" />
 
             <com.example.wonderfulchat.customview.DefuEditText
                 android:id="@+id/life_motto_edit"
