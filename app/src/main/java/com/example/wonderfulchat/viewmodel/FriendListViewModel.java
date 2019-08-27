@@ -22,6 +22,7 @@ import com.example.wonderfulchat.model.CommonConstant;
 import com.example.wonderfulchat.model.FriendModel;
 import com.example.wonderfulchat.model.FriendRequestModel;
 import com.example.wonderfulchat.model.GroupModel;
+import com.example.wonderfulchat.model.HttpFriendRequest;
 import com.example.wonderfulchat.model.HttpUserModel;
 import com.example.wonderfulchat.model.InternetAddress;
 import com.example.wonderfulchat.model.MessageModel;
@@ -68,12 +69,12 @@ public class FriendListViewModel extends BaseViewModel<Fragment> {
         userModels = new ArrayList<>();
         friendRequestModels = new ArrayList<>();
 
-        for (int i=0; i<5; i++){
-            FriendRequestModel model = new FriendRequestModel();
-            model.setAccount("abcdefg");
-            model.setRequestTime("2019-08-25 16:26:33");
-            friendRequestModels.add(model);
-        }
+//        for (int i=0; i<5; i++){
+//            FriendRequestModel model = new FriendRequestModel();
+//            model.setAccount("abcdefg");
+//            model.setRequestTime("2019-08-25 16:26:33");
+//            friendRequestModels.add(model);
+//        }
 
         GroupModel groupModel = new GroupModel();
         groupModel.setTitle("我的亲密好友");
@@ -126,6 +127,95 @@ public class FriendListViewModel extends BaseViewModel<Fragment> {
 //        });
 
         getFriendList();
+        getFriendRequest();
+    }
+
+    public void getFriendRequest(){
+        String url = InternetAddress.GET_FRIEND_REQUEST_URL + "?account=" + user.getAccount();
+        HttpUtil.httpRequestForGet(url, new HttpCallbackListener() {
+            @Override
+            public void onFinish(final String response) {
+                getView().getActivity().runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        Gson gson = new Gson();
+                        HttpFriendRequest httpFriendRequest = gson.fromJson(response, HttpFriendRequest.class);
+                        if(httpFriendRequest == null)return;
+                        if ("success".equals(httpFriendRequest.getResult())){
+                            if(httpFriendRequest.getContent() != null){
+                                List<FriendRequestModel> requestModelList = httpFriendRequest.getContent();
+                                friendRequestModels.clear();
+                                friendRequestModels.addAll(requestModelList);
+                                friendRequestAdapter.notifyDataSetChanged();
+                            }
+                        }else if("fail".equals(httpFriendRequest.getResult())){
+                            ToastUtil.showToast(httpFriendRequest.getMessage());
+                        }else if("error".equals(httpFriendRequest.getResult())){
+                            LogUtil.e(TAG,httpFriendRequest.getMessage());
+                        }
+                    }
+                });
+            }
+
+            @Override
+            public void onError(final Exception e) {
+                getView().getActivity().runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        LogUtil.e(TAG,"好友申请获取失败：" + e.getMessage());
+                    }
+                });
+            }
+        });
+    }
+
+    private void friendRequestDeal(final String type, final UserModel userModel, final int position){
+        loadingDialog.dialogShow();
+        String url = InternetAddress.FRIEND_REQUEST_DEAL_URL + "?account=" + user.getAccount() + "&friendAccount=" + userModel.getAccount() + "&type=" + type;
+        HttpUtil.httpRequestForGet(url, new HttpCallbackListener() {
+            @Override
+            public void onFinish(final String response) {
+                getView().getActivity().runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        loadingDialog.dialogDismiss();
+                        if ("exist".equals(response)){
+                            friendRequestModels.remove(position);
+                            friendRequestAdapter.notifyDataSetChanged();
+                        }else if("success".equals(response)){
+                            if ("agree".equals(type)){
+                                userModels.add(userModels.size(),userModel);
+                                groupModels.get(0).setNumber(userModels.size());
+                                adapter.notifyDataSetChanged();
+                                saveToDatabase(userModel);
+                            }
+                            friendRequestModels.remove(position);
+                            friendRequestAdapter.notifyDataSetChanged();
+                        }else if("fail".equals(response)){
+                            ToastUtil.showToast("操作失败！");
+                        }else if("invalid".equals(response)){
+                            friendRequestModels.remove(position);
+                            friendRequestAdapter.notifyDataSetChanged();
+                            if ("agree".equals(type)){
+                                ToastUtil.showToast("请求已失效！");
+                            }
+                        }
+                    }
+                });
+            }
+
+            @Override
+            public void onError(final Exception e) {
+                getView().getActivity().runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        loadingDialog.dialogDismiss();
+                        ToastUtil.showToast("操作失败！");
+                        LogUtil.e(TAG,e.getMessage());
+                    }
+                });
+            }
+        });
     }
 
     public void showFriendRequestMessage(int position){
@@ -134,16 +224,18 @@ public class FriendListViewModel extends BaseViewModel<Fragment> {
         friendRequestDialog.setDialogClickListener(new FriendRequestDialog.DialogClickListener() {
             @Override
             public void agreeClick(UserModel model, int position) {
-                friendRequestModels.remove(position);
-                friendRequestAdapter.notifyDataSetChanged();
-                ToastUtil.showToast("同意");
+//                friendRequestModels.remove(position);
+//                friendRequestAdapter.notifyDataSetChanged();
+//                ToastUtil.showToast("同意");
+                friendRequestDeal("agree",model,position);
             }
 
             @Override
             public void refuseClick(UserModel model, int position) {
-                friendRequestModels.remove(position);
-                friendRequestAdapter.notifyDataSetChanged();
-                ToastUtil.showToast("残忍拒绝");
+//                friendRequestModels.remove(position);
+//                friendRequestAdapter.notifyDataSetChanged();
+//                ToastUtil.showToast("残忍拒绝");
+                friendRequestDeal("refuse",model,position);
             }
         });
         friendRequestDialog.show();
@@ -409,14 +501,16 @@ public class FriendListViewModel extends BaseViewModel<Fragment> {
                     @Override
                     public void run() {
                         loadingDialog.dialogDismiss();
-                        if (response.equals("success")){
+                        if ("success".equals(response)){
                             userModels.add(userModels.size(),friend);
                             groupModels.get(0).setNumber(userModels.size());
                             adapter.notifyDataSetChanged();
                             saveToDatabase(friend);
-                        }else if(response.equals("fail")){
+                        }else if("fail".equals(response)){
                             ToastUtil.showToast("添加失败！");
                             LogUtil.e(TAG,"添加失败：" + response);
+                        }else if ("exist".equals(response)){
+
                         }
                     }
                 });
@@ -439,6 +533,7 @@ public class FriendListViewModel extends BaseViewModel<Fragment> {
     private void refresh(){
         //layoutBinding.refreshLayout.setRefreshing(true);
         getFriendList();
+        getFriendRequest();
     }
 
 

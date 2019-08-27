@@ -111,6 +111,7 @@ public class FriendListFragment extends BaseFragment<FriendListViewModel> {
             firstLoad = false;
         }else {
             getViewModel().refreshUserModel();
+            getViewModel().getFriendRequest();
         }
 //        getViewModel().refreshUserModel();
     }

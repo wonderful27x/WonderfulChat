@@ -208,6 +208,10 @@ public class DefuTurntable extends RelativeLayout {
             @Override
             public void onClick() {
                 LogUtil.d("DefuTurnTable", "onClick: ");
+                if(list.size() <= 0){
+                    ToastUtil.showToast("您还未添加任何好友！");
+                    return;
+                }
                 if (selectPosition != -1){
                     if (circleClickListener != null){
                         circleClickListener.circleClick(selectPosition);
