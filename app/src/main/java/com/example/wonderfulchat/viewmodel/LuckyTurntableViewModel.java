@@ -27,11 +27,13 @@ public class LuckyTurntableViewModel extends BaseViewModel<Fragment> {
 
     private LuckyTurntableFragmentLayoutBinding layoutBinding;
     private List<? extends UserModel> friendList;
+    private DefuTurntable turntable;
 
-    public void initView(){
+    public void initView(DefuTurntable turntable){
+        this.turntable = turntable;
         friendList = getFriendList();
-        layoutBinding.luckTurntable.setList(friendList);
-        layoutBinding.luckTurntable.setCircleClickListener(new DefuTurntable.CircleClickListener() {
+        turntable.setList(friendList);
+        turntable.setCircleClickListener(new DefuTurntable.CircleClickListener() {
             @Override
             public void circleClick(int position) {
 //                Intent intent = new Intent(getView().getActivity(), ChattingActivity.class);
@@ -41,11 +43,23 @@ public class LuckyTurntableViewModel extends BaseViewModel<Fragment> {
                 jumpToChatting(position);
             }
         });
+//        layoutBinding.luckTurntable.setList(friendList);
+//        layoutBinding.luckTurntable.setCircleClickListener(new DefuTurntable.CircleClickListener() {
+//            @Override
+//            public void circleClick(int position) {
+////                Intent intent = new Intent(getView().getActivity(), ChattingActivity.class);
+////                intent.putExtra("friendName",friendList.get(position).getRemark());
+////                intent.putExtra("friendAccount",friendList.get(position).getAccount());
+////                getView().getActivity().startActivity(intent);
+//                jumpToChatting(position);
+//            }
+//        });
     }
 
     public void refresh(){
         friendList = getFriendList();
-        layoutBinding.luckTurntable.reset(friendList);
+//        layoutBinding.luckTurntable.reset(friendList);
+        turntable.reset(friendList);
     }
 
     private void jumpToChatting(int position){

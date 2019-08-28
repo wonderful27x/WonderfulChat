@@ -9,6 +9,7 @@
     </data>
 
     <RelativeLayout
+        android:id="@+id/turntable_layout"
         android:layout_width="match_parent"
         android:layout_height="match_parent">
 
@@ -22,15 +23,15 @@
             <!--android:layout_below="@id/head"-->
             <!--android:background="@color/gray"/>-->
 
-        <com.example.wonderfulchat.customview.DefuTurntable
-            android:id="@+id/luck_turntable"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_centerInParent="true"
-            app:circleRadius="25dp"
-            app:showShadow = "true">
+<!--        <com.example.wonderfulchat.customview.DefuTurntable-->
+<!--            android:id="@+id/luck_turntable"-->
+<!--            android:layout_width="wrap_content"-->
+<!--            android:layout_height="wrap_content"-->
+<!--            android:layout_centerInParent="true"-->
+<!--            app:circleRadius = "40dp"-->
+<!--            app:showShadow = "true">-->
 
-        </com.example.wonderfulchat.customview.DefuTurntable>
+<!--        </com.example.wonderfulchat.customview.DefuTurntable>-->
 
     </RelativeLayout>
 

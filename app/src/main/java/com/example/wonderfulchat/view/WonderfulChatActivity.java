@@ -2,8 +2,11 @@ package com.example.wonderfulchat.view;
 
 import android.Manifest;
 import android.app.AlertDialog;
+import android.content.BroadcastReceiver;
+import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.content.pm.PackageManager;
 import android.databinding.DataBindingUtil;
 import android.net.Uri;
@@ -15,6 +18,8 @@ import android.support.design.widget.NavigationView;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
 import android.support.v4.content.FileProvider;
+import android.support.v4.content.LocalBroadcastManager;
+import android.text.InputFilter;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -41,7 +46,6 @@ import com.example.wonderfulchat.utils.MemoryUtil;
 import com.example.wonderfulchat.utils.ToastUtil;
 import com.example.wonderfulchat.viewmodel.WonderfulChatViewModel;
 import com.google.gson.Gson;
-
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -62,6 +66,9 @@ public class WonderfulChatActivity extends BaseActivity <WonderfulChatViewModel>
     private UserModel model;
     private long lastBackPressedTime = 0;
     private static final int BACK_PRESSED_INTERVAL = 2000;
+    private LocalReceiver localReceiver;
+    private LocalBroadcastManager broadcastManager;
+    private IntentFilter intentFilter;
     public static boolean isLogin;
 
     @Override
@@ -72,12 +79,24 @@ public class WonderfulChatActivity extends BaseActivity <WonderfulChatViewModel>
         chatBinding.setWonderfulViewModel(getViewModel());
         getViewModel().setChatBinding(chatBinding);
 
+        localReceiver = new LocalReceiver();
+        broadcastManager = LocalBroadcastManager.getInstance(this);
+        intentFilter = new IntentFilter();
+        intentFilter.addAction(CommonConstant.LOCAL_BROADCAST_NOTE);
+        broadcastManager.registerReceiver(localReceiver,intentFilter);
+
 //        EventBus.getDefault().register(this);
         initLeftDrawer(chatBinding);
-        getViewModel().initView();
+        getViewModel().initView(broadcastManager);
 
         isLogin = true;
 
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        getViewModel().getNotice();
     }
 
     private void initLeftDrawer(ActivityWonderfulChatBinding chatBinding){
@@ -263,8 +282,13 @@ public class WonderfulChatActivity extends BaseActivity <WonderfulChatViewModel>
                 setToHost(menuItem);
                 return true;
             case R.id.menu_author:
-                getViewModel().shoAuthor();
+                getViewModel().showAuthor();
                 return true;
+            case R.id.menu_note:
+                getViewModel().showNote();
+                return true;
+            default:
+                break;
         }
         return false;
     }
@@ -408,6 +432,7 @@ public class WonderfulChatActivity extends BaseActivity <WonderfulChatViewModel>
     protected void onDestroy() {
         isLogin = false;
 //        EventBus.getDefault().unregister(this);
+        broadcastManager.unregisterReceiver(localReceiver);
         logoutBeforeDestroy();
         LogUtil.d(TAG,"destroy");
         super.onDestroy();
@@ -478,6 +503,21 @@ public class WonderfulChatActivity extends BaseActivity <WonderfulChatViewModel>
             ToastUtil.showToast("再次点击退出程序！");
         }else {
             finish();
+        }
+    }
+
+    class LocalReceiver extends BroadcastReceiver{
+
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            boolean note = intent.getBooleanExtra("note",false);
+            Menu menu = chatBinding.wonderfulMenu.getMenu();
+            MenuItem menuItem = menu.getItem(5);
+            if (note){
+                menuItem.setTitle("通知 (1)");
+            }else{
+                menuItem.setTitle("通知");
+            }
         }
     }
 }

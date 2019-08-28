@@ -16,6 +16,7 @@ import android.os.Build;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.annotation.RequiresApi;
+import android.text.style.BulletSpan;
 import android.util.AttributeSet;
 import android.util.Log;
 import android.view.animation.AccelerateDecelerateInterpolator;
@@ -33,6 +34,7 @@ import com.example.wonderfulchat.utils.LogUtil;
 import com.example.wonderfulchat.utils.ToastUtil;
 import com.example.wonderfulchat.view.MyApplication;
 
+import java.sql.BatchUpdateException;
 import java.util.List;
 import java.util.Random;
 
@@ -46,19 +48,19 @@ public class DefuTurntable extends RelativeLayout {
     private float rotateAngle;
     private boolean rotateFinish = false;
 
-    private boolean showShadow;
+    private boolean showShadow = false;
 
-    private int circleRadius;
-    private int circleColor;
-    private int circleTextColor;
-    private boolean circleFill;
+    private int circleRadius = 100;
+    private int circleColor = Color.YELLOW;
+    private int circleTextColor = Color.BLACK;
+    private boolean circleFill = true;
 
-    private Float innerCircleP;          //内圆缩放比例
-    private Float outerCircleP;          //外圆缩放比例
-    private int turntableColor;
-    private int turntableTextColor;
-    private boolean turntableFill;
-    private int offset;                  //坐标偏移量，用于控制扇形间隔
+    private Float innerCircleP = 1.3f;          //内圆缩放比例
+    private Float outerCircleP = 2.5f;          //外圆缩放比例
+    private int turntableColor = Color.GREEN;
+    private int turntableTextColor = Color.BLACK;
+    private boolean turntableFill = false;
+    private int offset = 5;                  //坐标偏移量，用于控制扇形间隔
     private static final int PADDING = 10;
     private boolean longClickUp = false;
 
@@ -72,38 +74,42 @@ public class DefuTurntable extends RelativeLayout {
 
     public DefuTurntable(Context context) {
         super(context);
-        init(context,null);
+        this.context = context;
     }
 
     public DefuTurntable(Context context, AttributeSet attrs) {
         super(context, attrs);
-        init(context,attrs);
+        this.context = context;
+        init(attrs);
     }
 
     public DefuTurntable(Context context, AttributeSet attrs, int defStyleAttr) {
         super(context, attrs, defStyleAttr);
-        init(context,attrs);
+        this.context = context;
+        init(attrs);
     }
 
-    private void init(final Context context, AttributeSet attrs){
-        this.context = context;
-        TypedArray typedArray = context.obtainStyledAttributes(attrs, R.styleable.defuTurntableStyle);
+    private void init(AttributeSet attrs){
 
-        showShadow = typedArray.getBoolean(R.styleable.defuTurntableStyle_showShadow,false);
+        if (attrs != null){
+            TypedArray typedArray = context.obtainStyledAttributes(attrs, R.styleable.defuTurntableStyle);
 
-        circleRadius = (int)typedArray.getDimension(R.styleable.defuTurntableStyle_circleRadius, 100);
-        circleColor = typedArray.getColor(R.styleable.defuTurntableStyle_circleColor,Color.YELLOW);
-        circleTextColor = typedArray.getColor(R.styleable.defuTurntableStyle_circleTextColor,Color.BLACK);
-        circleFill = typedArray.getBoolean(R.styleable.defuTurntableStyle_circleFill,true);
+            showShadow = typedArray.getBoolean(R.styleable.defuTurntableStyle_showShadow,false);
 
-        innerCircleP = typedArray.getFloat(R.styleable.defuTurntableStyle_innerCircleP,1.3f);
-        outerCircleP = typedArray.getFloat(R.styleable.defuTurntableStyle_outerCircleP,2.5f);
-        turntableColor = typedArray.getColor(R.styleable.defuTurntableStyle_turntableColor,Color.GREEN);
-        turntableTextColor = typedArray.getColor(R.styleable.defuTurntableStyle_turntableTextColor,Color.BLACK);
-        turntableFill = typedArray.getBoolean(R.styleable.defuTurntableStyle_turntableFill,false);
-        offset = (int)typedArray.getDimension(R.styleable.defuTurntableStyle_offset,5);
+            circleRadius = (int)typedArray.getDimension(R.styleable.defuTurntableStyle_circleRadius, 100);
+            circleColor = typedArray.getColor(R.styleable.defuTurntableStyle_circleColor,Color.YELLOW);
+            circleTextColor = typedArray.getColor(R.styleable.defuTurntableStyle_circleTextColor,Color.BLACK);
+            circleFill = typedArray.getBoolean(R.styleable.defuTurntableStyle_circleFill,true);
 
-        typedArray.recycle();
+            innerCircleP = typedArray.getFloat(R.styleable.defuTurntableStyle_innerCircleP,1.3f);
+            outerCircleP = typedArray.getFloat(R.styleable.defuTurntableStyle_outerCircleP,2.5f);
+            turntableColor = typedArray.getColor(R.styleable.defuTurntableStyle_turntableColor,Color.GREEN);
+            turntableTextColor = typedArray.getColor(R.styleable.defuTurntableStyle_turntableTextColor,Color.BLACK);
+            turntableFill = typedArray.getBoolean(R.styleable.defuTurntableStyle_turntableFill,false);
+            offset = (int)typedArray.getDimension(R.styleable.defuTurntableStyle_offset,5);
+
+            typedArray.recycle();
+        }
 
         selectPosition = -1;
 
@@ -441,6 +447,133 @@ public class DefuTurntable extends RelativeLayout {
     public void reset(List<? extends UserModel> list){
         this.list = list;
         selectPosition = -1;
+    }
+
+    public float getOuterCircleP(){
+        return outerCircleP;
+    }
+
+    public void setShowShadow(boolean showShadow) {
+        this.showShadow = showShadow;
+    }
+
+    public void setCircleRadius(int circleRadius) {
+        this.circleRadius = circleRadius;
+    }
+
+    public void setCircleColor(int circleColor) {
+        this.circleColor = circleColor;
+    }
+
+    public void setCircleTextColor(int circleTextColor) {
+        this.circleTextColor = circleTextColor;
+    }
+
+    public void setCircleFill(boolean circleFill) {
+        this.circleFill = circleFill;
+    }
+
+    public void setInnerCircleP(Float innerCircleP) {
+        this.innerCircleP = innerCircleP;
+    }
+
+    public void setOuterCircleP(Float outerCircleP) {
+        this.outerCircleP = outerCircleP;
+    }
+
+    public void setTurntableColor(int turntableColor) {
+        this.turntableColor = turntableColor;
+    }
+
+    public void setTurntableTextColor(int turntableTextColor) {
+        this.turntableTextColor = turntableTextColor;
+    }
+
+    public void setTurntableFill(boolean turntableFill) {
+        this.turntableFill = turntableFill;
+    }
+
+    public void setOffset(int offset) {
+        this.offset = offset;
+    }
+
+    public static class Builder{
+
+        private DefuTurntable turntable;
+
+        public Builder(Context context){
+            turntable = new DefuTurntable(context);
+        }
+
+        public Builder setShowShadow(boolean showShadow){
+            turntable.setShowShadow(showShadow);
+            return this;
+        }
+
+        public Builder setCircleRadius(int circleRadius){
+            turntable.setCircleRadius(circleRadius);
+            return this;
+        }
+
+        public Builder setCircleColor(int circleColor){
+            turntable.setCircleColor(circleColor);
+            return this;
+        }
+
+        public Builder setCircleTextColor(int circleTextColor){
+            turntable.setCircleTextColor(circleTextColor);
+            return this;
+        }
+
+        public Builder setCircleFill(boolean circleFill){
+            turntable.setCircleFill(circleFill);
+            return this;
+        }
+
+        public Builder setInnerCircleP(float innerCircleP){
+            turntable.setInnerCircleP(innerCircleP);
+            return this;
+        }
+
+        public Builder setOuterCircleP(float outerCircleP){
+            turntable.setOuterCircleP(outerCircleP);
+            return this;
+        }
+
+        public Builder setTurntableColor(int turntableColor){
+            turntable.setTurntableColor(turntableColor);
+            return this;
+        }
+
+        public Builder setTurntableTextColor(int turntableTextColor){
+            turntable.setTurntableTextColor(turntableTextColor);
+            return this;
+        }
+
+        public Builder setTurntableFill(boolean turntableFill){
+            turntable.setTurntableFill(turntableFill);
+            return this;
+        }
+
+        public Builder setOffset(int offset){
+            turntable.setOffset(offset);
+            return this;
+        }
+
+        public DefuTurntable createTurntable(){
+            try{
+                turntable.init(null);
+                return turntable;
+            }finally {
+                turntable = null;
+            }
+
+        }
+
+        public void clear(){
+            turntable = null;
+        }
+
     }
 
 }

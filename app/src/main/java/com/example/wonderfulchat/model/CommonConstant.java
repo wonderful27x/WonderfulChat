@@ -28,5 +28,6 @@ public class CommonConstant {
    public static final String HOST_STATE = "HostState";
    public static final String FIRST_STARTUP = "FirstStartup";
    public static final String STATEMENT = "Statement";
+   public static final String LOCAL_BROADCAST_NOTE = "com.example.wonderfulchat.LOCAL_BROADCAST_NOTE";
 
 }

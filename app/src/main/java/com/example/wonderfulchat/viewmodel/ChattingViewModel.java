@@ -530,7 +530,7 @@ public class ChattingViewModel extends BaseViewModel<AppCompatActivity> {
                     LogUtil.d(TAG,CommonConstant.REFUSE);
                     break;
                 case 3:
-                    ToastUtil.showLongToast("对方未添加好友或已将你删除，请求被拒绝！");
+                    ToastUtil.showLongToast("对方尚未同意你的好友申请或已将你删除！");
                     LogUtil.d(TAG,CommonConstant.REFUSE_FRIEND);
                     break;
             }

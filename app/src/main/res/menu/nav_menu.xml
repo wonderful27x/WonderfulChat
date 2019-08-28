@@ -27,6 +27,10 @@
             android:icon="@drawable/change_pass"
             android:title="修改密码"/>
         <item
+            android:id="@+id/menu_note"
+            android:icon="@drawable/horn"
+            android:title="通知"/>
+        <item
             android:id="@+id/menu_backup"
             android:icon="@drawable/back_gray"
             android:title="返回"/>

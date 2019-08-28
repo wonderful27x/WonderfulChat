@@ -1,8 +1,8 @@
 package com.example.wonderfulchat.model;
 
 public class InternetAddress {
-    public static final String HOST_IP = "192.168.31.32";
-    public static final String HOST = "http://192.168.31.32:8080";
+    public static final String HOST_IP = "172.16.169.56";
+    public static final String HOST = "http://172.16.169.56:8080";
     public static final String REGISTER_URL = HOST + "/wonderfulChat/register";
     public static final String LOGIN_URL = HOST + "/wonderfulChat/login";
     public static final String LOGOUT_URL = HOST + "/wonderfulChat/logout";
@@ -18,4 +18,5 @@ public class InternetAddress {
     public static final String GET_NEWEST_MESSAGE_URL = HOST + "/wonderfulChat/getNewestMessage";
     public static final String GET_FRIEND_REQUEST_URL = HOST + "/wonderfulChat/getFriendRequest";
     public static final String FRIEND_REQUEST_DEAL_URL = HOST + "/wonderfulChat/friendRequestDeal";
+    public static final String GET_NOTICE_URL = HOST + "/wonderfulChat/getNotice";
 }

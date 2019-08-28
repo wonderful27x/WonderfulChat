@@ -20,6 +20,7 @@ public class TurntableView extends View {
     private int circleRadius;
     private int turntableColor;
     private int textColor;
+    private int textSize;
     private boolean showShadow;
     private boolean turntableFill;
     private int offset;                     //坐标偏移量，用于控制扇形间隔
@@ -27,6 +28,7 @@ public class TurntableView extends View {
     private Float outerCircleP;             //外圆缩放比例
     private Paint paint;
     private static final int PADDING = 10;
+    private static final int P = 4;       //字体大小与半径比例
     private TurntableClickListener clickListener;
     private boolean clickInRing = false;
     private boolean longClicking = false;
@@ -62,6 +64,8 @@ public class TurntableView extends View {
     }
 
     private void init() {
+
+        textSize = circleRadius/P;
 
         text = new String[]{"","","",""};
 
@@ -115,6 +119,7 @@ public class TurntableView extends View {
         int x;
         int y;
 
+        paint.setStrokeWidth(3);
         paint.setColor(turntableColor);
         if (turntableFill){
             paint.setStyle(Paint.Style.FILL_AND_STROKE);
@@ -298,12 +303,15 @@ public class TurntableView extends View {
         int x;
         int y;
 
+        paint.setStyle(Paint.Style.STROKE);
+        paint.setStrokeWidth(2);
+        paint.setColor(textColor);
+        paint.setTextSize(textSize);
+        paint.clearShadowLayer();
+
         y = circleY - offset;
         x = getCoordinateX((int)(circleRadius*outerCircleP),y,1);
         angle = getAngle(x-circleX,offset);
-        paint.setColor(textColor);
-        paint.setTextSize(25);
-        paint.clearShadowLayer();
 
         drawText(canvas,angle,angle,text[0]);
 
@@ -355,6 +363,22 @@ public class TurntableView extends View {
 
     public void setText(String[] text) {
         this.text = text;
+    }
+
+    public int getCircleRadius() {
+        return circleRadius;
+    }
+
+    public void setCircleRadius(int circleRadius) {
+        this.circleRadius = circleRadius;
+    }
+
+    public int getTextSize() {
+        return textSize;
+    }
+
+    public void setTextSize(int textSize) {
+        this.textSize = textSize;
     }
 
     public static class Builder{

@@ -23,6 +23,7 @@ public class CircleView extends View {
     private int circleRadius;
     private int circleColor;
     private int textColor;
+    private int textSize;
     private boolean showShadow;
     private boolean circleFill;
     private boolean showBitmap = false;
@@ -33,6 +34,7 @@ public class CircleView extends View {
     private String text;
     private Paint paint;
     private static final int PADDING = 10;
+    private static final int P = 4;       //字体大小与半径比例
     private CircleClickListener circleClickListener;
 
     public CircleView(Context context) {
@@ -64,6 +66,8 @@ public class CircleView extends View {
     private void init(){
 //        circleX = (int)(circleRadius * outerCircleP + PADDING);
 //        circleY = (int)(circleRadius * outerCircleP  + PADDING);
+        textSize = circleRadius/P;
+
         circleX = circleRadius + PADDING;
         circleY = circleRadius + PADDING;
 
@@ -132,14 +136,12 @@ public class CircleView extends View {
 
     private void drawCircleText(Canvas canvas,String text){
         int with;
-        int size;
 
-        size = 35;
         paint.setColor(textColor);
-        paint.setTextSize(size);
+        paint.setTextSize(textSize);
         paint.clearShadowLayer();
         with = (int)paint.measureText(text);
-        canvas.drawText(text,circleX-with/2,circleY+size/2,paint);
+        canvas.drawText(text,circleX-with/2,circleY+textSize/2,paint);
     }
 
     private void drawCircleBitmap(Canvas canvas){
@@ -240,6 +242,22 @@ public class CircleView extends View {
 
     public boolean getShadowState(){
         return showShadow;
+    }
+
+    public int getCircleRadius() {
+        return circleRadius;
+    }
+
+    public void setCircleRadius(int circleRadius) {
+        this.circleRadius = circleRadius;
+    }
+
+    public int getTextSize() {
+        return textSize;
+    }
+
+    public void setTextSize(int textSize) {
+        this.textSize = textSize;
     }
 
     public static class Builder{

@@ -15,6 +15,7 @@ import android.provider.DocumentsContract;
 import android.provider.MediaStore;
 import android.support.annotation.RequiresApi;
 import android.support.v4.app.Fragment;
+import android.support.v4.content.LocalBroadcastManager;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.view.ViewPager;
 import android.support.v7.app.AppCompatActivity;
@@ -69,10 +70,13 @@ public class WonderfulChatViewModel extends BaseViewModel <AppCompatActivity> {
     private ActivityWonderfulChatBinding chatBinding;
     private UserModel userModel;
     private LoadingDialog loadingDialog;
+    private LocalBroadcastManager broadcastManager;
+    private String note = "没有任何通知";
 
-    public void initView(){
+    public void initView(LocalBroadcastManager broadcastManager){
         ToastUtil.showToast("Welcome");
 
+        this.broadcastManager = broadcastManager;
         loadingDialog = new LoadingDialog(getView());
         String model;
         if (getHostState()){
@@ -129,8 +133,42 @@ public class WonderfulChatViewModel extends BaseViewModel <AppCompatActivity> {
         //getUserMessage();
     }
 
+    private void sendBroadcast(){
+        Intent intent = new Intent(CommonConstant.LOCAL_BROADCAST_NOTE);
+        intent.putExtra("note",true);
+        broadcastManager.sendBroadcast(intent);
+    }
+
     private boolean getHostState(){
         return MemoryUtil.sharedPreferencesGetBoolean(CommonConstant.HOST_STATE);
+    }
+
+    public void getNotice(){
+        String url = InternetAddress.GET_NOTICE_URL;
+        HttpUtil.httpRequestForGet(url, new HttpCallbackListener() {
+            @Override
+            public void onFinish(final String response) {
+                getView().runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        if (!response.isEmpty()){
+                            note = response;
+                            sendBroadcast();
+                        }
+                    }
+                });
+            }
+
+            @Override
+            public void onError(final Exception e) {
+                getView().runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        LogUtil.e(TAG,"获取通知失败：" + e.getMessage());
+                    }
+                });
+            }
+        });
     }
 
     @RequiresApi(api = Build.VERSION_CODES.KITKAT)
@@ -187,10 +225,24 @@ public class WonderfulChatViewModel extends BaseViewModel <AppCompatActivity> {
         dialog.show();
     }
 
-    public void shoAuthor(){
+    public void showAuthor(){
         AlertDialog.Builder dialog = new AlertDialog.Builder(getView());
         dialog.setTitle("Author：德芙");
         dialog.setMessage("对于此软件有任何疑问请发送邮件至wonderful27x@126.com");
+        dialog.setCancelable(false);
+        dialog.setPositiveButton("OK", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+
+            }
+        });
+        dialog.show();
+    }
+
+    public void showNote(){
+        AlertDialog.Builder dialog = new AlertDialog.Builder(getView());
+        dialog.setTitle("通知：");
+        dialog.setMessage(note);
         dialog.setCancelable(false);
         dialog.setPositiveButton("OK", new DialogInterface.OnClickListener() {
             @Override
