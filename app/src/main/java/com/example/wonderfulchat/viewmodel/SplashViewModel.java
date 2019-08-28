@@ -17,7 +17,7 @@ public class SplashViewModel extends BaseViewModel <Activity> {
         int playTime;
         boolean firstStartup = MemoryUtil.sharedPreferencesGetBoolean(CommonConstant.FIRST_STARTUP,true);
         if (firstStartup){
-            playTime = 10000;
+            playTime = 7000;
             MemoryUtil.sharedPreferencesSaveBoolean(CommonConstant.FIRST_STARTUP,false);
         }else {
             playTime = 2000;
