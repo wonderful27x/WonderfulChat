@@ -38,38 +38,66 @@ import java.sql.BatchUpdateException;
 import java.util.List;
 import java.util.Random;
 
+/**
+ * @Author wonderful
+ * @Description 转盘,由内圆盘和外圆盘组成，可实现反方向旋转
+ * @Date 2019-8-29
+ */
 public class DefuTurntable extends RelativeLayout {
 
+    /**内圆盘**/
     private CircleView circleView;
+    /**外圆盘**/
     private TurntableView turntableView;
+    /**外圆盘旋转动画**/
     private ObjectAnimator turntableAnimator;
+    /**内圆盘旋转动画**/
     private ObjectAnimator circleAnimator;
+    /**内圆盘点击事件监听器**/
     private CircleClickListener circleClickListener;
+    /**旋转角度**/
     private float rotateAngle;
+    /**旋转结束标志**/
     private boolean rotateFinish = false;
-
+    /**是否显示阴影**/
     private boolean showShadow = false;
-
+    /**内圆盘半径**/
     private int circleRadius = 100;
+    /**内圆盘颜色**/
     private int circleColor = Color.YELLOW;
+    /**内圆盘字体颜色**/
     private int circleTextColor = Color.BLACK;
+    /**内圆盘是否填充**/
     private boolean circleFill = true;
-
-    private Float innerCircleP = 1.3f;          //内圆缩放比例
-    private Float outerCircleP = 2.5f;          //外圆缩放比例
+    /**外圆盘内圆缩放比例**/
+    private Float innerCircleP = 1.3f;
+    /**外圆盘外圆缩放比例**/
+    private Float outerCircleP = 2.5f;
+    /**外圆盘颜色**/
     private int turntableColor = Color.GREEN;
+    /**橡皮颜色，用于擦出多余填充，应与背景颜色一致**/
+    private int eraserColor = Color.parseColor("#FFFFFF");
+    /**外圆盘字体颜色**/
     private int turntableTextColor = Color.BLACK;
+    /**外圆盘是否填充**/
     private boolean turntableFill = false;
-    private int offset = 5;                  //坐标偏移量，用于控制扇形间隔
+    /**坐标偏移量，用于控制扇形间隔**/
+    private int offset = 5;
+    /**圆盘与边界距离**/
     private static final int PADDING = 10;
+    /**长按弹起标志**/
     private boolean longClickUp = false;
-
+    /**记录上次坐标X**/
     private int lastX = 0;
+    /**记录上次坐标Y**/
     private int lastY = 0;
-
+    /**字体内容及图片资源来源**/
     private List<? extends UserModel> list;
+    /**资源随机位置记录数组**/
     private int[] itemPosition;
+    /**选中位置**/
     private int selectPosition;
+    /**全局context**/
     private Context context;
 
     public DefuTurntable(Context context) {
@@ -89,9 +117,17 @@ public class DefuTurntable extends RelativeLayout {
         init(attrs);
     }
 
+    /**
+     * @description 圆盘初始化，初始化内外圆盘并组装成转盘，添加监听事件等
+     * @param attrs ：如果不为null为xml方式注册，否则为动态创建
+     */
     private void init(AttributeSet attrs){
 
         if (attrs != null){
+
+            /**
+             * 获取自定义属性
+             */
             TypedArray typedArray = context.obtainStyledAttributes(attrs, R.styleable.defuTurntableStyle);
 
             showShadow = typedArray.getBoolean(R.styleable.defuTurntableStyle_showShadow,false);
@@ -113,6 +149,9 @@ public class DefuTurntable extends RelativeLayout {
 
         selectPosition = -1;
 
+        /**
+         * 构造内圆盘
+         */
         CircleView.Builder circleBuilder= new CircleView.Builder();
         circleView = circleBuilder.setCircleRadius(circleRadius)
             .setCircleColor(circleColor)
@@ -121,17 +160,24 @@ public class DefuTurntable extends RelativeLayout {
             .setShowShadow(showShadow)
             .createCircleView(context);
 
+        /**
+         * 构造外圆盘
+         */
         TurntableView.Builder turntableBuilder = new TurntableView.Builder();
         turntableView = turntableBuilder.setCircleRadius(circleRadius)
             .setInnerCircleP(innerCircleP)
             .setOuterCircleP(outerCircleP)
             .setTurntableColor(turntableColor)
+            .setEraserColor(eraserColor)
             .setTextColor(turntableTextColor)
             .setTurntableFill(turntableFill)
             .setShowShadow(showShadow)
             .setOffset(offset)
             .createTurntableView(context);
 
+        /**
+         * 组装成转盘
+         */
         LayoutParams turntableParams = new LayoutParams((int)((circleRadius*outerCircleP+PADDING)*2),(int)((circleRadius*outerCircleP+PADDING)*2));
         LayoutParams circleParams = new LayoutParams(circleRadius*2,circleRadius*2);
         turntableParams.addRule(RelativeLayout.CENTER_IN_PARENT);
@@ -174,6 +220,10 @@ public class DefuTurntable extends RelativeLayout {
 
             }
         });
+
+        /**
+         * 重要的旋转更新，产生随机数，不断改变显示字体内容
+         */
         turntableAnimator.addUpdateListener(new ValueAnimator.AnimatorUpdateListener() {
             @Override
             public void onAnimationUpdate(ValueAnimator valueAnimator) {
@@ -210,6 +260,9 @@ public class DefuTurntable extends RelativeLayout {
             }
         });
 
+        /**
+         * 内圆盘重要的点击事件监听，点击跳转，长按旋转，长按弹起时内圆盘反方向旋转
+         */
         circleView.setCircleClickListener(new CircleView.CircleClickListener() {
             @Override
             public void onClick() {
@@ -270,6 +323,9 @@ public class DefuTurntable extends RelativeLayout {
             }
         });
 
+        /**
+         * 外圆盘重要的点击事件监听，可移动转盘
+         */
         turntableView.setTurntableClickListener(new TurntableView.TurntableClickListener() {
             @Override
             public void onClick() {
@@ -314,10 +370,20 @@ public class DefuTurntable extends RelativeLayout {
 
     }
 
+    /**
+     * @description 产生随机数0-number的随机数
+     * @param number
+     * @return int
+     */
     private int getRandomNumber(int number){
         return (int) (Math.random()*(number+1));
     }
 
+    /**
+     * @description 去除重复随机数
+     * @param numbers,size
+     * @return int
+     */
     private int getRandomNumber(int[] numbers,int size){
         boolean theSame;
         int number;
@@ -344,10 +410,19 @@ public class DefuTurntable extends RelativeLayout {
         return new String(text);
     }
 
+    /**
+     * @description 重置资源列表
+     * @param list
+     */
     public void setList(List<? extends UserModel> list){
         this.list = list;
     }
 
+    /**
+     * @description 获取四个随机数据，分别对应四个扇形区域显示的内容
+     * @param list
+     * @return int[]
+     */
     private int[] getItemPosition(List<? extends UserModel> list){
         int[] itemPosition = new int[]{-1,-1,-1,-1};
         if (list == null || list.size() == 0){
@@ -375,6 +450,9 @@ public class DefuTurntable extends RelativeLayout {
         return itemPosition;
     }
 
+    /**
+     * @description 长按弹起时，内圆盘随机获取外圆盘的一个内容，表示幸运者
+     */
     private void setSelectContent(){
         if (itemPosition == null || list.size()<=0){
             selectPosition = -1;
@@ -424,6 +502,11 @@ public class DefuTurntable extends RelativeLayout {
         this.circleClickListener = circleClickListener;
     }
 
+    /**
+     * @description 资源文件转换成bitmap
+     * @param drawable
+     * @return Bitmap
+     */
     private Bitmap drawableToBitmap(Drawable drawable) {
         if (drawable instanceof BitmapDrawable) {
             return ((BitmapDrawable) drawable).getBitmap();
@@ -444,6 +527,10 @@ public class DefuTurntable extends RelativeLayout {
         }
     }
 
+    /**
+     * @description 重置资源
+     * @param list
+     */
     public void reset(List<? extends UserModel> list){
         this.list = list;
         selectPosition = -1;
@@ -485,6 +572,10 @@ public class DefuTurntable extends RelativeLayout {
         this.turntableColor = turntableColor;
     }
 
+    public void setEraserColor(int eraserColor) {
+        this.eraserColor = eraserColor;
+    }
+
     public void setTurntableTextColor(int turntableTextColor) {
         this.turntableTextColor = turntableTextColor;
     }
@@ -497,6 +588,9 @@ public class DefuTurntable extends RelativeLayout {
         this.offset = offset;
     }
 
+    /**
+     * @description 重要的构造器，用于构造转盘，在动态创建转盘时尤其重要
+     */
     public static class Builder{
 
         private DefuTurntable turntable;
@@ -542,6 +636,11 @@ public class DefuTurntable extends RelativeLayout {
 
         public Builder setTurntableColor(int turntableColor){
             turntable.setTurntableColor(turntableColor);
+            return this;
+        }
+
+        public Builder setEraserColor(int eraserColor){
+            turntable.setEraserColor(eraserColor);
             return this;
         }
 

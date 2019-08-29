@@ -53,12 +53,13 @@ public class LuckyTurntableFragment extends BaseFragment<LuckyTurntableViewModel
         DisplayMetrics metrics = resources.getDisplayMetrics();
         int width = metrics.widthPixels;
 
-        int radius = width/10;
+        int radius = width/4;
 
-        int color = ContextCompat.getColor(getActivity(), R.color.green);
+        int turntableColor = ContextCompat.getColor(getActivity(), R.color.green);
         DefuTurntable.Builder builder = new DefuTurntable.Builder(getActivity());
         turntable = builder.setCircleRadius(radius)
-                .setTurntableColor(color)
+                .setTurntableColor(turntableColor)
+                .setTurntableFill(true)
                 .createTurntable();
 
         RelativeLayout.LayoutParams layoutParams = new RelativeLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT);

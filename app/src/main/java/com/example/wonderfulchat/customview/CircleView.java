@@ -2,39 +2,60 @@ package com.example.wonderfulchat.customview;
 
 import android.content.Context;
 import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Matrix;
 import android.graphics.Paint;
 import android.graphics.Path;
-import android.graphics.drawable.Drawable;
 import android.util.AttributeSet;
-import android.util.Log;
 import android.view.MotionEvent;
 import android.view.View;
-
 import com.example.wonderfulchat.utils.LogUtil;
 
+/**
+ * @Author wonderful
+ * @Description 转盘内圆盘
+ * @Date 2019-8-29
+ */
 public class CircleView extends View {
 
+    private static final String TAG = "CircleView";
+
+    /**中心坐标X**/
     private int circleX;
+    /**中心坐标Y**/
     private int circleY;
+    /**半径R**/
     private int circleRadius;
+    /**圆盘颜色**/
     private int circleColor;
+    /**字体颜色**/
     private int textColor;
+    /**字体大小**/
     private int textSize;
+    /**字体大小与半径比例**/
+    private static final int P = 4;
+    /**是否显示阴影**/
     private boolean showShadow;
+    /**是否实心**/
     private boolean circleFill;
+    /**是否显示图片**/
     private boolean showBitmap = false;
-    private boolean circleClick = false;
-    private boolean circleLongClick = false;
-    private boolean circleLongClicking = false;
+    /**显示图片**/
     private Bitmap circleBitmap;
+    /**显示文字**/
     private String text;
-    private Paint paint;
+    /**默认与边界有10个像素距离**/
     private static final int PADDING = 10;
-    private static final int P = 4;       //字体大小与半径比例
+    /**画笔**/
+    private Paint paint;
+    /**点击判断变量**/
+    private boolean circleClick = false;
+    /**长按判断变量**/
+    private boolean circleLongClick = false;
+    /**长按中判断变量**/
+    private boolean circleLongClicking = false;
+    /**点击事件监听器**/
     private CircleClickListener circleClickListener;
 
     public CircleView(Context context) {
@@ -52,6 +73,10 @@ public class CircleView extends View {
         init();
     }
 
+    /**
+     * @description 通过Builder构造实例
+     * @param context,builder
+     */
     public CircleView(Context context,Builder builder){
         super(context);
         this.circleRadius = builder.circleRadius;
@@ -63,6 +88,10 @@ public class CircleView extends View {
         init();
     }
 
+
+    /**
+     * @description 初始化中心坐标，画笔及监听事件等
+     */
     private void init(){
 //        circleX = (int)(circleRadius * outerCircleP + PADDING);
 //        circleY = (int)(circleRadius * outerCircleP  + PADDING);
@@ -73,8 +102,8 @@ public class CircleView extends View {
 
         paint = new Paint();
         paint.setAntiAlias(true);                                     //设置是否抗锯齿;
-        setLayerType(LAYER_TYPE_SOFTWARE, null);
-        paint.setStrokeWidth(2);
+        setLayerType(LAYER_TYPE_SOFTWARE, null);                //关闭硬件加速
+        paint.setStrokeWidth(2);                                       //画笔宽度
 
         text = "";
 
@@ -112,6 +141,10 @@ public class CircleView extends View {
         drawCircle(canvas);
     }
 
+    /**
+     * @description 画圆
+     * @param canvas
+     */
     private void drawCircle(Canvas canvas){
         paint.setColor(circleColor);
         if (circleFill){
@@ -134,6 +167,10 @@ public class CircleView extends View {
 
     }
 
+    /**
+     * @description 画文字
+     * @param canvas,text
+     */
     private void drawCircleText(Canvas canvas,String text){
         int with;
 
@@ -144,6 +181,10 @@ public class CircleView extends View {
         canvas.drawText(text,circleX-with/2,circleY+textSize/2,paint);
     }
 
+    /**
+     * @description 画图片
+     * @param canvas
+     */
     private void drawCircleBitmap(Canvas canvas){
         Bitmap bitmap = null;
         bitmap = getCircleBitmap(circleBitmap);
@@ -151,7 +192,11 @@ public class CircleView extends View {
         canvas.drawBitmap(bitmap,circleX - circleRadius,circleY - circleRadius,paint);
     }
 
-    //得到圆形图片
+    /**
+     * @description 得到圆形图片
+     * @param bmp
+     * @return Bitmap
+     */
     private Bitmap getCircleBitmap(Bitmap bmp) {
         if (bmp == null){
             return null;
@@ -166,14 +211,46 @@ public class CircleView extends View {
         return newBitmap;
     }
 
-    //图片压缩
+    /**
+     * @description 裁剪压缩图片,得到宽高等于圆盘直径的正方形图片
+     * @param source,width,height
+     * @return Bitmap
+     */
     private Bitmap zoom(Bitmap source,float width ,float height){
-        Bitmap bitmap = null;
+        if(source == null){
+            return null;
+        }
+        int cutX;
+        int cutY;
+        int min;
+        if (source.getWidth()<source.getHeight()){
+            min = source.getWidth();
+            cutX = 0;
+            cutY = (source.getHeight() - source.getWidth())/2;
+        }else {
+            min = source.getHeight();
+            cutX = (source.getWidth() - source.getHeight())/2;
+            cutY = 0;
+        }
+        Bitmap bitmap = Bitmap.createBitmap(source, cutX, cutY, min, min);
         Matrix matrix = new Matrix();
-        matrix.postScale(width / source.getWidth(),height / source.getHeight());
-        bitmap = Bitmap.createBitmap(source, 0, 0, source.getWidth(), source.getHeight(), matrix, false);
+        matrix.postScale(width/min,height/min);
+        bitmap = Bitmap.createBitmap(bitmap, 0, 0, min, min, matrix, false);
         return bitmap;
     }
+
+//    /**
+//     * @description 压缩图片(这种方法会导致变形)
+//     * @param source,width,height
+//     * @return Bitmap
+//     */
+//    private Bitmap zoom(Bitmap source,float width ,float height){
+//        Bitmap bitmap = null;
+//        Matrix matrix = new Matrix();
+//        matrix.postScale(width / source.getWidth(),height / source.getHeight());
+//        bitmap = Bitmap.createBitmap(source, 0, 0, source.getWidth(), source.getHeight(), matrix, false);
+//        return bitmap;
+//    }
 
     @Override
     public boolean onTouchEvent(MotionEvent event) {
@@ -203,6 +280,11 @@ public class CircleView extends View {
         return super.onTouchEvent(event);
     }
 
+    /**
+     * @description 根据坐标判断点击事件
+     * @param event
+     * @return boolean
+     */
     private boolean clickInCircle(MotionEvent event){
         int x = (int) event.getX();
         int y = (int) event.getY();
@@ -214,52 +296,54 @@ public class CircleView extends View {
         }
     }
 
+    /**
+     * @description 点击事件监听器
+     */
     public interface CircleClickListener{
         public void onClick();
         public void onLongClick();
         public void onLongClickFinish();
     }
 
+    /**
+     * @description 设置监听
+     * @param circleClickListener
+     */
     public void setCircleClickListener(CircleClickListener circleClickListener){
         this.circleClickListener = circleClickListener;
     }
 
+    /**
+     * @description 设置图片并重绘
+     * @param bitmap,showBitmap
+     */
     public void showBitmap(Bitmap bitmap, boolean showBitmap) {
         circleBitmap = bitmap;
         this.showBitmap = showBitmap;
         invalidate();
     }
 
+    /**
+     * @description 设置文字并重绘
+     * @param text
+     */
     public void showText(String text) {
         this.text = text;
         invalidate();
     }
 
+    /**
+     * @description 设置是否显示阴影并重绘
+     * @param isShow
+     */
     public void showShadow(boolean isShow){
         this.showShadow = isShow;
         invalidate();
     }
 
-    public boolean getShadowState(){
-        return showShadow;
-    }
-
-    public int getCircleRadius() {
-        return circleRadius;
-    }
-
-    public void setCircleRadius(int circleRadius) {
-        this.circleRadius = circleRadius;
-    }
-
-    public int getTextSize() {
-        return textSize;
-    }
-
-    public void setTextSize(int textSize) {
-        this.textSize = textSize;
-    }
-
+    /**
+     * @description 圆盘构造器
+     */
     public static class Builder{
 
         private int circleRadius;
@@ -302,5 +386,25 @@ public class CircleView extends View {
     protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
         super.onMeasure(widthMeasureSpec, heightMeasureSpec);
         setMeasuredDimension((circleRadius+PADDING)*2,(circleRadius+PADDING)*2);
+    }
+
+    public boolean getShadowState(){
+        return showShadow;
+    }
+
+    public int getCircleRadius() {
+        return circleRadius;
+    }
+
+    public void setCircleRadius(int circleRadius) {
+        this.circleRadius = circleRadius;
+    }
+
+    public int getTextSize() {
+        return textSize;
+    }
+
+    public void setTextSize(int textSize) {
+        this.textSize = textSize;
     }
 }

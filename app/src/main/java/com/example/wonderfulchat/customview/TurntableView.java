@@ -11,28 +11,54 @@ import android.util.Log;
 import android.view.MotionEvent;
 import android.view.View;
 
+import com.example.wonderfulchat.R;
 import com.example.wonderfulchat.utils.LogUtil;
 
+/**
+ * @Author wonderful
+ * @Description 转盘外圆盘
+ * @Date 2019-8-29
+ */
 public class TurntableView extends View {
 
+    /**中心坐标X**/
     private int circleX;
+    /**中心坐标Y**/
     private int circleY;
+    /**半径R**/
     private int circleRadius;
+    /**圆盘颜色**/
     private int turntableColor;
+    /**橡皮颜色，用于擦出多余填充，应与背景颜色一致**/
+    private int eraserColor;
+    /**字体颜色**/
     private int textColor;
+    /**字体大小**/
     private int textSize;
-    private boolean showShadow;
-    private boolean turntableFill;
-    private int offset;                     //坐标偏移量，用于控制扇形间隔
-    private Float innerCircleP;             //内圆缩放比例
-    private Float outerCircleP;             //外圆缩放比例
-    private Paint paint;
-    private static final int PADDING = 10;
-    private static final int P = 4;       //字体大小与半径比例
-    private TurntableClickListener clickListener;
-    private boolean clickInRing = false;
-    private boolean longClicking = false;
+    /**显示字体内容**/
     private String[] text ;
+    /**字体大小与半径比例**/
+    private static final int P = 4;
+    /**是否显示阴影**/
+    private boolean showShadow;
+    /**是否实心**/
+    private boolean turntableFill;
+    /**坐标偏移量，用于控制扇形间隔**/
+    private int offset;
+    /**内圆缩放比例**/
+    private Float innerCircleP;
+    /**外圆缩放比例**/
+    private Float outerCircleP;
+    /**默认与边界有10个像素距离**/
+    private static final int PADDING = 10;
+    /**画笔**/
+    private Paint paint;
+    /**圆环点击变量**/
+    private boolean clickInRing = false;
+    /**长按变量**/
+    private boolean longClicking = false;
+    /**点击事件监听器**/
+    private TurntableClickListener clickListener;
 
     public TurntableView(Context context) {
         super(context);
@@ -49,10 +75,15 @@ public class TurntableView extends View {
         init();
     }
 
+    /**
+     * @description 通过Builder构造实例
+     * @param context,builder
+     */
     public TurntableView(Context context,Builder builder) {
         super(context);
         this.circleRadius = builder.circleRadius;
         this.turntableColor = builder.turntableColor;
+        this.eraserColor = builder.eraserColor;
         this.textColor = builder.textColor;
         this.showShadow = builder.showShadow;
         this.turntableFill = builder.turntableFill;
@@ -63,6 +94,9 @@ public class TurntableView extends View {
         init();
     }
 
+    /**
+     * @description 初始化中心坐标，画笔及监听事件等
+     */
     private void init() {
 
         textSize = circleRadius/P;
@@ -113,6 +147,10 @@ public class TurntableView extends View {
         drawTurntableText(canvas);
     }
 
+    /**
+     * @description 画外圆盘
+     * @param canvas
+     */
     private void drawTurntable(Canvas canvas){
         RectF rectF;
         int angle;
@@ -133,26 +171,40 @@ public class TurntableView extends View {
         }
         y = circleY - offset;
 
+        /**
+         * 画外圆弧，如果是实现则表现为扇形
+         */
         x = getCoordinateX((int)(circleRadius*outerCircleP),y,1);
         rectF = CreateRectF((int)(circleRadius*outerCircleP));
         angle = getAngle(x-circleX,offset);
         drawArc(rectF,angle,canvas,turntableFill);
 
         if (turntableFill){
-            paint.setColor(Color.WHITE);
+            paint.setColor(eraserColor);
             paint.clearShadowLayer();
         }
 
+        /**
+         * 画内圆弧，如果是实现则表现为扇形
+         */
         x = getCoordinateX((int)(circleRadius*innerCircleP),y,1);
         rectF = CreateRectF((int)(circleRadius*innerCircleP));
         angle = getAngle(x-circleX,offset);
         drawArc(rectF,angle,canvas,turntableFill);
 
+        /**
+         * 连接成扇形并擦除多余填充
+         */
         makeSector(canvas);
         wipeEraser(canvas);
 
     }
 
+    /**
+     * @description 得到内圆与gap焦点的横坐标
+     * @param r,y,LR
+     * return int
+     */
     private int getCoordinateX(int r,int y,int LR){
         double variable;
         variable = Math.pow(r,2)-Math.pow((y-circleY),2);
@@ -164,6 +216,11 @@ public class TurntableView extends View {
         return (int)variable;
     }
 
+    /**
+     * @description 得到内圆与gap焦点的纵坐标
+     * @param r,y,TB
+     * return int
+     */
     private int getCoordinateY(int r,int x,int TB){
         double variable;
         variable = Math.pow(r,2)-Math.pow((x-circleX),2);
@@ -175,12 +232,22 @@ public class TurntableView extends View {
         return (int)variable;
     }
 
+    /**
+     * @description 得到半宽gap的圆心角
+     * @param x,y
+     * return int
+     */
     private int getAngle(int x,int y){
         double angle;
         angle = Math.atan(y*1.0/x)*180/Math.PI;
         return (int)angle;
     }
 
+    /**
+     * @description 创建矩形，用于画弧或画圆
+     * @param transformationRatio
+     * return RectF
+     */
     private RectF CreateRectF(int transformationRatio){
         int left;
         int top;
@@ -197,6 +264,10 @@ public class TurntableView extends View {
         return rectF;
     }
 
+    /**
+     * @description 根据半宽gap画出四条弧
+     * @param rectF,gapAngle,canvas,fill
+     */
     private void drawArc(RectF rectF,int gapAngle,Canvas canvas,boolean fill){
         int angle = 90 - gapAngle*2;
         canvas.drawArc(rectF,gapAngle,angle,fill,paint);
@@ -205,6 +276,10 @@ public class TurntableView extends View {
         canvas.drawArc(rectF,270 + gapAngle,angle,fill,paint);
     }
 
+    /**
+     * @description 将弧连接成扇形
+     * @param canvas
+     */
     private void makeSector(Canvas canvas){
         int common;
         int innerRadius;
@@ -227,7 +302,10 @@ public class TurntableView extends View {
         drawVerticalPath(canvas,common,innerRadius,outerRadius);
     }
 
-    //擦除多余的填充
+    /**
+     * @description 擦除多余的填充，主要用于实心圆盘，因为实心的弧就是扇形
+     * @param canvas
+     */
     private void wipeEraser(Canvas canvas){
         if (!turntableFill)return;
         int a,b;
@@ -235,7 +313,7 @@ public class TurntableView extends View {
         int outerRadius;
         Path path = new Path();
 
-        paint.setColor(Color.WHITE);
+        paint.setColor(eraserColor);
         paint.setStyle(Paint.Style.FILL_AND_STROKE);
         paint.clearShadowLayer();
         outerRadius= (int)(circleRadius*outerCircleP);
@@ -264,6 +342,10 @@ public class TurntableView extends View {
 
     }
 
+    /**
+     * @description 横向连接弧
+     * @param canvas,common,innerRadius,outerRadius
+     */
     private void drawHorizontalPath(Canvas canvas,int common,int innerRadius,int outerRadius){
         int a,b,c,d;
         Path path = new Path();
@@ -281,6 +363,10 @@ public class TurntableView extends View {
         canvas.drawPath(path,paint);
     }
 
+    /**
+     * @description 纵向连接弧
+     * @param canvas,common,innerRadius,outerRadius
+     */
     private void drawVerticalPath(Canvas canvas,int common,int innerRadius,int outerRadius){
         int a,b,c,d;
         Path path = new Path();
@@ -298,6 +384,10 @@ public class TurntableView extends View {
         canvas.drawPath(path,paint);
     }
 
+    /**
+     * @description 画出四个扇形对应的文字
+     * @param canvas
+     */
     private void drawTurntableText(Canvas canvas){
         int angle;
         int x;
@@ -322,6 +412,10 @@ public class TurntableView extends View {
         drawText(canvas,270+angle,angle,text[3]);
     }
 
+    /**
+     * @description 画文字，随圆弧有弧度
+     * @param canvas
+     */
     private void drawText(Canvas canvas,int startAngle,int angle,String text){
         Path path;
         float textWidth;
@@ -339,6 +433,10 @@ public class TurntableView extends View {
 
     }
 
+    /**
+     * @description 设置是否显示阴影并重绘
+     * @param isShow
+     */
     public void showShadow(boolean isShow){
         this.showShadow = isShow;
         invalidate();
@@ -352,6 +450,10 @@ public class TurntableView extends View {
         return text;
     }
 
+    /**
+     * @description 设置文字并重绘
+     * @param text
+     */
     public void showText(String[] text) {
         this.text =  text;
         invalidate();
@@ -381,9 +483,14 @@ public class TurntableView extends View {
         this.textSize = textSize;
     }
 
+    /**
+     * @description 圆盘构造器
+     *
+     */
     public static class Builder{
         private int circleRadius;
         private int turntableColor;
+        private int eraserColor;
         private int textColor;
         private boolean showShadow;
         private boolean turntableFill;
@@ -398,6 +505,11 @@ public class TurntableView extends View {
 
         public Builder setTurntableColor(int turntableColor) {
             this.turntableColor = turntableColor;
+            return this;
+        }
+
+        public Builder setEraserColor(int eraserColor) {
+            this.eraserColor = eraserColor;
             return this;
         }
 
@@ -442,6 +554,11 @@ public class TurntableView extends View {
         setMeasuredDimension((int)((circleRadius*outerCircleP+PADDING)*2),(int)((circleRadius*outerCircleP+PADDING)*2));
     }
 
+    /**
+     * @description 判断点击的是否为圆环
+     * @param event
+     * @return boolean
+     */
     private boolean clickInRing(MotionEvent event){
         int x = (int) event.getX();
         int y = (int) event.getY();
@@ -480,6 +597,9 @@ public class TurntableView extends View {
         return super.onTouchEvent(event);
     }
 
+    /**
+     * @description 点击事件监听器
+     */
     public interface TurntableClickListener{
         public void onClick();
         public void onLongClick();

@@ -82,7 +82,9 @@ public class MessageFragment extends BaseFragment<MessageViewModel> {
         leftImage.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                listener.leftImageClick();
+                if (listener != null){
+                    listener.leftImageClick();
+                }
             }
         });
     }
