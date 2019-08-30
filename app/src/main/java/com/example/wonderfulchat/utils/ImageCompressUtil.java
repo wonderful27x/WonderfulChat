@@ -3,6 +3,11 @@ package com.example.wonderfulchat.utils;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 
+/**
+ * @Author wonderful
+ * @Description 图片压缩工具
+ * @Date 2019-8-30
+ */
 public class ImageCompressUtil {
     public static Bitmap decodeBitmapFromFile(String path, int reWith, int reHeight){
         final BitmapFactory.Options options = new BitmapFactory.Options();

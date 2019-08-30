@@ -1,11 +1,7 @@
 package com.example.wonderfulchat.viewmodel;
 
 import android.content.res.ColorStateList;
-import android.content.res.Resources;
 import android.graphics.Color;
-import android.graphics.drawable.Drawable;
-import android.graphics.drawable.StateListDrawable;
-import android.os.Build;
 import android.os.Handler;
 import android.os.Looper;
 import android.os.Message;
@@ -14,9 +10,6 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.view.View;
 import android.widget.Button;
-import android.widget.ImageView;
-
-import com.bumptech.glide.load.engine.Resource;
 import com.example.wonderfulchat.R;
 import com.example.wonderfulchat.adapter.ChattingListAdapter;
 import com.example.wonderfulchat.databinding.ActivityChattingBinding;
@@ -43,7 +36,6 @@ import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.io.OutputStreamWriter;
 import java.net.Socket;
-import java.nio.charset.StandardCharsets;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
@@ -52,6 +44,12 @@ import java.util.concurrent.atomic.AtomicInteger;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+/**
+ * @Author wonderful
+ * @Description 重要的即时聊天实现，这里没有使用服务，说实话感觉没有必要，
+ * 从某些方面来说又感觉有必要，这里留给大家思考吧
+ * @Date 2019-8-30
+ */
 public class ChattingViewModel extends BaseViewModel<AppCompatActivity> {
 
     private static final String TAG = "ChattingViewModel";
@@ -109,20 +107,6 @@ public class ChattingViewModel extends BaseViewModel<AppCompatActivity> {
         List<MessageModel> readMessage = getReadMessage(friendModel.getAccount());
         mergeMessage(readMessage,unReadMessage,null);
 
-//        List<String> messageList = new ArrayList<>();
-//        messageList.add("接哦结果就哦我");
-//        for (int i=0; i<20; i++){
-//            MessageModel model= new MessageModel();
-//            model.setMessage(messageList);
-//            model.setSenderImage("http://192.168.191.4:8080/file/girl.jpg");
-//            if (i%3 == 0){
-//                model.setType(MessageModel.TYPE_RECEIVE);
-//            }else {
-//                model.setType(MessageModel.TYPE_SEND);
-//            }
-//            messageModels.add(model);
-//        }
-
         adapter = new ChattingListAdapter(userModel,friendModel,messageModels,this);
         LinearLayoutManager manager = new LinearLayoutManager(getView());
         binding.recyclerView.setLayoutManager(manager);
@@ -136,23 +120,10 @@ public class ChattingViewModel extends BaseViewModel<AppCompatActivity> {
         return MemoryUtil.sharedPreferencesGetBoolean(CommonConstant.HOST_STATE);
     }
 
-    //进入是再请求一次网络，拿到最新消息
+    /**
+     * @description 进入时再请求一次网络，拿到最新消息，并且与上一次已读消息合并，再展示
+     */
     private void getMessageFromNet(){
-//        List<MessageModel> messages = new ArrayList<>();
-//        String content = "经费世界公司哦手机覅韩国就送大奖哦挤公交感觉颇为烦恼";
-//        for (int i=0; i<1; i++){
-//            MessageModel message = new MessageModel();
-//            message.setMessage(content+i);
-//            message.setSender(account);
-//            message.setSenderAccount("wonderful"+i);
-//            message.setSenderImage("http://172.16.169.97:8080/file/girl.jpg");
-//            message.setReceiver("机构鞥我");
-//            message.setReceiverAccount("thisismyse");
-//            message.setTime("2019-06-12 12:07");
-//            message.setType(MessageType.MESSAGE_RECEIVE.getCode());
-//            messages.add(message);
-//        }
-
         String url = InternetAddress.GET_NEWEST_MESSAGE_URL + "?account=" + userModel.getAccount() + "&friendAccount=" + friendModel.getAccount();
         messageThread = HttpUtil.httpRequestForGet(url, new HttpCallbackListener() {
             @Override
@@ -191,7 +162,11 @@ public class ChattingViewModel extends BaseViewModel<AppCompatActivity> {
         });
     }
 
-    //获取已读消息，因为传递进来的只是未读消息
+    /**
+     * @description 获取已读消息，因为传递进来的只是未读消息
+     * @param account
+     * @return List<MessageModel>
+     */
     private List<MessageModel> getReadMessage(String account){
         if (account == null)return null;
         String name;
@@ -214,6 +189,10 @@ public class ChattingViewModel extends BaseViewModel<AppCompatActivity> {
         return readMessage;
     }
 
+    /**
+     * @description 获取已读消息，因为传递进来的只是未读消息
+     * @param readMessage,unReadMessage,newMessage
+     */
     private void mergeMessage(List<MessageModel> readMessage,List<MessageModel> unReadMessage,List<MessageModel> newMessage){
         if (readMessage != null && readMessage.size()>0){
             messageModels.addAll(readMessage);
@@ -226,12 +205,14 @@ public class ChattingViewModel extends BaseViewModel<AppCompatActivity> {
         }
     }
 
+    /**
+     * @description 发送消息，这里需要切换到子线程中，为了简化服务端的处理，
+     * 发出的消息类型为MESSAGE_RECEIVE，而自己显示的为MESSAGE_SEND
+     * @param view
+     */
     public void sendMessage(View view){
         String message = binding.messageContent.getText().toString();
         if (message.isEmpty())return;
-//        MessageModel model = new MessageModel();
-//        model.setType(MessageType.MESSAGE_SEND.getCode());
-//        model.setMessage(message);
 
         Date date = new Date();
         SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
@@ -252,6 +233,9 @@ public class ChattingViewModel extends BaseViewModel<AppCompatActivity> {
         binding.messageContent.setText("");
     }
 
+    /**
+     * @description 消息存入文件系统，当Activity退出时将所有消息存入已读
+     */
     public void messageSave(){
         if (friendModel == null || friendModel.getAccount() == null)return;
         if(messageModels == null || messageModels.size()<=0)return;
@@ -275,18 +259,10 @@ public class ChattingViewModel extends BaseViewModel<AppCompatActivity> {
         FileUtil.fileSave(file,content,false);
     }
 
-//    //清空好友消息,将此好友的未读消息清空
-//    public void clearUnreadMessage(){
-//        String path = FileUtil.getDiskPath(getView(),"UnReadMessage");
-//        File file = new File(path, friendAccount);
-//        if (!file.exists()){
-//            return;
-//        }else {
-//            FileUtil.fileClear(file);
-//        }
-//    }
-
-    //拿到有消息记录的所有账号
+    /**
+     * @description 拿到有消息记录的所有账号
+     * @return String[]
+     */
     private String[] getOldMessageAccounts(){
         String s;
         if (getHostState()){
@@ -301,7 +277,10 @@ public class ChattingViewModel extends BaseViewModel<AppCompatActivity> {
         return accounts;
     }
 
-    //将此好友账号添加到记录账号里，否则消息列表在某些特殊情况下将无法展示已读消息
+    /**
+     * @description 将此好友账号添加到记录账号里，否则消息列表在某些特殊情况下将无法展示已读消息
+     * 表现为第一次主动与好友聊天时，未通过消息列表点击进入
+     */
     public void saveMessageAccounts() {
         if (friendModel == null)return;
         String[] accountAll;
@@ -334,6 +313,12 @@ public class ChattingViewModel extends BaseViewModel<AppCompatActivity> {
         this.binding = binding;
     }
 
+    /**
+     * @description 重要的连接释放方法，因为在线程中使用了带while循环的阻塞式读取，
+     * 因此没有有效的方式来停止Socket和线程，只有向服务器发送请求，当服务器调用close时，
+     * 客户端的socket才能响应到null,以此来退出线程并释放资源，但是这仍是一种不可靠的方式，
+     * 在后期我们将考虑自己写一套通信协议，采用非阻塞式读取方式。
+     */
     private void stopSocket(){
         socketRun = false;
         String message = "Bye !";
@@ -376,16 +361,6 @@ public class ChattingViewModel extends BaseViewModel<AppCompatActivity> {
         return messageModel;
     }
 
-//    private MessageModel buildMessage(MessageType type,String sender,String receiver,String message){
-//        MessageModel messageModel = new MessageModel();
-//        messageModel.setType(type.getCode());
-//        messageModel.setSenderAccount(sender);
-//        messageModel.setReceiverAccount(receiver);
-//        messageModel.setMessage(message);
-//
-//        return messageModel;
-//    }
-
     private MessageModel buildMessage(int Type,String time,String message,String sender,String senderAccount,String receiver,String receiverAccount,String senderImage){
 
         MessageModel messageModel = new MessageModel();
@@ -412,6 +387,9 @@ public class ChattingViewModel extends BaseViewModel<AppCompatActivity> {
         }
     }
 
+    /**
+     * @description 核心线程之socket通信，开始聊天前进行了简单的身份验证
+     */
     class SocketRunnable implements Runnable{
         String message;
         MessageModel messageModel;
@@ -484,6 +462,9 @@ public class ChattingViewModel extends BaseViewModel<AppCompatActivity> {
         }
     }
 
+    /**
+     * @description 消息发送线程
+     */
     class MessageSendRunnable implements Runnable{
 
         @Override
@@ -511,6 +492,9 @@ public class ChattingViewModel extends BaseViewModel<AppCompatActivity> {
         }
     }
 
+    /**
+     * @description 切换至UI线程
+     */
     class MessageCallback implements Handler.Callback {
 
         @Override
@@ -538,7 +522,9 @@ public class ChattingViewModel extends BaseViewModel<AppCompatActivity> {
         }
     }
 
-    //设置状态选择器
+    /**
+     * @description 设置状态选择器
+     */
     public void setButtonSelector(Button button){
         int[] colors = {Color.parseColor("#FFFFFF"), Color.parseColor("#000000")};
         int[][] states = new int[2][];
@@ -548,7 +534,10 @@ public class ChattingViewModel extends BaseViewModel<AppCompatActivity> {
         button.setTextColor(colorStateList);
     }
 
-    //强行杀掉线程，释放资源,这种方法已过时，并且会抛出异常，但我仍然觉得这是一种好方法
+    /**
+     * @description 强行杀掉线程，释放资源,这种方法已过时，并且会抛出异常，而且并没有什么卵用，
+     * 试图用这种方式来结束阻塞的socket但是失败了
+     */
     public void threadKill(){
         try{
             if (receiveThread != null){

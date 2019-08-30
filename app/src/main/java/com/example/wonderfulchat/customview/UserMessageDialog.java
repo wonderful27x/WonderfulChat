@@ -4,21 +4,22 @@ import android.app.Dialog;
 import android.content.Context;
 import android.graphics.Point;
 import android.os.Bundle;
-import android.text.Editable;
-import android.text.TextWatcher;
 import android.view.Display;
 import android.view.View;
 import android.view.Window;
 import android.view.WindowManager;
 import android.widget.Button;
 import android.widget.ImageView;
-import android.widget.TextView;
-
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.request.RequestOptions;
 import com.example.wonderfulchat.R;
 import com.example.wonderfulchat.model.UserModel;
 
+/**
+ * @Author wonderful
+ * @Description 弹窗,用于展示好友信息
+ * @Date 2019-8-30
+ */
 public class UserMessageDialog extends Dialog {
 
     private DialogClickListener dialogClickListener;
@@ -50,7 +51,6 @@ public class UserMessageDialog extends Dialog {
         requestWindowFeature(Window.FEATURE_NO_TITLE);
         setContentView(R.layout.user_message_dialog_layout);
 
-        //设置弹窗的宽度
         WindowManager manager = getWindow().getWindowManager();
         Display display = manager.getDefaultDisplay();
         WindowManager.LayoutParams params = getWindow().getAttributes();

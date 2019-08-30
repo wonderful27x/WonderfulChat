@@ -5,10 +5,6 @@ import android.os.Parcelable;
 import android.support.v4.app.Fragment;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.widget.LinearLayoutManager;
-import android.view.View;
-import android.widget.ExpandableListView;
-import android.widget.TextView;
-
 import com.example.wonderfulchat.R;
 import com.example.wonderfulchat.adapter.ExpandableListViewAdapter;
 import com.example.wonderfulchat.adapter.FriendRequestAdapter;
@@ -35,13 +31,16 @@ import com.example.wonderfulchat.utils.ToastUtil;
 import com.example.wonderfulchat.view.ChattingActivity;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
-
 import org.litepal.LitePal;
-
 import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * @Author wonderful
+ * @Description FriendListViewModel
+ * @Date 2019-8-30
+ */
 public class FriendListViewModel extends BaseViewModel<Fragment> {
 
     private static final String TAG = "FriendListViewModel";
@@ -57,8 +56,6 @@ public class FriendListViewModel extends BaseViewModel<Fragment> {
     private boolean friendExist = false;
     private int childPosition;
     private LoadingDialog loadingDialog;
-//    private String friendName;
-//    private String friendAccount;
 
     public void initView(){
         loadingDialog = new LoadingDialog(getView().getActivity());
@@ -68,13 +65,6 @@ public class FriendListViewModel extends BaseViewModel<Fragment> {
         groupModels = new ArrayList<>();
         userModels = new ArrayList<>();
         friendRequestModels = new ArrayList<>();
-
-//        for (int i=0; i<5; i++){
-//            FriendRequestModel model = new FriendRequestModel();
-//            model.setAccount("abcdefg");
-//            model.setRequestTime("2019-08-25 16:26:33");
-//            friendRequestModels.add(model);
-//        }
 
         GroupModel groupModel = new GroupModel();
         groupModel.setTitle("我的亲密好友");
@@ -103,33 +93,14 @@ public class FriendListViewModel extends BaseViewModel<Fragment> {
                 refresh();
             }
         });
-//        layoutBinding.friendList.setOnChildClickListener(new ExpandableListView.OnChildClickListener() {
-//            @Override
-//            public boolean onChildClick(ExpandableListView expandableListView, View view, int i, int i1, long l) {
-////                Intent intent = new Intent(getView().getActivity(), ChattingActivity.class);
-////                intent.putExtra("friendName",groupModels.get(i).getChildModels().get(i1).getRemark());
-////                intent.putExtra("friendAccount",groupModels.get(i).getChildModels().get(i1).getAccount());
-////                getView().getActivity().startActivity(intent);
-//
-////                friendName = groupModels.get(i).getChildModels().get(i1).getRemark();
-////                friendAccount = groupModels.get(i).getChildModels().get(i1).getAccount();
-////                MessageEvent event = new MessageEvent();
-////                UserModel user = new UserModel();
-////                user.setNickname(friendName);
-////                user.setAccount(friendAccount);
-////                event.setType("startChatting");
-////                event.setUserModel(user);
-////                EventBus.getDefault().post(event);
-//
-//                jumpToChatting(i,i1);
-//                return true;
-//            }
-//        });
 
         getFriendList();
         getFriendRequest();
     }
 
+    /**
+     * @description 获取好友请求
+     */
     public void getFriendRequest(){
         String url = InternetAddress.GET_FRIEND_REQUEST_URL + "?account=" + user.getAccount();
         HttpUtil.httpRequestForGet(url, new HttpCallbackListener() {
@@ -169,6 +140,9 @@ public class FriendListViewModel extends BaseViewModel<Fragment> {
         });
     }
 
+    /**
+     * @description 好友请求处理，同意或拒绝
+     */
     private void friendRequestDeal(final String type, final UserModel userModel, final int position){
         loadingDialog.dialogShow();
         String url = InternetAddress.FRIEND_REQUEST_DEAL_URL + "?account=" + user.getAccount() + "&friendAccount=" + userModel.getAccount() + "&type=" + type;
@@ -224,17 +198,11 @@ public class FriendListViewModel extends BaseViewModel<Fragment> {
         friendRequestDialog.setDialogClickListener(new FriendRequestDialog.DialogClickListener() {
             @Override
             public void agreeClick(UserModel model, int position) {
-//                friendRequestModels.remove(position);
-//                friendRequestAdapter.notifyDataSetChanged();
-//                ToastUtil.showToast("同意");
                 friendRequestDeal("agree",model,position);
             }
 
             @Override
             public void refuseClick(UserModel model, int position) {
-//                friendRequestModels.remove(position);
-//                friendRequestAdapter.notifyDataSetChanged();
-//                ToastUtil.showToast("残忍拒绝");
                 friendRequestDeal("refuse",model,position);
             }
         });
@@ -280,17 +248,6 @@ public class FriendListViewModel extends BaseViewModel<Fragment> {
         intent.putParcelableArrayListExtra("message", (ArrayList<? extends Parcelable>) unReadMessage);
         getView().getActivity().startActivity(intent);
 
-//        String friendName = groupModels.get(group).getChildModels().get(child).getRemark();
-//        String friendAccount = groupModels.get(group).getChildModels().get(child).getAccount();
-//        List<MessageModel> unReadMessage = getMessageListFromPhone("UnReadMessage",friendAccount);
-//        clearUnreadMessage(friendAccount,"UnReadMessage");
-//
-//        Intent intent = new Intent(getView().getActivity(), ChattingActivity.class);
-//        intent.putExtra("friendName",friendName);
-//        intent.putExtra("friendAccount",friendAccount);
-//        intent.putParcelableArrayListExtra("message", (ArrayList<? extends Parcelable>) unReadMessage);
-//        getView().getActivity().startActivity(intent);
-
     }
 
     private UserModel getUserModel(){
@@ -315,7 +272,10 @@ public class FriendListViewModel extends BaseViewModel<Fragment> {
         return MemoryUtil.sharedPreferencesGetBoolean(CommonConstant.HOST_STATE);
     }
 
-    //清空好友消息,点击跳转后信息即为已读，则将未读消息清空
+    /**
+     * @description 清空好友消息,点击跳转后信息即为已读，则将未读消息清空
+     * @param name,messageState
+     */
     public void clearUnreadMessage(String name,String messageState){
         String path = FileUtil.getDiskPath(getView().getActivity(),messageState);
         File file = new File(path, name);
@@ -326,7 +286,11 @@ public class FriendListViewModel extends BaseViewModel<Fragment> {
         }
     }
 
-    //读取好友消息,根据类型可读取已读消息或未读消息
+    /**
+     * @description 读取好友消息,根据类型可读取已读消息或未读消息
+     * @param readState,account
+     * @return List<MessageModel>
+     */
     private List<MessageModel> getMessageListFromPhone(String readState,String account){
         List<MessageModel> messageModels;
         String path = FileUtil.getDiskPath(getView().getActivity(),readState);
@@ -342,23 +306,6 @@ public class FriendListViewModel extends BaseViewModel<Fragment> {
         messageModels = gson.fromJson(jsonData,new TypeToken<List<MessageModel>>(){}.getType());
         return messageModels;
     }
-
-//    public void jumpToChatting(List<MessageModel> messageList){
-//        Intent intent = new Intent(getView().getActivity(), ChattingActivity.class);
-//        intent.putExtra("friendName",friendName);
-//        intent.putExtra("friendAccount",friendName);
-//        intent.putParcelableArrayListExtra("message",(ArrayList<? extends Parcelable>)messageList);
-//        getView().getActivity().startActivity(intent);
-//    }
-
-//    private List<UserModel> getUserMessage(){
-//        String userModel = FileUtil.getJson(getView().getActivity(), "HttpFriendList");
-//        Gson gson = new Gson();
-//        HttpUserModel httpUserModel = gson.fromJson(userModel, HttpUserModel.class);
-//        List<UserModel> userModels = httpUserModel.getContent();
-//
-//        return userModels;
-//    }
 
     private void getFriendList(){
         layoutBinding.refreshLayout.setRefreshing(true);
@@ -406,17 +353,9 @@ public class FriendListViewModel extends BaseViewModel<Fragment> {
 
     }
 
-//    //将数据存入数据库
-//    private void saveToDatabase(){
-//        for (UserModel userModel:userModels){
-//            int num = userModel.updateAll("account=?",userModel.getAccount());
-//            if (num<=0){
-//                userModel.save();
-//            }
-//        }
-//    }
-
-    //将数据存入数据库
+    /**
+     * @description 获取好友列表后存入数据库，如果已存在则更新，否则添加
+     */
     private void saveToDatabase(){
         List<UserModel> userList = new ArrayList<>();
         if (!getHostState()){
@@ -437,7 +376,9 @@ public class FriendListViewModel extends BaseViewModel<Fragment> {
         }
     }
 
-    //将数据存入数据库
+    /**
+     * @description 存入单条数据，如果已存在则更新，否则添加
+     */
     private void saveToDatabase(UserModel userModel){
         UserModel model;
         if (getHostState()){
@@ -485,13 +426,6 @@ public class FriendListViewModel extends BaseViewModel<Fragment> {
     }
 
     private void addFriend(String friendAccount){
-//        UserModel userModel = new UserModel();
-//        userModel.setAccount("wonderful");
-//        userModel.setNickname("德芙");
-//        userModel.setRemark("巧克力");
-//        userModel.setImageUrl("http://192.168.191.5:8080/file/girl.jpg");
-//        userModel.setLifeMotto("季后赛股票害怕么");
-//        List<UserModel> userModels = groupModels.get(0).getChildModels();
         loadingDialog.dialogShow();
         String url = InternetAddress.ADD_FRIEND_URL + "?account=" + user.getAccount() + "&friendAccount=" + friendAccount;
         HttpUtil.httpRequestForGet(url, new HttpCallbackListener() {
@@ -531,31 +465,9 @@ public class FriendListViewModel extends BaseViewModel<Fragment> {
     }
 
     private void refresh(){
-        //layoutBinding.refreshLayout.setRefreshing(true);
         getFriendList();
         getFriendRequest();
     }
-
-
-//    private void refresh(){
-//        new Thread(new Runnable() {
-//            @Override
-//            public void run() {
-//                try{
-//                    Thread.sleep(2000);
-//                }catch (InterruptedException e){
-//                    e.printStackTrace();
-//                }
-//                getView().getActivity().runOnUiThread(new Runnable() {
-//                    @Override
-//                    public void run() {
-//                        addFriend();
-//                        layoutBinding.refreshLayout.setRefreshing(false);
-//                    }
-//                });
-//            }
-//        }).start();
-//    }
 
     private void findFriend(final SimpleDialog dialog, String account){
         loadingDialog.dialogShow();
@@ -647,6 +559,10 @@ public class FriendListViewModel extends BaseViewModel<Fragment> {
         });
     }
 
+    /**
+     * @description 从服务器中删除好友，成功后删除本地数据
+     * @param account,userModel
+     */
     private void deleteFriendFromService(final String account, final UserModel userModel){
         loadingDialog.dialogShow();
         String url = InternetAddress.DELETE_FRIEND_URL + "?account=" + account + "&friendAccount=" + userModel.getAccount();
@@ -742,7 +658,10 @@ public class FriendListViewModel extends BaseViewModel<Fragment> {
         MemoryUtil.sharedPreferencesSaveString(key,builder.toString());
     }
 
-    //拿到有消息记录的所有账号
+    /**
+     * @description 拿到有消息记录的所有账号
+     * @return String[]
+     */
     private String[] getOldMessageAccounts(){
         String key;
         if (getHostState()){

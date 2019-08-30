@@ -16,11 +16,17 @@ import com.example.wonderfulchat.R;
 import com.example.wonderfulchat.databinding.ActivityChattingBinding;
 import com.example.wonderfulchat.model.MessageModel;
 import com.example.wonderfulchat.model.UserModel;
-import com.example.wonderfulchat.utils.ToastUtil;
 import com.example.wonderfulchat.utils.UnitChangeUtil;
 import com.example.wonderfulchat.viewmodel.ChattingViewModel;
 import java.util.List;
 
+/**
+ * @Author wonderful
+ * @Description 聊天界面，核心功能
+ * 采用socket与服务器建立连接，通过服务器中转进行消息交换
+ * 只有点击启动Activity才建立连接，退出释放连接
+ * @Date 2019-8-30
+ */
 public class ChattingActivity extends BaseActivity<ChattingViewModel> {
 
     private ImageView leftImage;
@@ -80,14 +86,16 @@ public class ChattingActivity extends BaseActivity<ChattingViewModel> {
                 } catch (InterruptedException e) {
                     e.printStackTrace();
                 }finally {
-                    getViewModel().threadKill();
                     finish();
                 }
             }
         });
     }
 
-    //设置状态选择器
+    /**
+     * @description 设置状态选择器
+     * @param imageView
+     */
     private void setImageSelector(ImageView imageView){
         imageView.setClickable(true);
         StateListDrawable drawable = new StateListDrawable();
@@ -105,12 +113,14 @@ public class ChattingActivity extends BaseActivity<ChattingViewModel> {
     }
 
 
+    /**
+     * @description 退出存储消息并释放连接
+     */
     @Override
     public void onBackPressed() {
         getViewModel().exit();
         getViewModel().messageSave();
         getViewModel().saveMessageAccounts();
-//        getViewModel().clearUnreadMessage();
         try {
             Thread.sleep(200);
         } catch (InterruptedException e) {

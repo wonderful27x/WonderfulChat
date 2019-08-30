@@ -5,29 +5,24 @@ import android.graphics.drawable.Drawable;
 import android.graphics.drawable.StateListDrawable;
 import android.os.Build;
 import android.os.Bundle;
-import android.support.annotation.Nullable;
 import android.support.v4.content.ContextCompat;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 import com.example.wonderfulchat.R;
 import com.example.wonderfulchat.databinding.MessageFragmentLayoutBinding;
-import com.example.wonderfulchat.model.MessageEvent;
-import com.example.wonderfulchat.model.MessageModel;
 import com.example.wonderfulchat.utils.LogUtil;
 import com.example.wonderfulchat.utils.UnitChangeUtil;
 import com.example.wonderfulchat.viewmodel.MessageViewModel;
 
-import org.greenrobot.eventbus.EventBus;
-import org.greenrobot.eventbus.Subscribe;
-import org.greenrobot.eventbus.ThreadMode;
-
-import java.util.List;
-
+/**
+ * @Author wonderful
+ * @Description 消息展示Fragment,为了获得最新消息，使用懒加载
+ * @Date 2019-8-30
+ */
 public class MessageFragment extends BaseFragment<MessageViewModel> {
 
     private static final String TAG = "MessageFragment";
@@ -37,12 +32,6 @@ public class MessageFragment extends BaseFragment<MessageViewModel> {
     private TextView midText;
     private boolean firstLoad = true;
     private View rootView;
-
-    @Override
-    public void onCreate(@Nullable Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-//        EventBus.getDefault().register(this);
-    }
 
     @Override
     public View onCreateView(LayoutInflater inflater,ViewGroup container,Bundle savedInstanceState) {
@@ -89,7 +78,10 @@ public class MessageFragment extends BaseFragment<MessageViewModel> {
         });
     }
 
-    //设置状态选择器
+    /**
+     * @description 动态设置状态选择器
+     * @param imageView
+     */
     private void setImageSelector(ImageView imageView){
         imageView.setClickable(true);
         StateListDrawable drawable = new StateListDrawable();
@@ -118,29 +110,6 @@ public class MessageFragment extends BaseFragment<MessageViewModel> {
     public void setLeftImageClickListener(LeftImageClickListener listener){
         this.listener = listener;
     }
-
-//    @Override
-//    public void onResume() {
-//        super.onResume();
-//        LogUtil.d(TAG,"fragment onResume");
-//    }
-//
-//    @Override
-//    public void setUserVisibleHint(boolean isVisibleToUser) {
-//        super.setUserVisibleHint(isVisibleToUser);
-//        if (isVisibleToUser){
-//            LogUtil.d(TAG,"fragment visible");
-//        }
-//    }
-
-//    @Subscribe(threadMode = ThreadMode.MAIN)
-//    public void onEvent(MessageEvent event) {
-//        if ("startChatting".equals(event.getType())){
-//            String name = event.getUserModel().getNickname();
-//            String account = event.getUserModel().getAccount();
-//            getViewModel().answerRequest(name,account);
-//        }
-//    }
 
     @Override
     public void dataLoad() {

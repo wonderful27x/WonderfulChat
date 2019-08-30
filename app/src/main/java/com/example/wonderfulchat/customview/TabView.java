@@ -10,36 +10,40 @@ import android.util.AttributeSet;
 import android.widget.ImageView;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
-
 import com.example.wonderfulchat.R;
 import com.example.wonderfulchat.utils.UnitChangeUtil;
 
+/**
+ * @Author wonderful
+ * @Description ViewPager 底部页签控件内部View
+ * @Date 2019-8-30
+ */
 public class TabView extends RelativeLayout {
 
     private Context context;
 
     private boolean isChecked;
 
-    //底部标题
+    /**底部标题**/
     private TextView bottomTextView;
     private int bottomTitleSize;
     private int bottomTitleColor;
     private String bottomTitle;
     private static final int bottomTextViewId = 10000;
 
-    //顶部标题
+    /**顶部标题**/
     private TextView topTextView;
     private int topTitleSize;
     private int topTitleColor;
     private String topTitle;
     private static final int topTextViewId = 10001;
 
-    //底部图标
+    /**底部图标**/
     private ImageView bottomImage;
     private Drawable bottomDrawable;
     private static final int bottomImageId = 10010;
 
-    //顶部图标
+    /**顶部图标**/
     private ImageView topImage;
     private Drawable topDrawable;
     private static final int topImageId = 10011;

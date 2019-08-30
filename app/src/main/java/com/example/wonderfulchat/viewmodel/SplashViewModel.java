@@ -9,6 +9,11 @@ import com.example.wonderfulchat.model.CommonConstant;
 import com.example.wonderfulchat.utils.MemoryUtil;
 import com.example.wonderfulchat.view.LoginActivity;
 
+/**
+ * @Author wonderful
+ * @Description SplashViewModel
+ * @Date 2019-8-30
+ */
 public class SplashViewModel extends BaseViewModel <Activity> {
 
     private ActivitySplashBinding dataBinding;

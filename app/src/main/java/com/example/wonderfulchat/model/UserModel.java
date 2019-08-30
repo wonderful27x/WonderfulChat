@@ -1,9 +1,13 @@
 package com.example.wonderfulchat.model;
 
 import org.litepal.crud.LitePalSupport;
-
 import java.io.Serializable;
 
+/**
+ * @Author wonderful
+ * @Description USER信息Model
+ * @Date 2019-8-30
+ */
 public class UserModel extends LitePalSupport implements Serializable {
 
     private String account;

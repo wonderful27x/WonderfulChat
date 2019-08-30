@@ -4,6 +4,11 @@ import android.content.Context;
 import android.content.SharedPreferences;
 import com.example.wonderfulchat.view.MyApplication;
 
+/**
+ * @Author wonderful
+ * @Description sharedPreferences持久化工具
+ * @Date 2019-8-30
+ */
 public class MemoryUtil {
 
     public static final String FILE_NAME = "comExampleWonderfulChat";

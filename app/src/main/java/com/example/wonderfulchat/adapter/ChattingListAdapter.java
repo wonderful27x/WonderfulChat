@@ -6,7 +6,6 @@ import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.request.RequestOptions;
 import com.example.wonderfulchat.R;
@@ -14,12 +13,14 @@ import com.example.wonderfulchat.databinding.ChattingItemBinding;
 import com.example.wonderfulchat.model.MessageModel;
 import com.example.wonderfulchat.model.MessageType;
 import com.example.wonderfulchat.model.UserModel;
-import com.example.wonderfulchat.utils.MemoryUtil;
 import com.example.wonderfulchat.viewmodel.ChattingViewModel;
-import com.google.gson.Gson;
-
 import java.util.List;
 
+/**
+ * @Author wonderful
+ * @Description EChattingList适配器
+ * @Date 2019-8-30
+ */
 public class ChattingListAdapter extends RecyclerView.Adapter<ChattingListAdapter.ViewHolder> {
 
     private List<MessageModel> messageModels;

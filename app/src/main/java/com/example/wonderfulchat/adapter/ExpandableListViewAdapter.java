@@ -12,12 +12,14 @@ import com.example.wonderfulchat.databinding.ChildLayoutBinding;
 import com.example.wonderfulchat.databinding.GroupLayoutBinding;
 import com.example.wonderfulchat.model.GroupModel;
 import com.example.wonderfulchat.model.UserModel;
-import com.example.wonderfulchat.utils.MemoryUtil;
 import com.example.wonderfulchat.viewmodel.FriendListViewModel;
-import com.google.gson.Gson;
-
 import java.util.List;
 
+/**
+ * @Author wonderful
+ * @Description ExpandableListView适配器
+ * @Date 2019-8-30
+ */
 public class ExpandableListViewAdapter extends BaseExpandableListAdapter {
 
     private List<GroupModel> groupModels;

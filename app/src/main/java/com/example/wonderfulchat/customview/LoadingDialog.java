@@ -8,9 +8,13 @@ import android.view.Gravity;
 import android.view.Window;
 import android.view.WindowManager;
 import android.widget.ImageView;
-
 import com.example.wonderfulchat.R;
 
+/**
+ * @Author wonderful
+ * @Description 加载弹窗
+ * @Date 2019-8-30
+ */
 public class LoadingDialog extends Dialog {
 
     private AnimationDrawable animationDrawable;

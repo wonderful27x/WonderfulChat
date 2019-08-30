@@ -2,7 +2,6 @@ package com.example.wonderfulchat.utils;
 
 import com.example.wonderfulchat.interfaces.HttpCallbackListener;
 import com.example.wonderfulchat.model.ParameterPass;
-
 import java.io.BufferedReader;
 import java.io.DataOutputStream;
 import java.io.InputStream;
@@ -10,13 +9,17 @@ import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.util.HashMap;
-
 import okhttp3.FormBody;
 import okhttp3.MediaType;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import okhttp3.RequestBody;
 
+/**
+ * @Author wonderful
+ * @Description HTTP请求工具
+ * @Date 2019-8-30
+ */
 public class HttpUtil {
 
     public static final String GET = "get";

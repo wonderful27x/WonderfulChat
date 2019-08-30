@@ -2,9 +2,13 @@ package com.example.wonderfulchat.model;
 
 import android.os.Parcel;
 import android.os.Parcelable;
-
 import java.io.Serializable;
 
+/**
+ * @Author wonderful
+ * @Description 消息封装
+ * @Date 2019-8-30
+ */
 public class MessageModel implements Parcelable, Serializable {
 
     private String sender;

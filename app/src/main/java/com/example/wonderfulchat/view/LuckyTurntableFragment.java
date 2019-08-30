@@ -2,7 +2,6 @@ package com.example.wonderfulchat.view;
 
 import android.content.res.Resources;
 import android.databinding.DataBindingUtil;
-import android.graphics.Color;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
@@ -14,13 +13,16 @@ import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
-
-import com.bumptech.glide.load.engine.Resource;
 import com.example.wonderfulchat.R;
 import com.example.wonderfulchat.customview.DefuTurntable;
 import com.example.wonderfulchat.databinding.LuckyTurntableFragmentLayoutBinding;
 import com.example.wonderfulchat.viewmodel.LuckyTurntableViewModel;
 
+/**
+ * @Author wonderful
+ * @Description 幸运转盘，转动随机获取好友，点击进入聊天
+ * @Date 2019-8-30
+ */
 public class LuckyTurntableFragment extends BaseFragment<LuckyTurntableViewModel>{
 
     private ImageView leftImage;
@@ -48,6 +50,10 @@ public class LuckyTurntableFragment extends BaseFragment<LuckyTurntableViewModel
         return rootView;
     }
 
+    /**
+     * @description 重要的转盘初始化，动态创建能够使用比例初始化参数，适配性更好
+     * @param binding
+     */
     private void resetTurntable(LuckyTurntableFragmentLayoutBinding binding){
         Resources resources = this.getResources();
         DisplayMetrics metrics = resources.getDisplayMetrics();

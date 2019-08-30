@@ -1,5 +1,10 @@
 package com.example.wonderfulchat.model;
 
+/**
+ * @Author wonderful
+ * @Description HTTP Model基础类，这是一种不怎么聪明的封装
+ * @Date 2019-8-30
+ */
 public class HttpBaseModel<T>{
 
     private String result;

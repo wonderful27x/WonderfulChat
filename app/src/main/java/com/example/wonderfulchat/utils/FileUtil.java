@@ -13,6 +13,11 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStreamReader;
 
+/**
+ * @Author wonderful
+ * @Description 文件系统工具
+ * @Date 2019-8-30
+ */
 public class FileUtil {
 
     public static String getJson(Context context, String fileName) {
@@ -31,6 +36,11 @@ public class FileUtil {
         return stringBuilder.toString();
     }
 
+    /**
+     * @description 获取磁盘目录，这里有内存外存之分
+     * @param context,name
+     * @return String
+     */
     public static String getDiskPath(Context context, String name){
         String path;
         boolean externalStorageAvailable = Environment.getExternalStorageState().equals(Environment.MEDIA_MOUNTED);
@@ -46,6 +56,11 @@ public class FileUtil {
         return path;
     }
 
+    /**
+     * @description 读文件
+     * @param file
+     * @return String
+     */
     public static String fileRead(File file){
         BufferedReader bufferedReader = null;
         FileReader fileReader = null;
@@ -76,6 +91,11 @@ public class FileUtil {
         return builder.toString();
     }
 
+    /**
+     * @description 写文件
+     * @param file,text,append
+     * @return String
+     */
     public static void fileSave(File file,String text,boolean append){
         FileWriter writer = null;
         try {
@@ -94,6 +114,10 @@ public class FileUtil {
         }
     }
 
+    /**
+     * @description 清空文件
+     * @param file
+     */
     public static void fileClear(File file){
         FileWriter writer = null;
         try {
@@ -112,12 +136,20 @@ public class FileUtil {
         }
     }
 
+    /**
+     * @description 删除文件
+     * @param file
+     */
     public static void fileDelete(File file){
         if (file.exists() && file.isFile()){
             file.delete();
         }
     }
 
+    /**
+     * @description 删除目录及文件
+     * @param fileDir
+     */
     public static void dirDelete(File fileDir) {
         File[] files = fileDir.listFiles();
         if(files != null) {
@@ -132,6 +164,10 @@ public class FileUtil {
         fileDir.delete();
     }
 
+    /**
+     * @description 将文件从pathA移动到pathB
+     * @param context,pathA,pathB
+     */
     public static void moveFile(Context context,String pathA,String pathB){
         String finalPathA = getDiskPath(context,pathA);
         String finalPathB = getDiskPath(context,pathB);

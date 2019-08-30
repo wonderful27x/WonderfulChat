@@ -3,12 +3,15 @@ package com.example.wonderfulchat.view;
 import android.databinding.DataBindingUtil;
 import android.os.Bundle;
 import android.view.Window;
-
 import com.example.wonderfulchat.R;
 import com.example.wonderfulchat.databinding.ActivityLoginBinding;
-import com.example.wonderfulchat.utils.MemoryUtil;
 import com.example.wonderfulchat.viewmodel.LoginViewModel;
 
+/**
+ * @Author wonderful
+ * @Description 登录界面
+ * @Date 2019-8-30
+ */
 public class LoginActivity extends BaseActivity<LoginViewModel> {
 
     @Override

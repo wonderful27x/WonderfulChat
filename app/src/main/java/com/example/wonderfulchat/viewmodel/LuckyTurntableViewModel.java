@@ -3,12 +3,10 @@ package com.example.wonderfulchat.viewmodel;
 import android.content.Intent;
 import android.os.Parcelable;
 import android.support.v4.app.Fragment;
-
 import com.example.wonderfulchat.customview.DefuTurntable;
 import com.example.wonderfulchat.databinding.LuckyTurntableFragmentLayoutBinding;
 import com.example.wonderfulchat.model.CommonConstant;
 import com.example.wonderfulchat.model.FriendModel;
-import com.example.wonderfulchat.model.HttpUserModel;
 import com.example.wonderfulchat.model.MessageModel;
 import com.example.wonderfulchat.model.UserModel;
 import com.example.wonderfulchat.utils.FileUtil;
@@ -16,13 +14,16 @@ import com.example.wonderfulchat.utils.MemoryUtil;
 import com.example.wonderfulchat.view.ChattingActivity;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
-
 import org.litepal.LitePal;
-
 import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * @Author wonderful
+ * @Description LuckyTurntableViewModel
+ * @Date 2019-8-30
+ */
 public class LuckyTurntableViewModel extends BaseViewModel<Fragment> {
 
     private LuckyTurntableFragmentLayoutBinding layoutBinding;
@@ -36,29 +37,17 @@ public class LuckyTurntableViewModel extends BaseViewModel<Fragment> {
         turntable.setCircleClickListener(new DefuTurntable.CircleClickListener() {
             @Override
             public void circleClick(int position) {
-//                Intent intent = new Intent(getView().getActivity(), ChattingActivity.class);
-//                intent.putExtra("friendName",friendList.get(position).getRemark());
-//                intent.putExtra("friendAccount",friendList.get(position).getAccount());
-//                getView().getActivity().startActivity(intent);
                 jumpToChatting(position);
             }
         });
-//        layoutBinding.luckTurntable.setList(friendList);
-//        layoutBinding.luckTurntable.setCircleClickListener(new DefuTurntable.CircleClickListener() {
-//            @Override
-//            public void circleClick(int position) {
-////                Intent intent = new Intent(getView().getActivity(), ChattingActivity.class);
-////                intent.putExtra("friendName",friendList.get(position).getRemark());
-////                intent.putExtra("friendAccount",friendList.get(position).getAccount());
-////                getView().getActivity().startActivity(intent);
-//                jumpToChatting(position);
-//            }
-//        });
     }
 
+    /**
+     * @description 刷新转盘数据源，重置转盘，
+     * 即每次Fragment的Resume都需要转动转盘才能进入聊天
+     */
     public void refresh(){
         friendList = getFriendList();
-//        layoutBinding.luckTurntable.reset(friendList);
         turntable.reset(friendList);
     }
 
@@ -79,7 +68,10 @@ public class LuckyTurntableViewModel extends BaseViewModel<Fragment> {
         getView().getActivity().startActivity(intent);
     }
 
-    //读取好友消息,根据类型可读取已读消息或未读消息
+    /**
+     * @description 读取好友消息,根据类型可读取已读消息或未读消息
+     * @param readState,account
+     */
     private List<MessageModel> getMessageListFromPhone(String readState,String account){
         List<MessageModel> messageModels;
         String path = FileUtil.getDiskPath(getView().getActivity(),readState);
@@ -96,7 +88,10 @@ public class LuckyTurntableViewModel extends BaseViewModel<Fragment> {
         return messageModels;
     }
 
-    //清空好友消息,点击跳转后信息即为已读，则将未读消息清空
+    /**
+     * @description 清空好友消息,点击跳转后信息即为已读，则将未读消息清空
+     * @param name,messageState
+     */
     public void clearUnreadMessage(String name,String messageState){
         String path = FileUtil.getDiskPath(getView().getActivity(),messageState);
         File file = new File(path, name);
@@ -107,15 +102,10 @@ public class LuckyTurntableViewModel extends BaseViewModel<Fragment> {
         }
     }
 
-//    private List<UserModel> getUserMessage(){
-//        String userModel = FileUtil.getJson(getView().getActivity(), "HttpFriendList");
-//        Gson gson = new Gson();
-//        HttpUserModel httpUserModel = gson.fromJson(userModel, HttpUserModel.class);
-//        List<UserModel> userModels = httpUserModel.getContent();
-//
-//        return userModels;
-//    }
-
+    /**
+     * @description 从数据库中获取好友信息
+     * @return List<? extends UserModel>
+     */
     private List<? extends UserModel> getFriendList(){
         List<? extends UserModel>friendList;
         if (getHostState()){

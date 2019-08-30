@@ -4,6 +4,11 @@ import android.content.Context;
 import android.util.AttributeSet;
 import android.widget.ExpandableListView;
 
+/**
+ * @Author wonderful
+ * @Description 自定义ExpandableListView，为解决嵌套问题
+ * @Date 2019-8-30
+ */
 public class WrapExpandableListView extends ExpandableListView {
     public WrapExpandableListView(Context context) {
         super(context);

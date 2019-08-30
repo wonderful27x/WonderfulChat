@@ -1,5 +1,10 @@
 package com.example.wonderfulchat.model;
 
+/**
+ * @Author wonderful
+ * @Description 消息枚举器
+ * @Date 2019-8-30
+ */
 public enum MessageType {
 
 	ANSWER(10000, "ANSWER"),
@@ -33,7 +38,10 @@ public enum MessageType {
 		this.msg = msg;
 	}
 
-	// 根据value返回枚举类型,主要在switch中使用
+	/**
+	 * @description 根据value返回枚举类型,主要在switch中使用
+	 * @return MessageType
+	 */
 	public static MessageType getByValue(int value) {
 		for (MessageType code : values()) {
 			if (code.getCode() == value) {

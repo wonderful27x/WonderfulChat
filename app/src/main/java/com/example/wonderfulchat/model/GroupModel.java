@@ -3,6 +3,11 @@ package com.example.wonderfulchat.model;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * @Author wonderful
+ * @Description 二级菜单父级
+ * @Date 2019-8-30
+ */
 public class GroupModel {
 
     private String title;

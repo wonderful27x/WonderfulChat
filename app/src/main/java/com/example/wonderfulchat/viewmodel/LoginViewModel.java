@@ -24,17 +24,18 @@ import com.example.wonderfulchat.utils.MemoryUtil;
 import com.example.wonderfulchat.utils.ToastUtil;
 import com.example.wonderfulchat.view.WonderfulChatActivity;
 import com.google.gson.Gson;
-import com.google.gson.JsonObject;
-import org.json.JSONException;
-import org.json.JSONObject;
 import org.litepal.LitePal;
-
 import java.io.File;
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * @Author wonderful
+ * @Description LoginViewModel
+ * @Date 2019-8-30
+ */
 public class LoginViewModel extends BaseViewModel<Activity> {
 
     private static final String TAG = "LoginViewModel";
@@ -42,6 +43,9 @@ public class LoginViewModel extends BaseViewModel<Activity> {
     private LoadingDialog loadingDialog;
     private boolean clickAble = true;
 
+    /**
+     * dataBinding变量监听，当值改变是与值绑定的控件状态也会改变
+     */
     private ObservableField<Boolean> isChecked = new ObservableField<>(false);
     private ObservableField<String> account = new ObservableField<>();
     private ObservableField<String> password = new ObservableField<>();
@@ -74,6 +78,10 @@ public class LoginViewModel extends BaseViewModel<Activity> {
 
     }
 
+    /**
+     * @description 登录，这是dataBinding的用法
+     * @param view
+     */
     public void login(View view){
         if (clickAble){
             clickAble = false;
@@ -98,16 +106,6 @@ public class LoginViewModel extends BaseViewModel<Activity> {
                         clickAble = true;
                         loadingDialog.dialogDismiss();
                         getUserMessage(response);
-//                        if(response.equals("登录成功")){
-//                            accountPassSave(isChecked.get());
-//                            Intent intent = new Intent(getView(), WonderfulChatActivity.class);
-//                            getView().startActivity(intent);
-//                            ToastUtil.showToast("Welcome");
-//                            //getView().finish();
-//                            getUserMessage();
-//                        }else {
-//                            ToastUtil.showToast("账号或密码错误");
-//                        }
                     }
                 });
             }
@@ -129,6 +127,10 @@ public class LoginViewModel extends BaseViewModel<Activity> {
         LogUtil.d(TAG, "account: "+account+" "+"password: "+password);
     }
 
+    /**
+     * @description 注册，严格控制了输入字符和长度，避免后台字符串处理带来麻烦
+     * @param view
+     */
     public void registerClick(View view){
         ToastUtil.showToast("请长按注册");
     }
@@ -184,6 +186,10 @@ public class LoginViewModel extends BaseViewModel<Activity> {
         return true;
     }
 
+    /**
+     * @description 登录成功返回一个列表，第一项是登录者信息，剩下的是好友信息
+     * @param jsonData
+     */
     private void getUserMessage(String jsonData){
 
         Gson gson = new Gson();
@@ -196,9 +202,6 @@ public class LoginViewModel extends BaseViewModel<Activity> {
 
             List<UserModel> userModels = httpUserModel.getContent();
             messageSave(userModels);
-//            String userModelString = gson.toJson(userModels.get(0));
-//            MemoryUtil.sharedPreferencesSaveString("UserModel",userModelString);
-//            saveToDatabase(userModels);
             Intent intent = new Intent(getView(), WonderfulChatActivity.class);
             getView().startActivity(intent);
             getView().finish();
@@ -209,16 +212,14 @@ public class LoginViewModel extends BaseViewModel<Activity> {
             ToastUtil.showToast("登录失败！");
             LogUtil.d(TAG,httpUserModel.getMessage());
         }
-
-//        String httpUserModelString = FileUtil.getJson(getView(), "HttpUserModel");
-//        Gson gson = new Gson();
-//        HttpUserModel httpUserModel = gson.fromJson(httpUserModelString, HttpUserModel.class);
-//        UserModel userModel = httpUserModel.getContent().get(0);
-//        String userModelString = gson.toJson(userModel);
-//        MemoryUtil.sharedPreferencesSaveString("UserModel",userModelString);
     }
 
-    //消息存储，根据账号是否为HOST账号和是否和上一个登录的账号相同执行不同的消息存储策略
+    /**
+     * @description 重要的消息存储策略，实现不同登录用户的数据持久化，
+     * 根据账号是否为HOST账号和是否和上一个登录的账号相同执行不同的消息存储策略，
+     * 这里设计了HOST和非HOST两套策略
+     * @param userModels
+     */
     private void messageSave(List<UserModel> userModels){
         Gson gson = new Gson();
         String hostAccount = MemoryUtil.sharedPreferencesGetString(CommonConstant.HOST_ACCOUNT);
@@ -263,25 +264,11 @@ public class LoginViewModel extends BaseViewModel<Activity> {
         }
     }
 
-    //    private void getUserMessage(){
-//        String userModel = FileUtil.getJson(getView(), "HttpUserModel");
-//        Gson gson = new Gson();
-//        HttpUserModel httpUserModel = gson.fromJson(userModel, HttpUserModel.class);
-//        MessageEvent event = new MessageEvent();
-//        event.setUserModel(httpUserModel.getContent().get(0));
-//
-//        EventBus.getDefault().post(event);
-//    }
-
-//    //将数据存入数据库
-//    private void saveToDatabase(UserModel userModel){
-//        int num = userModel.updateAll("account=?",userModel.getAccount());
-//        if (num<=0){
-//            userModel.save();
-//        }
-//    }
-
-    //将数据存入数据库
+    /**
+     * @description 好友信息存储策略，为数据库方式存储，
+     * 获取好友消息后存入数据库，根据账号类型执行不同的策略
+     * @param userModelList,hostAccount
+     */
     private void saveToDatabase(List<UserModel> userModelList,boolean hostAccount){
         List<UserModel> userModels = new ArrayList<>();
         if (!hostAccount){
@@ -302,6 +289,10 @@ public class LoginViewModel extends BaseViewModel<Activity> {
         }
     }
 
+    /**
+     * @description 数据清除，防止登录账号获取到其他曾经登录过的账号信息，
+     * 这里清除的是非Host账号所有信息
+     */
     private void clearAllOtherMessage(){
         MemoryUtil.sharedPreferencesSaveString(CommonConstant.OTHER_USER_MODEL,"");
         MemoryUtil.sharedPreferencesSaveString(CommonConstant.OTHER_MESSAGE_ACCOUNT,"");

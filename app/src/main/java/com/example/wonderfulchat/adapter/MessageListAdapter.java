@@ -1,37 +1,34 @@
 package com.example.wonderfulchat.adapter;
 
 import android.databinding.DataBindingUtil;
-import android.graphics.drawable.Drawable;
 import android.support.annotation.NonNull;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.request.RequestOptions;
 import com.example.wonderfulchat.R;
 import com.example.wonderfulchat.databinding.MessageItemBinding;
-import com.example.wonderfulchat.model.FriendModel;
 import com.example.wonderfulchat.model.MessageModel;
 import com.example.wonderfulchat.model.MessageType;
 import com.example.wonderfulchat.model.UserModel;
-import com.example.wonderfulchat.utils.MemoryUtil;
 import com.example.wonderfulchat.viewmodel.MessageViewModel;
-import com.google.gson.Gson;
-
-import org.litepal.LitePal;
-
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * @Author wonderful
+ * @Description 消息列表适配器，使用了DataBinding的写法，并且让其持有了一个ViewModel的引用，
+ * 和与其关联的Fragment共用一个ViewModel,加剧了耦合性
+ * @Date 2019-8-30
+ */
 public class MessageListAdapter extends RecyclerView.Adapter<MessageListAdapter.ViewHolder>{
 
     private List<List<MessageModel>> unReadMessageList;
     private List<List<MessageModel>> ReadMessageList;
     private List<List<MessageModel>> messageList;
     private MessageViewModel messageViewModel;
-//    private UserModel userModel;
     private ItemClickListener itemClickListener;
     private int notePosition;
     private RequestOptions options;
@@ -40,10 +37,6 @@ public class MessageListAdapter extends RecyclerView.Adapter<MessageListAdapter.
         this.unReadMessageList = unReadMessageList;
         this.ReadMessageList = ReadMessageList;
         this.messageViewModel = messageViewModel;
-
-//        String modelString = MemoryUtil.sharedPreferencesGetString("UserModel");
-//        Gson gson = new Gson();
-//        userModel = gson.fromJson(modelString, UserModel.class);
 
         messageList = new ArrayList<>();
         messageList.addAll(unReadMessageList);
@@ -104,23 +97,14 @@ public class MessageListAdapter extends RecyclerView.Adapter<MessageListAdapter.
             }
         }
 
-//        //这里逻辑不好，应该从数据库取出friend的信息
-//        String name = "";
-//        String image = "";
-//        if (messageModel.getType() == MessageType.MESSAGE_RECEIVE.getCode()){
-//            name = messageModel.getSender();
-//            image = messageModel.getSenderImage();
-//        }else if (messageModel.getType() == MessageType.MESSAGE_SEND.getCode()){
-//            name = messageModel.getReceiver();
-//            image = "";
-//        }
-
         viewHolder.getBinding().userName.setText(name);
         viewHolder.getBinding().lastTime.setText(messageModel.getTime());
+
         Glide.with(messageViewModel.getView())
                 .load(image)
                 .apply(options)
                 .into(viewHolder.getBinding().headImage);
+
         viewHolder.binding.itemLayout.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -170,14 +154,4 @@ public class MessageListAdapter extends RecyclerView.Adapter<MessageListAdapter.
         this.itemClickListener = itemClickListener;
     }
 
-//    private UserModel getUserModelFromDatabase(String account){
-//        List userModel;
-//        if (getHostState()){
-//            userModel = LitePal.where("account=?",account).find(UserModel.class);
-//        }else {
-//            userModel = LitePal.where("account=?",account).find(FriendModel.class);
-//        }
-//        if (userModel == null || userModel.size()<=0)return null;
-//        return (UserModel) userModel.get(0);
-//    }
 }

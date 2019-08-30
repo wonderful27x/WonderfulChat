@@ -8,11 +8,13 @@ import android.view.View;
 import android.view.Window;
 import android.view.WindowManager;
 
+/**
+ * @Author wonderful
+ * @Description 状态栏透明工具
+ * @Date 2019-8-30
+ */
 public class StatusUtil {
 
-    /**
-     * 设置状态栏透明
-     */
     @TargetApi(19)
     public static void setTranslucentStatus(Activity activity) {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {

@@ -19,8 +19,6 @@ import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
 import android.support.v4.content.FileProvider;
 import android.support.v4.content.LocalBroadcastManager;
-import android.text.InputFilter;
-import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -36,7 +34,6 @@ import com.example.wonderfulchat.customview.DefuEditText;
 import com.example.wonderfulchat.databinding.ActivityWonderfulChatBinding;
 import com.example.wonderfulchat.interfaces.HttpCallbackListener;
 import com.example.wonderfulchat.model.CommonConstant;
-import com.example.wonderfulchat.model.HttpUserModel;
 import com.example.wonderfulchat.model.InternetAddress;
 import com.example.wonderfulchat.model.UserModel;
 import com.example.wonderfulchat.utils.HttpUtil;
@@ -48,9 +45,12 @@ import com.example.wonderfulchat.viewmodel.WonderfulChatViewModel;
 import com.google.gson.Gson;
 import java.io.File;
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
 
+/**
+ * @Author wonderful
+ * @Description 主ACTIVITY
+ * @Date 2019-8-30
+ */
 public class WonderfulChatActivity extends BaseActivity <WonderfulChatViewModel> implements NavigationView.OnNavigationItemSelectedListener,View.OnClickListener{
 
     private static final String TAG = "WonderfulChatActivity";
@@ -69,6 +69,7 @@ public class WonderfulChatActivity extends BaseActivity <WonderfulChatViewModel>
     private LocalReceiver localReceiver;
     private LocalBroadcastManager broadcastManager;
     private IntentFilter intentFilter;
+     /** 免登录变量，如果未退出下次直接跳转到此Activity**/
     public static boolean isLogin;
 
     @Override
@@ -79,13 +80,15 @@ public class WonderfulChatActivity extends BaseActivity <WonderfulChatViewModel>
         chatBinding.setWonderfulViewModel(getViewModel());
         getViewModel().setChatBinding(chatBinding);
 
+        /**
+         * 注册本地广播，用于接收消息
+         */
         localReceiver = new LocalReceiver();
         broadcastManager = LocalBroadcastManager.getInstance(this);
         intentFilter = new IntentFilter();
         intentFilter.addAction(CommonConstant.LOCAL_BROADCAST_NOTE);
         broadcastManager.registerReceiver(localReceiver,intentFilter);
 
-//        EventBus.getDefault().register(this);
         initLeftDrawer(chatBinding);
         getViewModel().initView(broadcastManager);
 
@@ -99,6 +102,10 @@ public class WonderfulChatActivity extends BaseActivity <WonderfulChatViewModel>
         getViewModel().getNotice();
     }
 
+    /**
+     * @description 初始化抽屉
+     * @param chatBinding
+     */
     private void initLeftDrawer(ActivityWonderfulChatBinding chatBinding){
 
         getViewModel().firstStatement();
@@ -181,14 +188,19 @@ public class WonderfulChatActivity extends BaseActivity <WonderfulChatViewModel>
 
         Gson gson = new Gson();
         model = gson.fromJson(userModel, UserModel.class);
+        /**
+         * 图片加载策略
+         */
         RequestOptions options = new RequestOptions()
                 .placeholder(R.drawable.default_head_image)
                 .fallback(R.drawable.default_head_image)
                 .error(R.drawable.default_head_image);
+
         Glide.with(this)
                 .load(model.getImageUrl())
                 .apply(options)
                 .into(headImage);
+
         if (model.getNickname() != null && !model.getNickname().isEmpty()){
             userName.setText(model.getNickname());
             userNameEdit.setText(model.getNickname());
@@ -217,14 +229,6 @@ public class WonderfulChatActivity extends BaseActivity <WonderfulChatViewModel>
 
     }
 
-//    @Subscribe(threadMode = ThreadMode.MAIN)
-//    public void onEvent(MessageEvent event){
-//        LogUtil.d(TAG,"onEvent");
-//        Glide.with(this).load(event.getUserModel().getImageUrl()).into(headImage);
-//        userName.setText(event.getUserModel().getNickname());
-//        lifeMotto.setText(event.getUserModel().getLifeMotto());
-//    }
-
     @Override
     public WonderfulChatViewModel bindViewModel() {
         return new WonderfulChatViewModel();
@@ -236,17 +240,6 @@ public class WonderfulChatActivity extends BaseActivity <WonderfulChatViewModel>
             case R.id.menu_switchAccount:
                 getViewModel().logoutOrSwitch("switch",model.getAccount());
                 return true;
-//            case R.id.menu_register:
-//                SimpleDialog dialog1 = new SimpleDialog(this);
-//                dialog1.setConfirmClickListener(new SimpleDialog.ConfirmClickListener() {
-//                    @Override
-//                    public void parameterPass(String parameter1, String parameter2) {
-//                        LogUtil.d(TAG, "parameterPass: " + parameter1 + "-" + parameter2);
-//                    }
-//                });
-//                dialog1.show();
-//                dialog1.setParameterNote("账号：","密码：");
-//                return true;
             case R.id.menu_upload:
                 ToastUtil.showToast("待开发！");
                 return true;
@@ -431,13 +424,15 @@ public class WonderfulChatActivity extends BaseActivity <WonderfulChatViewModel>
     @Override
     protected void onDestroy() {
         isLogin = false;
-//        EventBus.getDefault().unregister(this);
         broadcastManager.unregisterReceiver(localReceiver);
         logoutBeforeDestroy();
         LogUtil.d(TAG,"destroy");
         super.onDestroy();
     }
 
+    /**
+     * @description Activity销毁前退出登录，这看起来似乎有安全隐患
+     */
     public void logoutBeforeDestroy(){
         String url = InternetAddress.LOGOUT_URL + "?account=" + model.getAccount();
         HttpUtil.httpRequestForGet(url, new HttpCallbackListener() {
@@ -464,32 +459,6 @@ public class WonderfulChatActivity extends BaseActivity <WonderfulChatViewModel>
                 });
             }
         });
-    }
-
-    private void gsonToJson(){
-        Gson gson = new Gson();
-
-        HttpUserModel loginModel = new HttpUserModel();
-        UserModel userModel = new UserModel();
-        List<UserModel> modelList = new ArrayList<>();
-
-        userModel.setAccount("wonderful");
-        userModel.setPassword("123456");
-        userModel.setNickname("德芙");
-        userModel.setRemark("巧克力");
-        userModel.setLifeMotto("为国家繁荣富强而努力奋斗");
-        userModel.setImageUrl("http://192.168.191.5:8080/file/girl.jpg");
-
-        for (int i=0; i<10; i++){
-            modelList.add(userModel);
-        }
-
-        loginModel.setResult("success");
-        loginModel.setContent(modelList);
-
-        String jsonString = gson.toJson(loginModel);
-        Log.d(TAG, "gsonToJson: " + jsonString);
-
     }
 
     private boolean getHostState(){

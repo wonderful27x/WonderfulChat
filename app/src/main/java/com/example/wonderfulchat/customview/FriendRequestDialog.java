@@ -15,6 +15,11 @@ import com.bumptech.glide.request.RequestOptions;
 import com.example.wonderfulchat.R;
 import com.example.wonderfulchat.model.UserModel;
 
+/**
+ * @Author wonderful
+ * @Description 弹窗,用于展示好友申请的信息
+ * @Date 2019-8-30
+ */
 public class FriendRequestDialog extends Dialog {
 
     private DialogClickListener dialogClickListener;
@@ -48,13 +53,12 @@ public class FriendRequestDialog extends Dialog {
         requestWindowFeature(Window.FEATURE_NO_TITLE);
         setContentView(R.layout.friend_request_dialog_layout);
 
-        //设置弹窗的宽度
         WindowManager manager = getWindow().getWindowManager();
         Display display = manager.getDefaultDisplay();
         WindowManager.LayoutParams params = getWindow().getAttributes();
         Point size = new Point();
         display.getSize(size);
-        params.width = (int)(size.x * 0.85);//是dialog的宽度为app界面的85%
+        params.width = (int)(size.x * 0.85);                               //是dialog的宽度为app界面的85%
         getWindow().setAttributes(params);
 
         close = findViewById(R.id.close);

@@ -8,9 +8,13 @@ import android.text.TextWatcher;
 import android.util.AttributeSet;
 import android.view.MotionEvent;
 import android.view.View;
-
 import com.example.wonderfulchat.R;
 
+/**
+ * @Author wonderful
+ * @Description 自定义EditTextView,可实现左右图片的大小控制和点击事件监听，可实现清除功能
+ * @Date 2019-8-29
+ */
 public class DefuEditText extends android.support.v7.widget.AppCompatEditText implements View.OnFocusChangeListener{
 
     private boolean rightClear;
@@ -98,15 +102,15 @@ public class DefuEditText extends android.support.v7.widget.AppCompatEditText im
         if(rightClear){
             setClearIconVisible(false);
             setOnFocusChangeListener(this);
-            addTextChangedListener(new DfTextWatcher());//必须这样写，否则将执行顺序会出错
+            addTextChangedListener(new DfTextWatcher());//必须这样写，否则执行顺序会出错
         }
     }
 
     /**
-     * 因为我们不能直接给EditText设置点击事件，所以我们用记住我们按下的位置来模拟点击事件 当我们按下的位置 在 EditText的宽度 -
-     * 图标到控件右边的间距 - 图标的宽度 和 EditText的宽度 - 图标到控件右边的间距之间我们就算点击了图标，竖直方向没有考虑
+     * @description 根据点击坐标位置判断是否有点击事件发生
+     * @param event
+     * @return boolean
      */
-
     @Override
     public boolean onTouchEvent(MotionEvent event) {
         if (event.getAction() == MotionEvent.ACTION_UP) {
@@ -138,7 +142,8 @@ public class DefuEditText extends android.support.v7.widget.AppCompatEditText im
     }
 
     /**
-     * 当ClearEditText焦点发生变化的时候，判断里面字符串长度设置清除图标的显示与隐藏
+     * @description  当ClearEditText焦点发生变化的时候，判断里面字符串长度设置清除图标的显示与隐藏
+     *@param v,hasFocus
      */
     @Override
     public void onFocusChange(View v, boolean hasFocus) {
@@ -150,8 +155,7 @@ public class DefuEditText extends android.support.v7.widget.AppCompatEditText im
     }
 
     /**
-     * 设置清除图标的显示与隐藏，调用setCompoundDrawables为EditText绘制上去
-     *
+     * @description 设置清除图标的显示与隐藏，调用setCompoundDrawables为EditText绘制上去
      * @param visible
      */
     protected void setClearIconVisible(boolean visible) {

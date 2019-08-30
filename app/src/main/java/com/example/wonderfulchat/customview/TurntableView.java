@@ -10,8 +10,6 @@ import android.util.AttributeSet;
 import android.util.Log;
 import android.view.MotionEvent;
 import android.view.View;
-
-import com.example.wonderfulchat.R;
 import com.example.wonderfulchat.utils.LogUtil;
 
 /**

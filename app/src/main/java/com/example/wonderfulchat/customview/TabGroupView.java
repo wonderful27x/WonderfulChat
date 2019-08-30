@@ -6,10 +6,14 @@ import android.support.annotation.RequiresApi;
 import android.util.AttributeSet;
 import android.view.View;
 import android.widget.LinearLayout;
-
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * @Author wonderful
+ * @Description ViewPager 底部页签，可时间颜色渐变
+ * @Date 2019-8-30
+ */
 public class TabGroupView extends LinearLayout {
 
     private TabSelectedListener tabSelectedListener;

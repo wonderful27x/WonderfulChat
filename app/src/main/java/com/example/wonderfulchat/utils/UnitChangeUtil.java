@@ -2,6 +2,11 @@ package com.example.wonderfulchat.utils;
 
 import com.example.wonderfulchat.view.MyApplication;
 
+/**
+ * @Author wonderful
+ * @Description 单位转换工具
+ * @Date 2019-8-30
+ */
 public class UnitChangeUtil {
 
     public static int dp2px(float dx){

@@ -1,5 +1,10 @@
 package com.example.wonderfulchat.model;
 
+/**
+ * @Author wonderful
+ * @Description 接口API
+ * @Date 2019-8-30
+ */
 public class InternetAddress {
     public static final String HOST_IP = "192.168.31.32";
     public static final String HOST = "http://192.168.31.32:8080";

@@ -2,6 +2,11 @@ package com.example.wonderfulchat.model;
 
 import java.util.HashMap;
 
+/**
+ * @Author wonderful
+ * @Description 参数传递类，用于Http的参数传递
+ * @Date 2019-8-30
+ */
 public class ParameterPass {
 
     private String type;

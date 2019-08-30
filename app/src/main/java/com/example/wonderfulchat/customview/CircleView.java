@@ -93,8 +93,6 @@ public class CircleView extends View {
      * @description 初始化中心坐标，画笔及监听事件等
      */
     private void init(){
-//        circleX = (int)(circleRadius * outerCircleP + PADDING);
-//        circleY = (int)(circleRadius * outerCircleP  + PADDING);
         textSize = circleRadius/P;
 
         circleX = circleRadius + PADDING;
@@ -238,19 +236,6 @@ public class CircleView extends View {
         bitmap = Bitmap.createBitmap(bitmap, 0, 0, min, min, matrix, false);
         return bitmap;
     }
-
-//    /**
-//     * @description 压缩图片(这种方法会导致变形)
-//     * @param source,width,height
-//     * @return Bitmap
-//     */
-//    private Bitmap zoom(Bitmap source,float width ,float height){
-//        Bitmap bitmap = null;
-//        Matrix matrix = new Matrix();
-//        matrix.postScale(width / source.getWidth(),height / source.getHeight());
-//        bitmap = Bitmap.createBitmap(source, 0, 0, source.getWidth(), source.getHeight(), matrix, false);
-//        return bitmap;
-//    }
 
     @Override
     public boolean onTouchEvent(MotionEvent event) {

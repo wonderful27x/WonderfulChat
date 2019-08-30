@@ -2,6 +2,11 @@ package com.example.wonderfulchat.utils;
 
 import android.util.Log;
 
+/**
+ * @Author wonderful
+ * @Description 日志打印工具，在正式的Apk打包前可一键取消所有日志
+ * @Date 2019-8-30
+ */
 public class LogUtil {
 
     public static final int VERBOSE = 1;
@@ -10,7 +15,7 @@ public class LogUtil {
     public static final int WARN = 4;
     public static final int ERROR = 5;
     public static final int NOTHING = 6;
-    public static int level = VERBOSE;
+    public static int level = NOTHING;
 
     public static void v(String tag, String msg){
         if(level <= VERBOSE){

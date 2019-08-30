@@ -4,6 +4,11 @@ import android.content.Context;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.TextView;
 
+/**
+ * @Author wonderful
+ * @Description 软键盘工具
+ * @Date 2019-8-30
+ */
 public class KeyboardUtil {
 
     //隐藏软键盘

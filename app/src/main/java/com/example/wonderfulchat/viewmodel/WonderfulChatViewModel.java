@@ -7,7 +7,6 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.database.Cursor;
 import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Build;
@@ -32,7 +31,6 @@ import com.example.wonderfulchat.interfaces.HttpCallbackListener;
 import com.example.wonderfulchat.model.CommonConstant;
 import com.example.wonderfulchat.model.FriendModel;
 import com.example.wonderfulchat.model.InternetAddress;
-import com.example.wonderfulchat.model.MessageModel;
 import com.example.wonderfulchat.model.ParameterPass;
 import com.example.wonderfulchat.model.UserModel;
 import com.example.wonderfulchat.utils.FileUtil;
@@ -46,24 +44,24 @@ import com.example.wonderfulchat.view.LoginActivity;
 import com.example.wonderfulchat.view.LuckyTurntableFragment;
 import com.example.wonderfulchat.view.MessageFragment;
 import com.google.gson.Gson;
-import com.google.gson.reflect.TypeToken;
-
 import org.litepal.LitePal;
-
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
-import java.io.PipedReader;
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
-
 import okhttp3.Call;
 import okhttp3.Callback;
 import okhttp3.Response;
 
+/**
+ * @Author wonderful
+ * @Description WonderfulChatViewModel
+ * @Date 2019-8-30
+ */
 public class WonderfulChatViewModel extends BaseViewModel <AppCompatActivity> {
 
     private static final String TAG = "WonderfulChatViewModel";
@@ -130,7 +128,6 @@ public class WonderfulChatViewModel extends BaseViewModel <AppCompatActivity> {
             }
         });
 
-        //getUserMessage();
     }
 
     private void sendBroadcast(){
@@ -143,6 +140,10 @@ public class WonderfulChatViewModel extends BaseViewModel <AppCompatActivity> {
         return MemoryUtil.sharedPreferencesGetBoolean(CommonConstant.HOST_STATE);
     }
 
+    /**
+     * @description 接收服务器消息并通过广播发给Activity处理，
+     * 这是一种简单的消息传达策略，免去了复杂的推送
+     */
     public void getNotice(){
         String url = InternetAddress.GET_NOTICE_URL;
         HttpUtil.httpRequestForGet(url, new HttpCallbackListener() {
@@ -211,6 +212,9 @@ public class WonderfulChatViewModel extends BaseViewModel <AppCompatActivity> {
         return path;
     }
 
+    /**
+     * @description 有趣的声明
+     */
     public void statement(){
         AlertDialog.Builder dialog = new AlertDialog.Builder(getView());
         dialog.setTitle("声明：");
@@ -253,6 +257,10 @@ public class WonderfulChatViewModel extends BaseViewModel <AppCompatActivity> {
         dialog.show();
     }
 
+    /**
+     * @description 重要的消息存储策略，当一个账号从非Host转成Host时，
+     * 先将Host数据清除，在移动数据到Hsot,最后清空非Host
+     */
     public void messageMoveToHost(){
         //清空HOST
         clearHost();
@@ -494,16 +502,10 @@ public class WonderfulChatViewModel extends BaseViewModel <AppCompatActivity> {
         dialog.show();
     }
 
-//    private void getUserMessage(){
-//        String userModel = FileUtil.getJson(getView(), "HttpUserModel");
-//        Gson gson = new Gson();
-//        HttpUserModel httpUserModel = gson.fromJson(userModel, HttpUserModel.class);
-//        MessageEvent event = new MessageEvent();
-//        event.setUserModel(httpUserModel.getContent().get(0));
-//
-//        EventBus.getDefault().post(event);
-//    }
-
+    /**
+     * @description 使用了简单的Base64将图片信息转换成字符串传输
+     * @param url,imageView
+     */
     @SuppressLint("StaticFieldLeak")
     public void uploadHeadImage(final String url, final ImageView imageView){
         loadingDialog.dialogShow();
@@ -550,7 +552,6 @@ public class WonderfulChatViewModel extends BaseViewModel <AppCompatActivity> {
                                 loadingDialog.dialogDismiss();
                                 Glide.with(getView()).load(R.drawable.default_head_image).into(imageView);
                                 ToastUtil.showToast("上传失败！");
-//                                ToastUtil.showToast(e.getMessage());
                                 LogUtil.e(TAG,e.getMessage());
                             }
                         });
@@ -578,7 +579,6 @@ public class WonderfulChatViewModel extends BaseViewModel <AppCompatActivity> {
                                     }else{
                                         Glide.with(getView()).load(R.drawable.default_head_image).into(imageView);
                                         ToastUtil.showToast("上传失败！");
-//                                        ToastUtil.showToast(responseData);
                                         LogUtil.e(TAG,responseData);
                                     }
                                 } catch (IOException e) {
@@ -592,88 +592,6 @@ public class WonderfulChatViewModel extends BaseViewModel <AppCompatActivity> {
             }
         }.execute();
     }
-
-//    @SuppressLint("StaticFieldLeak")
-//    public void uploadHeadImage(final String url, final ImageView imageView){
-//        Glide.with(getView()).load(url).into(imageView);
-//
-//        final ParameterPass parameterPass = new ParameterPass();
-//        new AsyncTask<Void,Void,Void>(){
-//
-//            @Override
-//            protected Void doInBackground(Void... voids) {
-//                Bitmap bitmap = null;
-//                bitmap = ImageCompressUtil.decodeBitmapFromFile(url,imageView.getWidth(),imageView.getHeight());
-//                ByteArrayOutputStream stream = new ByteArrayOutputStream();
-//                bitmap.compress(Bitmap.CompressFormat.JPEG, 50, stream);
-//                byte[] byteArr = stream.toByteArray();
-//                String bitmapString = Base64.encodeToString(byteArr, 0);
-//
-//                String imageUrlLastState;
-//                if (userModel.getImageUrl() != null && userModel.getImageUrl().length()>=6){
-//                    imageUrlLastState = userModel.getImageUrl().substring(userModel.getImageUrl().length()-6,userModel.getImageUrl().length()-4);
-//                }else {
-//                    imageUrlLastState = "$0";
-//                }
-//
-//                HashMap<String,String> map = new HashMap<>();
-//                map.put("account",userModel.getAccount());
-//                map.put("imageString",bitmapString);
-//                map.put("imageUrlLastState",imageUrlLastState);
-//                parameterPass.setType(HttpUtil.POST_FORM);
-//                parameterPass.setMap(map);
-//
-//                return null;
-//            }
-//
-//            @Override
-//            protected void onPostExecute(Void aVoid) {
-//                HttpUtil.sendOkHttpRequest(InternetAddress.UPLOAD_IMAGE_URL, parameterPass, new Callback() {
-//                    @Override
-//                    public void onFailure(Call call, final IOException e) {
-//                        getView().runOnUiThread(new Runnable() {
-//                            @Override
-//                            public void run() {
-//                                Glide.with(getView()).load(R.drawable.default_head_image).into(imageView);
-//                                ToastUtil.showToast("上传失败！");
-//                                LogUtil.e(TAG,e.getMessage());
-//                            }
-//                        });
-//                    }
-//
-//                    @Override
-//                    public void onResponse(Call call, final Response response) throws IOException {
-//                        getView().runOnUiThread(new Runnable() {
-//                            @Override
-//                            public void run() {
-//                                try {
-//                                    String responseData = response.body().string();
-//                                    if(responseData.substring(0,7).equals("success")){
-//                                        ToastUtil.showToast("上传成功！");
-//                                        String imageUrl = responseData.substring(7);
-//                                        userModel.setImageUrl(imageUrl);
-//                                        Gson gson = new Gson();
-//                                        String jsonData = gson.toJson(userModel);
-//                                        if (getHostState()){
-//                                            MemoryUtil.sharedPreferencesSaveString(CommonConstant.HOST_USER_MODEL,jsonData);
-//                                        }else {
-//                                            MemoryUtil.sharedPreferencesSaveString(CommonConstant.OTHER_USER_MODEL,jsonData);
-//                                        }
-//                                    }else{
-//                                        ToastUtil.showToast("上传失败！");
-//                                        LogUtil.e(TAG,responseData);
-//                                    }
-//                                } catch (IOException e) {
-//                                    e.printStackTrace();
-//                                }
-//
-//                            }
-//                        });
-//                    }
-//                });
-//            }
-//        }.execute();
-//    }
 
     public ActivityWonderfulChatBinding getChatBinding() {
         return chatBinding;

@@ -9,6 +9,11 @@ import com.example.wonderfulchat.databinding.ActivitySplashBinding;
 import com.example.wonderfulchat.utils.StatusUtil;
 import com.example.wonderfulchat.viewmodel.SplashViewModel;
 
+/**
+ * @Author wonderful
+ * @Description 动画播放界面
+ * @Date 2019-8-30
+ */
 public class SplashActivity extends BaseActivity<SplashViewModel> {
 
     @Override

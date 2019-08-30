@@ -14,6 +14,11 @@ import com.example.wonderfulchat.model.FriendRequestModel;
 import com.example.wonderfulchat.viewmodel.FriendListViewModel;
 import java.util.List;
 
+/**
+ * @Author wonderful
+ * @Description FriendRequest适配器
+ * @Date 2019-8-30
+ */
 public class FriendRequestAdapter extends RecyclerView.Adapter<FriendRequestAdapter.ViewHolder>{
 
     private FriendListViewModel friendListViewModel;

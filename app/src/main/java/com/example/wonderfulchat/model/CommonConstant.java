@@ -6,8 +6,9 @@
 package com.example.wonderfulchat.model;
 
 /**
- *
- * @author Acer
+ * @Author wonderful
+ * @Description 常用常量
+ * @Date 2019-8-30
  */
 public class CommonConstant {
 
