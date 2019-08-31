@@ -544,7 +544,7 @@ public class ChattingViewModel extends BaseViewModel<AppCompatActivity> {
                 receiveThread.stop();
             }
             if (sendThread != null){
-                sendThread.start();
+                sendThread.stop();
             }
             if (messageThread != null){
                 messageThread.stop();
