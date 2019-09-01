@@ -10,7 +10,7 @@
     <application
         android:name=".view.MyApplication"
         android:allowBackup="true"
-        android:icon="@drawable/ic_launcher"
+        android:icon="@mipmap/dragon_blue_round"
         android:label="@string/app_name"
         android:roundIcon="@drawable/ic_launcher_round"
         android:supportsRtl="true"
@@ -19,9 +19,6 @@
         tools:ignore="GoogleAppIndexingWarning">
         <activity
             android:name=".view.WonderfulChatActivity"
-            android:launchMode="singleTask"/>
-        <activity
-            android:name=".view.MainActivity"
             android:launchMode="singleTask"/>
         <activity
             android:name=".view.ChattingActivity"
