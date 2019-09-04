@@ -1,6 +1,5 @@
 package com.example.wonderfulchat.view;
 
-import android.content.Intent;
 import android.databinding.DataBindingUtil;
 import android.os.Bundle;
 import android.view.Window;
@@ -24,12 +23,6 @@ public class SplashActivity extends BaseActivity<SplashViewModel> {
         ActivitySplashBinding splashBinding = DataBindingUtil.setContentView(this, R.layout.activity_splash);
         splashBinding.setSplash(getViewModel());
         getViewModel().setDataBinding(splashBinding);
-
-        if (WonderfulChatActivity.isLogin){
-            Intent intent = new Intent(this,WonderfulChatActivity.class);
-            startActivity(intent);
-            return;
-        }
 
         getViewModel().animation();
     }

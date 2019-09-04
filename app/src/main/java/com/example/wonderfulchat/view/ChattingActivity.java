@@ -16,6 +16,7 @@ import com.example.wonderfulchat.R;
 import com.example.wonderfulchat.databinding.ActivityChattingBinding;
 import com.example.wonderfulchat.model.MessageModel;
 import com.example.wonderfulchat.model.UserModel;
+import com.example.wonderfulchat.utils.LogUtil;
 import com.example.wonderfulchat.utils.UnitChangeUtil;
 import com.example.wonderfulchat.viewmodel.ChattingViewModel;
 import java.util.List;
@@ -28,6 +29,8 @@ import java.util.List;
  * @Date 2019-8-30
  */
 public class ChattingActivity extends BaseActivity<ChattingViewModel> {
+
+    private static final String TAG = "ChattingActivity";
 
     private ImageView leftImage;
     private ImageView rightImage;
@@ -51,6 +54,7 @@ public class ChattingActivity extends BaseActivity<ChattingViewModel> {
         initView(binding,friendModel);
         getViewModel().initView(messageModel,friendModel);
 
+        LogUtil.d(TAG,"onCreate");
     }
 
     private void initView(ActivityChattingBinding binding,UserModel friendModel){
@@ -78,16 +82,7 @@ public class ChattingActivity extends BaseActivity<ChattingViewModel> {
         leftImage.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                getViewModel().exit();
-                getViewModel().messageSave();
-                getViewModel().saveMessageAccounts();
-                try {
-                    Thread.sleep(200);
-                } catch (InterruptedException e) {
-                    e.printStackTrace();
-                }finally {
-                    finish();
-                }
+                finish();
             }
         });
     }
@@ -112,23 +107,12 @@ public class ChattingActivity extends BaseActivity<ChattingViewModel> {
         }
     }
 
-
     /**
      * @description 退出存储消息并释放连接
      */
     @Override
     public void onBackPressed() {
-        getViewModel().exit();
-        getViewModel().messageSave();
-        getViewModel().saveMessageAccounts();
-        try {
-            Thread.sleep(200);
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        }finally {
-            finish();
-        }
-        super.onBackPressed();
+        finish();
     }
 
     @Override
@@ -137,7 +121,42 @@ public class ChattingActivity extends BaseActivity<ChattingViewModel> {
     }
 
     @Override
+    protected void onStart() {
+        super.onStart();
+        LogUtil.d(TAG,"onStart");
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        LogUtil.d(TAG,"onResume");
+    }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+        LogUtil.d(TAG,"onPause");
+        getViewModel().exit();
+        getViewModel().messageSave();
+        getViewModel().saveMessageAccounts();
+        finish();
+    }
+
+    @Override
+    protected void onStop() {
+        super.onStop();
+        LogUtil.d(TAG,"onStop");
+    }
+
+    @Override
     protected void onDestroy() {
         super.onDestroy();
+        LogUtil.d(TAG,"onDestroy");
+    }
+
+    @Override
+    protected void onRestart() {
+        super.onRestart();
+        LogUtil.d(TAG,"onRestart");
     }
 }

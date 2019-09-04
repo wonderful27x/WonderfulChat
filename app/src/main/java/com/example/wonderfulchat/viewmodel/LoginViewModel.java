@@ -41,7 +41,6 @@ public class LoginViewModel extends BaseViewModel<Activity> {
     private static final String TAG = "LoginViewModel";
     private ActivityLoginBinding loginBinding;
     private LoadingDialog loadingDialog;
-    private boolean clickAble = true;
 
     /**
      * dataBinding变量监听，当值改变是与值绑定的控件状态也会改变
@@ -83,8 +82,8 @@ public class LoginViewModel extends BaseViewModel<Activity> {
      * @param view
      */
     public void login(View view){
-        if (clickAble){
-            clickAble = false;
+        if (!WonderfulChatActivity.loginLock){
+            WonderfulChatActivity.loginLock = true;
         }else {
             return;
         }
@@ -103,7 +102,6 @@ public class LoginViewModel extends BaseViewModel<Activity> {
                 getView().runOnUiThread(new Runnable() {
                     @Override
                     public void run() {
-                        clickAble = true;
                         loadingDialog.dialogDismiss();
                         getUserMessage(response);
                     }
@@ -115,7 +113,7 @@ public class LoginViewModel extends BaseViewModel<Activity> {
                 getView().runOnUiThread(new Runnable() {
                     @Override
                     public void run() {
-                        clickAble = true;
+                        WonderfulChatActivity.loginLock = false;
                         loadingDialog.dialogDismiss();
                         ToastUtil.showToast("登录失败！");
                         LogUtil.e(TAG,"登录失败: "+e.getMessage());
@@ -195,9 +193,11 @@ public class LoginViewModel extends BaseViewModel<Activity> {
         Gson gson = new Gson();
         HttpUserModel httpUserModel = gson.fromJson(jsonData, HttpUserModel.class);
         if(httpUserModel == null){
+            WonderfulChatActivity.loginLock = false;
             return;
         }
         if ("success".equals(httpUserModel.getResult())){
+            WonderfulChatActivity.loginLock = true;
             accountPassSave(isChecked.get());
 
             List<UserModel> userModels = httpUserModel.getContent();
@@ -206,9 +206,11 @@ public class LoginViewModel extends BaseViewModel<Activity> {
             getView().startActivity(intent);
             getView().finish();
         }else if("fail".equals(httpUserModel.getResult())){
+            WonderfulChatActivity.loginLock = false;
             ToastUtil.showToast(httpUserModel.getMessage());
             LogUtil.d(TAG,httpUserModel.getMessage());
         }else if("error".equals(httpUserModel.getResult())){
+            WonderfulChatActivity.loginLock = false;
             ToastUtil.showToast("登录失败！");
             LogUtil.d(TAG,httpUserModel.getMessage());
         }

@@ -69,8 +69,8 @@ public class WonderfulChatActivity extends BaseActivity <WonderfulChatViewModel>
     private LocalReceiver localReceiver;
     private LocalBroadcastManager broadcastManager;
     private IntentFilter intentFilter;
-     /** 免登录变量，如果未退出下次直接跳转到此Activity**/
-    public static boolean isLogin;
+     /** 登录锁，避免此Activity被多次启动创建多个实例**/
+    public static boolean loginLock = false;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -92,14 +92,48 @@ public class WonderfulChatActivity extends BaseActivity <WonderfulChatViewModel>
         initLeftDrawer(chatBinding);
         getViewModel().initView(broadcastManager);
 
-        isLogin = true;
+        LogUtil.d(TAG,"onCreate");
 
+    }
+
+    @Override
+    protected void onStart() {
+        super.onStart();
+        LogUtil.d(TAG,"onStart");
     }
 
     @Override
     protected void onResume() {
         super.onResume();
         getViewModel().getNotice();
+        LogUtil.d(TAG,"onResume");
+    }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+        LogUtil.d(TAG,"onPause");
+    }
+
+    @Override
+    protected void onStop() {
+        super.onStop();
+        LogUtil.d(TAG,"onStop");
+    }
+
+    @Override
+    protected void onDestroy() {
+        loginLock = false;
+        broadcastManager.unregisterReceiver(localReceiver);
+        logoutBeforeDestroy();
+        super.onDestroy();
+        LogUtil.d(TAG,"destroy");
+    }
+
+    @Override
+    protected void onRestart() {
+        super.onRestart();
+        LogUtil.d(TAG,"onRestart");
     }
 
     /**
@@ -419,15 +453,6 @@ public class WonderfulChatActivity extends BaseActivity <WonderfulChatViewModel>
             default:
                 break;
         }
-    }
-
-    @Override
-    protected void onDestroy() {
-        isLogin = false;
-        broadcastManager.unregisterReceiver(localReceiver);
-        logoutBeforeDestroy();
-        LogUtil.d(TAG,"destroy");
-        super.onDestroy();
     }
 
     /**
